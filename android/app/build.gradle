@@ -1,0 +1,56 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.streetviewhyperlapse'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.streetviewhyperlapse"
+        minSdk 24          // Android 7.0 (WebGL サポートに必要)
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    // web アセットを assets/ ディレクトリにコピーするタスク
+    // ビルド前に ../../../web/ の内容を assets/ へ同期する
+    sourceSets {
+        main {
+            assets {
+                srcDirs = ['src/main/assets']
+            }
+        }
+    }
+}
+
+dependencies {
+    // WebView は Android SDK に含まれるため追加依存なし
+}
+
+// web ディレクトリのファイルを assets にコピーするタスク
+task syncWebAssets(type: Copy) {
+    from '../../web'
+    into 'src/main/assets'
+    include '**/*'
+}
+
+// preBuild の前に web アセットを同期
+preBuild.dependsOn syncWebAssets

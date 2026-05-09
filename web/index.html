@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Street View Hyperlapse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Setup Panel -->
+  <div id="setup-panel">
+    <div class="panel-header">
+      <h1>Street View Hyperlapse</h1>
+      <p class="subtitle">始点と終点を地図上でクリックして選択してください</p>
+    </div>
+
+    <div class="step-indicator">
+      <div class="step active" id="step-1">
+        <span class="step-num">1</span>
+        <span class="step-label">始点を選択</span>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step" id="step-2">
+        <span class="step-num">2</span>
+        <span class="step-label">終点を選択</span>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step" id="step-3">
+        <span class="step-num">3</span>
+        <span class="step-label">速度を選択</span>
+      </div>
+    </div>
+
+    <div id="map-container">
+      <div id="map"></div>
+      <div id="map-instruction">クリックして始点を選択</div>
+    </div>
+
+    <div class="controls-row">
+      <div class="location-inputs">
+        <div class="location-field">
+          <label>始点</label>
+          <div class="coord-display" id="origin-display">未選択</div>
+          <button class="btn-small btn-reset-point" onclick="resetPoint('origin')">リセット</button>
+        </div>
+        <div class="location-field">
+          <label>終点</label>
+          <div class="coord-display" id="dest-display">未選択</div>
+          <button class="btn-small btn-reset-point" onclick="resetPoint('destination')">リセット</button>
+        </div>
+      </div>
+
+      <div class="speed-selector">
+        <label>再生速度</label>
+        <div class="speed-options">
+          <button class="speed-btn active" id="speed-walk" onclick="setSpeed('walk')">
+            <span class="speed-icon">🚶</span>
+            <span class="speed-name">散歩</span>
+            <span class="speed-desc">~5 km/h</span>
+          </button>
+          <button class="speed-btn" id="speed-drive" onclick="setSpeed('drive')">
+            <span class="speed-icon">🚗</span>
+            <span class="speed-name">ドライブ</span>
+            <span class="speed-desc">~40 km/h</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <button id="start-btn" class="btn-primary" onclick="startHyperlapse()" disabled>
+        Hyperlapse を開始
+      </button>
+      <div id="api-key-notice" class="notice">
+        ※ Google Maps API キーを <code>js/config.js</code> に設定してください
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" style="display:none;">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div id="loading-message">ルートを計算中...</div>
+      <div id="loading-progress-wrap" style="display:none;">
+        <div id="loading-progress-bar"><div id="loading-progress-fill"></div></div>
+        <div id="loading-progress-text">0 / 0</div>
+      </div>
+      <button id="cancel-btn" class="btn-cancel" onclick="cancelLoad()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- Player Screen -->
+  <div id="player-screen" style="display:none;">
+    <div id="hyperlapse-container"></div>
+
+    <!-- HUD overlay -->
+    <div id="hud">
+      <div id="hud-top">
+        <button class="hud-btn" id="back-to-setup" onclick="backToSetup()">← 設定に戻る</button>
+        <div id="speed-badge"></div>
+      </div>
+
+      <div id="hud-bottom">
+        <div id="progress-wrap">
+          <div id="progress-bar-bg">
+            <div id="progress-bar-fill"></div>
+          </div>
+          <div id="frame-counter">0 / 0</div>
+        </div>
+
+        <div id="playback-controls">
+          <button class="ctrl-btn" id="btn-prev" onclick="hyperlapseControl('prev')" title="前へ">⏮</button>
+          <button class="ctrl-btn ctrl-btn-main" id="btn-play" onclick="hyperlapseControl('play')" title="再生/一時停止">▶</button>
+          <button class="ctrl-btn" id="btn-next" onclick="hyperlapseControl('next')" title="次へ">⏭</button>
+        </div>
+
+        <div id="speed-controls-hud">
+          <button class="speed-hud-btn active" id="hud-walk" onclick="changeSpeedHUD('walk')">🚶 散歩</button>
+          <button class="speed-hud-btn" id="hud-drive" onclick="changeSpeedHUD('drive')">🚗 ドライブ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/three.min.js"></script>
+  <script src="js/GSVPano.js"></script>
+  <script src="js/hyperlapse.js"></script>
+  <script src="js/config.js"></script>
+  <script>
+    // Google Maps API を動的にロード（config.js の GOOGLE_MAPS_API_KEY を使用）
+    (function() {
+      var script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + GOOGLE_MAPS_API_KEY +
+        '&libraries=geometry&callback=initMap';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  </script>
+  <script src="js/app.js"></script>
+</body>
+</html>

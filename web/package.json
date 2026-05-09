@@ -1,0 +1,13 @@
+{
+  "name": "street-view-hyperlapse",
+  "version": "1.0.0",
+  "description": "Google Street View Hyperlapse player for PC browsers",
+  "scripts": {
+    "start": "http-server . -p 8080 --cors -o",
+    "build": "node build.js",
+    "validate": "node --check js/app.js && node --check js/hyperlapse.js && node --check js/GSVPano.js && echo '✓ All JS files valid'"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

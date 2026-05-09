@@ -1,0 +1,25 @@
+# Web
+web/dist/
+node_modules/
+
+# Android build output
+android/.gradle/
+android/app/build/
+android/local.properties
+android/app/src/main/assets/
+
+# Signing keys
+*.jks
+*.keystore
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
+
+# Gradle wrapper partial downloads
+*.zip.part
+*.zip.lck

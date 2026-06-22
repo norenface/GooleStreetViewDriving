@@ -84,7 +84,7 @@
     // Run one full turn for game.currentPlayer (one or two actions per the rules
     // above), then advance to the next player. Returns when the turn is over or the
     // game has ended (game.winner set).
-    async function runTurn(game) {
+    async function runTurn(game, opts) {
       var player = game.players[game.currentPlayer];
       var actionsThisTurn = (game.firstTurnSingleActionFor && game.firstTurnSingleActionFor[player.id]) ? 1 : 2;
       if (game.firstTurnSingleActionFor) delete game.firstTurnSingleActionFor[player.id];
@@ -93,18 +93,23 @@
         var ctx = { game: game, player: player, legal: legalActions(game, player) };
         var action = await player.controller.chooseAction(player, ctx);
         await performAction(game, player, action);
+        if (opts && opts.onAction) opts.onAction(game);
         if (game.winner != null) return;
       }
       engine.nextPlayer(game);
     }
 
+    // opts.onAction(game), if given, is called after every individual action (draw/meld/
+    // dogma/achieve) and once right after setup - lets a UI re-render mid-turn rather than
+    // only once a full turn (up to two actions) has completed.
     async function playFullGame(game, opts) {
       opts = opts || {};
       var maxTurns = opts.maxTurns || 10000;
       await setupGame(game);
+      if (opts.onAction) opts.onAction(game);
       var turns = 0;
       while (game.winner == null && turns < maxTurns) {
-        await runTurn(game);
+        await runTurn(game, opts);
         turns++;
       }
       return game;

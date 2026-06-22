@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Innovation</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="setup-screen">
+  <h1>Innovation — Solo / vs PC</h1>
+  <label for="player-count">Number of players</label>
+  <select id="player-count">
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+  <div id="opponent-rows"></div>
+  <button id="start-game-btn" class="btn btn-primary" style="margin-top:16px;">Start Game</button>
+</div>
+
+<div id="game-screen" class="hidden">
+  <div id="game-over-banner" class="hidden"></div>
+  <div id="log-panel"></div>
+  <div id="players-area"></div>
+  <div id="action-bar"></div>
+</div>
+
+<div id="modal-overlay" class="hidden">
+  <div id="modal-box">
+    <div id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div id="modal-footer"></div>
+  </div>
+</div>
+
+<script src="js/engine.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/flow.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/controllers/humanController.js"></script>
+<script src="js/controllers/randomController.js"></script>
+<script src="js/controllers/aiController.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

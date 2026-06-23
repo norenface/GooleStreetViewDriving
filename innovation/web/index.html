@@ -15,8 +15,12 @@
     <option value="2">2</option>
     <option value="3">3</option>
     <option value="4">4</option>
+    <option value="solo">Solo (vs Ruling Party)</option>
   </select>
   <div id="opponent-rows"></div>
+  <p id="solo-info" class="hidden">SoloPlay variant: draw/meld/dogma/achieve against an automated "Ruling Party" that
+    only draws and melds cards, but forces a shared culture track upward every turn. Beat its scoring goal at game end
+    to win. (Fan variant by BGG user GameRulesforOne; base-game cards only.)</p>
   <button id="start-game-btn" class="btn btn-primary" style="margin-top:16px;">Start Game</button>
 </div>
 
@@ -39,10 +43,12 @@
 <script src="js/cards.js"></script>
 <script src="js/effects.js"></script>
 <script src="js/flow.js"></script>
+<script src="js/soloplay.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/controllers/humanController.js"></script>
 <script src="js/controllers/randomController.js"></script>
 <script src="js/controllers/aiController.js"></script>
+<script src="js/controllers/soloBotController.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -11,6 +11,7 @@
   var cardsDb = window.InnovationCards;
   var effects = window.InnovationEffects(engine);
   var flow = window.InnovationFlow(engine, effects);
+  var soloplay = window.InnovationSoloPlay(engine, effects);
   var ui = window.InnovationUI.makeUI(engine, cardsDb);
 
   var HUMAN_SEAT = 0;
@@ -19,9 +20,18 @@
   var gameScreen = document.getElementById('game-screen');
   var playerCountSelect = document.getElementById('player-count');
   var opponentRows = document.getElementById('opponent-rows');
+  var soloInfo = document.getElementById('solo-info');
   var startBtn = document.getElementById('start-game-btn');
 
   function renderOpponentRows() {
+    if (playerCountSelect.value === 'solo') {
+      opponentRows.innerHTML = '';
+      opponentRows.classList.add('hidden');
+      soloInfo.classList.remove('hidden');
+      return;
+    }
+    opponentRows.classList.remove('hidden');
+    soloInfo.classList.add('hidden');
     var n = parseInt(playerCountSelect.value, 10);
     opponentRows.innerHTML = '';
     for (var i = 1; i < n; i++) {
@@ -47,6 +57,10 @@
   renderOpponentRows();
 
   startBtn.addEventListener('click', function () {
+    if (playerCountSelect.value === 'solo') {
+      startSoloGame();
+      return;
+    }
     var n = parseInt(playerCountSelect.value, 10);
     var specs = [{ name: 'You', kind: 'human' }];
     var opponentKinds = [];
@@ -85,4 +99,28 @@
       banner.classList.remove('hidden');
     });
   });
+
+  function startSoloGame() {
+    var game = soloplay.makeSoloGame(cardsDb, 'You');
+    ui.setHumanPlayer(HUMAN_SEAT);
+    game.players[HUMAN_SEAT].controller = window.InnovationHumanController.makeHumanController(ui);
+    game.players[1].controller = window.InnovationSoloBotController.makeSoloBotController(cardsDb);
+
+    setupScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+
+    soloplay.playSoloGame(game, {
+      maxTurns: 1500,
+      onAction: function (g) { ui.render(g); }
+    }).then(function (finishedGame) {
+      ui.render(finishedGame);
+      ui.showSoloGameOver(finishedGame);
+    }).catch(function (err) {
+      console.error(err);
+      ui.render(game);
+      var banner = document.getElementById('game-over-banner');
+      banner.textContent = 'An error occurred: ' + err.message;
+      banner.classList.remove('hidden');
+    });
+  }
 })();

@@ -95,6 +95,10 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .zone-label { font-size: 0.8rem; color: #b7bfc8; margin-bottom: 4px; }
 .zone-cards { display: flex; gap: 6px; flex-wrap: wrap; }
 
+.culture-track { background: #2a2e34; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; }
+.culture-track-row { display: flex; gap: 14px; flex-wrap: wrap; }
+.culture-track-cell { font-size: 0.95rem; }
+
 .card-chip {
   border-radius: 6px;
   padding: 4px 6px;

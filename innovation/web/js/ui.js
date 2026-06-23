@@ -153,6 +153,31 @@
         panel.appendChild(zones);
         el.players.appendChild(panel);
       });
+
+      if (game.solo) renderCultureTrack();
+    }
+
+    function renderCultureTrack() {
+      var existing = document.getElementById('culture-track');
+      if (existing) existing.remove();
+      var box = document.createElement('div');
+      box.id = 'culture-track';
+      box.className = 'culture-track';
+      var label = document.createElement('div');
+      label.className = 'zone-label';
+      label.textContent = 'Culture track (Ruling Party goal: ' + game.soloGoal + ')';
+      box.appendChild(label);
+      var row = document.createElement('div');
+      row.className = 'culture-track-row';
+      engine.ICONS.forEach(function (icon) {
+        var pos = game.cultureTrack[icon];
+        var cell = document.createElement('span');
+        cell.className = 'culture-track-cell';
+        cell.textContent = ICON_GLYPH[icon] + ' ' + pos;
+        row.appendChild(cell);
+      });
+      box.appendChild(row);
+      el.players.insertBefore(box, el.players.firstChild);
     }
 
     function zoneLabel(text) {
@@ -169,6 +194,21 @@
         el.gameOver.textContent = 'The game ends in a draw.';
       } else {
         el.gameOver.textContent = g.players[g.winner].name + ' wins! (' + g.endReason + ')';
+      }
+      el.gameOver.classList.remove('hidden');
+      el.actionBar.innerHTML = '';
+    }
+
+    function showSoloGameOver(g) {
+      var r = g.soloResult;
+      if (!r) {
+        el.gameOver.textContent = 'Game ended (turn limit reached, no result computed).';
+      } else if (r.victory) {
+        el.gameOver.textContent = 'Victory! You scored ' + r.humanTotal + ' against the Ruling Party\'s goal of ' +
+          r.goalTotal + '. Culture rating: ' + r.cultureRating + ' (' + r.cultureName + ').';
+      } else {
+        el.gameOver.textContent = 'Defeat. You scored ' + r.humanTotal + ', but the Ruling Party reached ' +
+          r.goalTotal + '.';
       }
       el.gameOver.classList.remove('hidden');
       el.actionBar.innerHTML = '';
@@ -341,6 +381,7 @@
       setHumanPlayer: setHumanPlayer,
       render: render,
       showGameOver: showGameOver,
+      showSoloGameOver: showSoloGameOver,
       askAction: askAction,
       askCard: askCard,
       askColor: askColor,

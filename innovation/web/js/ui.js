@@ -22,6 +22,9 @@
     monument: '🗿', empire: '🎖️', wonder: '✨',
     world: '🌍', universe: '🌌'
   };
+  var COLOR_JA = { yellow: '黄', red: '赤', green: '緑', blue: '青', purple: '紫' };
+  var DIR_JA = { left: '左', right: '右', up: '上' };
+  var KIND_JA = { ai: 'CPU', soloBot: '支配政党', human: '人間' };
 
   function makeUI(engine, cardsDb) {
     var byId = {};
@@ -96,8 +99,8 @@
 
         var header = document.createElement('div');
         header.className = 'player-header';
-        header.textContent = p.name + (p.id === humanPlayerId ? ' (You)' : ' (' + p.kind + ')') +
-          ' — score ' + engine.scoreValue(game, p) + ', achievements ' + p.achievements.length;
+        header.textContent = p.name + (p.id === humanPlayerId ? '（あなた）' : '（' + (KIND_JA[p.kind] || p.kind) + '）') +
+          ' — 得点 ' + engine.scoreValue(game, p) + '、達成 ' + p.achievements.length;
         panel.appendChild(header);
 
         if (p.achievements.length) {
@@ -106,7 +109,7 @@
           p.achievements.forEach(function (a) {
             var s = document.createElement('span');
             s.className = 'achievement-badge';
-            s.textContent = ACHIEVEMENT_GLYPH[a] || ('Age ' + a.replace('age', ''));
+            s.textContent = ACHIEVEMENT_GLYPH[a] || ('時代' + a.replace('age', ''));
             ach.appendChild(s);
           });
           panel.appendChild(ach);
@@ -120,7 +123,7 @@
           col.className = 'board-column';
           var colHeader = document.createElement('div');
           colHeader.className = 'column-header color-' + color;
-          colHeader.textContent = color + (stack.cards.length > 1 ? ' (' + stack.splay + ')' : '');
+          colHeader.textContent = COLOR_JA[color] + (stack.cards.length > 1 ? '（' + DIR_JA[stack.splay] + 'スプレイ）' : '');
           col.appendChild(colHeader);
           stack.cards.slice().reverse().forEach(function (cardId, idx) {
             col.appendChild(cardChip(cardId, { dim: idx !== 0 }));
@@ -135,19 +138,19 @@
         var handZone = document.createElement('div');
         handZone.className = 'zone';
         if (p.id === humanPlayerId) {
-          handZone.appendChild(zoneLabel('Hand (' + p.hand.length + ')'));
+          handZone.appendChild(zoneLabel('手札（' + p.hand.length + '）'));
           var handCards = document.createElement('div');
           handCards.className = 'zone-cards';
           p.hand.forEach(function (id) { handCards.appendChild(cardChip(id)); });
           handZone.appendChild(handCards);
         } else {
-          handZone.appendChild(zoneLabel('Hand: ' + p.hand.length + ' card(s)'));
+          handZone.appendChild(zoneLabel('手札：' + p.hand.length + '枚'));
         }
         zones.appendChild(handZone);
 
         var scoreZone = document.createElement('div');
         scoreZone.className = 'zone';
-        scoreZone.appendChild(zoneLabel('Score pile: ' + p.score.length + ' card(s), value ' + engine.scoreValue(game, p)));
+        scoreZone.appendChild(zoneLabel('得点パイル：' + p.score.length + '枚（価値 ' + engine.scoreValue(game, p) + '）'));
         zones.appendChild(scoreZone);
 
         panel.appendChild(zones);
@@ -165,7 +168,7 @@
       box.className = 'culture-track';
       var label = document.createElement('div');
       label.className = 'zone-label';
-      label.textContent = 'Culture track (Ruling Party goal: ' + game.soloGoal + ')';
+      label.textContent = '文化トラック（支配政党の目標：' + game.soloGoal + '）';
       box.appendChild(label);
       var row = document.createElement('div');
       row.className = 'culture-track-row';
@@ -189,11 +192,11 @@
 
     function showGameOver(g) {
       if (g.winner == null) {
-        el.gameOver.textContent = 'Game ended without a winner (turn limit reached).';
+        el.gameOver.textContent = '勝者なしでゲームが終了しました（ターン上限に到達）。';
       } else if (g.winner === 'draw') {
-        el.gameOver.textContent = 'The game ends in a draw.';
+        el.gameOver.textContent = 'ゲームは引き分けで終了しました。';
       } else {
-        el.gameOver.textContent = g.players[g.winner].name + ' wins! (' + g.endReason + ')';
+        el.gameOver.textContent = g.players[g.winner].name + ' の勝利！（' + g.endReason + '）';
       }
       el.gameOver.classList.remove('hidden');
       el.actionBar.innerHTML = '';
@@ -202,13 +205,13 @@
     function showSoloGameOver(g) {
       var r = g.soloResult;
       if (!r) {
-        el.gameOver.textContent = 'Game ended (turn limit reached, no result computed).';
+        el.gameOver.textContent = 'ゲームが終了しました（ターン上限に到達、結果は未計算）。';
       } else if (r.victory) {
-        el.gameOver.textContent = 'Victory! You scored ' + r.humanTotal + ' against the Ruling Party\'s goal of ' +
-          r.goalTotal + '. Culture rating: ' + r.cultureRating + ' (' + r.cultureName + ').';
+        el.gameOver.textContent = '勝利！ あなたの得点は ' + r.humanTotal + '、支配政党の目標は ' +
+          r.goalTotal + ' でした。文化評価：' + r.cultureRating + '（' + r.cultureName + '）。';
       } else {
-        el.gameOver.textContent = 'Defeat. You scored ' + r.humanTotal + ', but the Ruling Party reached ' +
-          r.goalTotal + '.';
+        el.gameOver.textContent = '敗北。あなたの得点は ' + r.humanTotal + 'でしたが、支配政党は ' +
+          r.goalTotal + ' に到達しました。';
       }
       el.gameOver.classList.remove('hidden');
       el.actionBar.innerHTML = '';
@@ -245,7 +248,7 @@
         el.actionBar.innerHTML = '';
         var label = document.createElement('div');
         label.className = 'action-bar-label';
-        label.textContent = 'Your turn — choose an action:';
+        label.textContent = 'あなたの番です — 行動を選んでください：';
         el.actionBar.appendChild(label);
         ctx.legal.forEach(function (action) {
           var b = document.createElement('button');
@@ -261,14 +264,14 @@
     }
 
     function describeAction(g, player, action) {
-      if (action.type === 'draw') return 'Draw a card';
-      if (action.type === 'meld') return 'Meld ' + byId[action.cardId].name;
+      if (action.type === 'draw') return 'カードを引く';
+      if (action.type === 'meld') return byId[action.cardId].name + ' をメルドする';
       if (action.type === 'dogma') {
         var topId = engine.topCard(player, action.color);
         var topName = topId != null ? byId[topId].name : '';
-        return 'Activate ' + action.color + ' dogma (' + topName + ')';
+        return COLOR_JA[action.color] + 'のドグマを発動する（' + topName + '）';
       }
-      if (action.type === 'achieve') return 'Claim age ' + action.age + ' achievement';
+      if (action.type === 'achieve') return '時代' + action.age + 'の達成カードを獲得する';
       return action.type;
     }
 
@@ -278,7 +281,7 @@
       var max = opts.max == null ? ids.length : opts.max;
       if (!ids.length) return Promise.resolve([]);
       return new Promise(function (resolve) {
-        openModal(opts.prompt || 'Choose cards');
+        openModal(opts.prompt || 'カードを選択');
         var selected = [];
         var chips = {};
         var confirmBtn;
@@ -307,10 +310,10 @@
 
         var hint = document.createElement('div');
         hint.className = 'modal-hint';
-        hint.textContent = min === max ? ('Choose exactly ' + min + '.') : ('Choose between ' + min + ' and ' + max + '.');
+        hint.textContent = min === max ? ('ちょうど' + min + '枚選んでください。') : (min + '〜' + max + '枚選んでください。');
         el.modalBody.appendChild(hint);
 
-        confirmBtn = footerButton('Confirm', function () {
+        confirmBtn = footerButton('確定', function () {
           closeModal();
           resolve(selected);
         }, { primary: true, disabled: min > 0 });
@@ -322,16 +325,16 @@
       var colors = opts.colors || [];
       if (!colors.length) return Promise.resolve(null);
       return new Promise(function (resolve) {
-        openModal(opts.prompt || 'Choose a color');
+        openModal(opts.prompt || '色を選択');
         colors.forEach(function (c) {
           var b = document.createElement('button');
           b.className = 'btn color-' + c;
-          b.textContent = c;
+          b.textContent = COLOR_JA[c] || c;
           b.addEventListener('click', function () { closeModal(); resolve(c); });
           el.modalBody.appendChild(b);
         });
         if (opts.optional) {
-          footerButton('Skip', function () { closeModal(); resolve(null); });
+          footerButton('スキップ', function () { closeModal(); resolve(null); });
         }
       });
     }
@@ -340,16 +343,16 @@
       var options = opts.options || [];
       if (!options.length) return Promise.resolve(null);
       return new Promise(function (resolve) {
-        openModal(opts.prompt || 'Choose a splay');
+        openModal(opts.prompt || 'スプレイを選択');
         options.forEach(function (o) {
           var b = document.createElement('button');
           b.className = 'btn color-' + o.color;
-          b.textContent = o.color + ' → splay ' + o.direction;
+          b.textContent = COLOR_JA[o.color] + ' → ' + DIR_JA[o.direction] + 'にスプレイ';
           b.addEventListener('click', function () { closeModal(); resolve(o); });
           el.modalBody.appendChild(b);
         });
         if (opts.optional) {
-          footerButton('Skip', function () { closeModal(); resolve(null); });
+          footerButton('スキップ', function () { closeModal(); resolve(null); });
         }
       });
     }
@@ -358,7 +361,7 @@
       var ids = opts.ids || [];
       if (!ids.length) return Promise.resolve(null);
       return new Promise(function (resolve) {
-        openModal(opts.prompt || 'Choose a player');
+        openModal(opts.prompt || 'プレイヤーを選択');
         ids.forEach(function (id) {
           var b = document.createElement('button');
           b.className = 'btn';
@@ -371,9 +374,9 @@
 
     function askConfirm(player, prompt) {
       return new Promise(function (resolve) {
-        openModal(prompt || 'Confirm?');
-        footerButton('Yes', function () { closeModal(); resolve(true); }, { primary: true });
-        footerButton('No', function () { closeModal(); resolve(false); });
+        openModal(prompt || '確認しますか？');
+        footerButton('はい', function () { closeModal(); resolve(true); }, { primary: true });
+        footerButton('いいえ', function () { closeModal(); resolve(false); });
       });
     }
 

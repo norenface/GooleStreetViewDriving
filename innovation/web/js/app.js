@@ -38,13 +38,13 @@
       var row = document.createElement('div');
       row.className = 'opponent-row';
       var label = document.createElement('span');
-      label.textContent = 'Player ' + (i + 1);
+      label.textContent = 'プレイヤー ' + (i + 1);
       var select = document.createElement('select');
       select.dataset.seat = i;
       ['ai', 'random'].forEach(function (kind) {
         var opt = document.createElement('option');
         opt.value = kind;
-        opt.textContent = kind === 'ai' ? 'CPU (smart)' : 'CPU (random)';
+        opt.textContent = kind === 'ai' ? 'CPU（賢い）' : 'CPU（ランダム）';
         select.appendChild(opt);
       });
       row.appendChild(label);
@@ -62,14 +62,14 @@
       return;
     }
     var n = parseInt(playerCountSelect.value, 10);
-    var specs = [{ name: 'You', kind: 'human' }];
+    var specs = [{ name: 'あなた', kind: 'human' }];
     var opponentKinds = [];
     opponentRows.querySelectorAll('select').forEach(function (sel) {
       opponentKinds.push(sel.value);
     });
     for (var i = 1; i < n; i++) {
       var kind = opponentKinds[i - 1] || 'ai';
-      specs.push({ name: 'CPU ' + i + (kind === 'random' ? ' (random)' : ''), kind: 'ai' });
+      specs.push({ name: 'CPU' + i + (kind === 'random' ? '（ランダム）' : ''), kind: 'ai' });
     }
 
     var game = engine.createGame(cardsDb, specs);
@@ -95,13 +95,13 @@
       console.error(err);
       ui.render(game);
       var banner = document.getElementById('game-over-banner');
-      banner.textContent = 'An error occurred: ' + err.message;
+      banner.textContent = 'エラーが発生しました: ' + err.message;
       banner.classList.remove('hidden');
     });
   });
 
   function startSoloGame() {
-    var game = soloplay.makeSoloGame(cardsDb, 'You');
+    var game = soloplay.makeSoloGame(cardsDb, 'あなた');
     ui.setHumanPlayer(HUMAN_SEAT);
     game.players[HUMAN_SEAT].controller = window.InnovationHumanController.makeHumanController(ui);
     game.players[1].controller = window.InnovationSoloBotController.makeSoloBotController(cardsDb);
@@ -119,7 +119,7 @@
       console.error(err);
       ui.render(game);
       var banner = document.getElementById('game-over-banner');
-      banner.textContent = 'An error occurred: ' + err.message;
+      banner.textContent = 'エラーが発生しました: ' + err.message;
       banner.classList.remove('hidden');
     });
   }

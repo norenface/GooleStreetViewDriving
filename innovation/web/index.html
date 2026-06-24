@@ -9,19 +9,19 @@
 <body>
 
 <div id="setup-screen">
-  <h1>Innovation — Solo / vs PC</h1>
-  <label for="player-count">Number of players</label>
+  <h1>Innovation — ソロプレイ / PC対戦</h1>
+  <label for="player-count">プレイヤー人数</label>
   <select id="player-count">
     <option value="2">2</option>
     <option value="3">3</option>
     <option value="4">4</option>
-    <option value="solo">Solo (vs Ruling Party)</option>
+    <option value="solo">ソロプレイ（支配政党と対戦）</option>
   </select>
   <div id="opponent-rows"></div>
-  <p id="solo-info" class="hidden">SoloPlay variant: draw/meld/dogma/achieve against an automated "Ruling Party" that
-    only draws and melds cards, but forces a shared culture track upward every turn. Beat its scoring goal at game end
-    to win. (Fan variant by BGG user GameRulesforOne; base-game cards only.)</p>
-  <button id="start-game-btn" class="btn btn-primary" style="margin-top:16px;">Start Game</button>
+  <p id="solo-info" class="hidden">ソロプレイ・バリアント：ドロー/メルド/ドグマ発動/達成を行いながら、カードを引いてメルドするだけの自動プレイヤー
+    「支配政党（Ruling Party）」と対戦します。支配政党は毎ターン共有の文化トラックを進めてきます。ゲーム終了時に支配政党の得点目標を
+    上回れば勝利です。（BGGユーザーGameRulesforOneによるファン考案バリアント。基本セットのカードのみ使用）</p>
+  <button id="start-game-btn" class="btn btn-primary" style="margin-top:16px;">ゲーム開始</button>
 </div>
 
 <div id="game-screen" class="hidden">

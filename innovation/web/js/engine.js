@@ -13,6 +13,11 @@
   var ICONS = ['leaf', 'crown', 'lightbulb', 'factory', 'castle', 'clock'];
   var SPECIAL_ACHIEVEMENTS = ['monument', 'empire', 'wonder', 'world', 'universe'];
 
+  var COLOR_JA = { yellow: '黄', red: '赤', green: '緑', blue: '青', purple: '紫' };
+  var DIR_JA = { left: '左', right: '右', up: '上' };
+  var ZONE_JA = { hand: '手札', score: '得点パイル', board: 'ボード' };
+  var ACHIEVEMENT_JA = { monument: '記念碑', empire: '帝国', wonder: '驚異', world: '世界', universe: '宇宙' };
+
   function shuffle(arr, rng) {
     rng = rng || Math.random;
     for (var i = arr.length - 1; i > 0; i--) {
@@ -110,7 +115,7 @@
     var res = pileTake(game, age);
     if (!res) { maybeEndByExhaustion(game, age); return null; }
     player.hand.push(res.id);
-    log(game, player.name + ' draws ' + card(game, res.id).name);
+    log(game, player.name + ' は ' + card(game, res.id).name + ' を引いた');
     if (res.age >= 11) endGameByTimePassing(game);
     return res.id;
   }
@@ -138,8 +143,8 @@
       best = finalists;
     }
     game.winner = best.length === 1 ? best[0].id : 'draw';
-    log(game, 'Time has passed beyond age 10. Game ends. ' +
-      (game.winner === 'draw' ? 'It is a draw.' : game.players[game.winner].name + ' wins by score!'));
+    log(game, '時代10を超えて時間が経過した。ゲーム終了。' +
+      (game.winner === 'draw' ? '引き分けです。' : game.players[game.winner].name + ' が得点で勝利！'));
   }
 
   function scoreValue(game, player) {
@@ -153,7 +158,7 @@
     if (idx === -1) return false;
     player.hand.splice(idx, 1);
     player.board[c.color].cards.push(cardId);
-    log(game, player.name + ' melds ' + c.name);
+    log(game, player.name + ' は ' + c.name + ' をメルドした');
     if (!opts.silent) onMeld(game, player, c);
     checkAllSpecialAchievements(game);
     return true;
@@ -182,7 +187,7 @@
     var c = card(game, cardId);
     player.board[c.color].cards.unshift(cardId);
     player.tuckOrScoreCountThisTurn = (player.tuckOrScoreCountThisTurn || 0) + 1;
-    log(game, player.name + ' tucks ' + c.name);
+    log(game, player.name + ' は ' + c.name + ' をタックした');
     checkAllSpecialAchievements(game);
   }
 
@@ -192,7 +197,7 @@
     removeFromCurrentZone(player, cardId);
     player.score.push(cardId);
     player.tuckOrScoreCountThisTurn = (player.tuckOrScoreCountThisTurn || 0) + 1;
-    log(game, player.name + ' scores ' + card(game, cardId).name);
+    log(game, player.name + ' は ' + card(game, cardId).name + ' を得点した');
     checkAllSpecialAchievements(game);
   }
 
@@ -201,7 +206,7 @@
     if (idx === -1) return false;
     fromArray.splice(idx, 1);
     game.piles[card(game, cardId).age].push(cardId);
-    log(game, card(game, cardId).name + ' is returned to the supply.');
+    log(game, card(game, cardId).name + ' が補充パイルに戻された');
     return true;
   }
 
@@ -209,7 +214,7 @@
     var idx = fromArray.indexOf(cardId);
     if (idx === -1) return false;
     fromArray.splice(idx, 1);
-    log(game, card(game, cardId).name + ' is removed from the game.');
+    log(game, card(game, cardId).name + ' がゲームから除外された');
     return true;
   }
 
@@ -262,8 +267,8 @@
     } else {
       to.player[to.zone].push(cardId);
     }
-    log(game, card(game, cardId).name + ' moves from ' + from.player.name + "'s " + from.zone +
-      ' to ' + to.player.name + "'s " + to.zone + '.');
+    log(game, card(game, cardId).name + ' が ' + from.player.name + 'の' + (ZONE_JA[from.zone] || from.zone) +
+      ' から ' + to.player.name + 'の' + (ZONE_JA[to.zone] || to.zone) + ' に移動した');
     return true;
   }
 
@@ -272,7 +277,7 @@
     if (board.cards.length < 2) return false;
     if (board.splay === direction) return false;
     board.splay = direction;
-    log(game, player.name + ' splays ' + color + ' ' + direction + '.');
+    log(game, player.name + ' は ' + (COLOR_JA[color] || color) + ' を ' + (DIR_JA[direction] || direction) + 'にスプレイした');
     checkAllSpecialAchievements(game);
     return true;
   }
@@ -339,7 +344,7 @@
     if (!canAchieve(game, player, age)) return false;
     delete game.achievementsAvailable[age];
     player.achievements.push('age' + age);
-    log(game, player.name + ' claims the age ' + age + ' achievement!');
+    log(game, player.name + ' は時代' + age + 'の達成カードを獲得した！');
     checkWinByAchievements(game, player);
     return true;
   }
@@ -349,7 +354,7 @@
     if (!specialAchievementMet(game, player, name)) return false;
     game.specialAchievementsAvailable.splice(game.specialAchievementsAvailable.indexOf(name), 1);
     player.achievements.push(name);
-    log(game, player.name + ' claims the special achievement: ' + name + '!');
+    log(game, player.name + ' は特別達成カードを獲得した：' + (ACHIEVEMENT_JA[name] || name) + '！');
     checkWinByAchievements(game, player);
     return true;
   }
@@ -406,7 +411,7 @@
     if (teamTotal >= achievementsNeededToWin(game)) {
       game.winner = player.id;
       game.endReason = 'achievements';
-      log(game, player.name + ' wins the game with ' + teamTotal + ' achievements!');
+      log(game, player.name + ' は達成カード' + teamTotal + '個でゲームに勝利した！');
     }
   }
 
@@ -464,7 +469,7 @@
     var owner = null;
     COLORS.forEach(function (c) { if (topCard(player, c) === cardId) owner = c; });
     if (!owner) return false;
-    log(game, player.name + ' activates dogma on ' + card(game, cardId).name);
+    log(game, player.name + ' は ' + card(game, cardId).name + ' のドグマを発動した');
     await executeDogma(game, player, cardId, effectDefs, helpers);
     return true;
   }

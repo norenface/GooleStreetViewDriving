@@ -48,12 +48,14 @@
     var ICONS = engine.ICONS;
     var LINE_SIZE = 5; // positions per culture-track segment before a "scoring line"
     var LINE_ARRIVAL_BONUS = 5; // flat simplification of the source's 6-then-5 bonus
+    var ICON_JA = { leaf: '葉', crown: '王冠', lightbulb: '電球', factory: '工場', castle: '城', clock: '時計' };
+    var ACHIEVEMENT_JA = { monument: '記念碑', empire: '帝国', wonder: '驚異', world: '世界', universe: '宇宙' };
 
     function makeSoloGame(cardDb, humanName, opts) {
       opts = opts || {};
       var game = engine.createGame(cardDb, [
-        { name: humanName || 'You', kind: 'human' },
-        { name: 'Ruling Party', kind: 'soloBot' }
+        { name: humanName || 'あなた', kind: 'human' },
+        { name: '支配政党', kind: 'soloBot' }
       ], opts);
       game.solo = true;
       game.cultureTrack = {};
@@ -90,7 +92,7 @@
       rp.achievements.forEach(function (a) {
         if (specials.indexOf(a) !== -1) {
           game.specialAchievementsAvailable.push(a);
-          game.log.push('(SoloPlay) The Ruling Party cannot claim special achievements; ' + a + ' remains available.');
+          game.log.push('（ソロプレイ）支配政党は特別達成カードを獲得できません。' + (ACHIEVEMENT_JA[a] || a) + ' は獲得可能のままです。');
         } else {
           kept.push(a);
         }
@@ -103,7 +105,7 @@
       var a = engine.drawCard(game, human, 1);
       var b = engine.drawCard(game, human, 1);
       var keep = await human.controller.chooseCard(human, {
-        ids: [a, b], prompt: 'Choose a card to meld as your first card.', min: 1, max: 1
+        ids: [a, b], prompt: '最初にメルドするカードを選んでください。', min: 1, max: 1
       });
       var meldId = (keep && keep[0]) || a;
       engine.meldCard(game, human, meldId, { silent: true });
@@ -117,7 +119,7 @@
       game.currentPlayer = firstIsHuman ? human.id : rp.id;
       game.firstTurnSingleActionFor = {};
       game.firstTurnSingleActionFor[game.currentPlayer] = true;
-      game.log.push((firstIsHuman ? human.name : rp.name) + ' goes first.');
+      game.log.push((firstIsHuman ? human.name : rp.name) + ' が先手です');
     }
 
     function soloLegalActions(game, human) {
@@ -166,11 +168,11 @@
       paid.forEach(function (id) { engine.returnCard(game, id, human.score); });
       delete game.achievementsAvailable[age];
       human.achievements.push('age' + age);
-      game.log.push(human.name + ' pays ' + sum + ' (cost ' + cost + ') to claim the age ' + age + ' achievement!');
+      game.log.push(human.name + ' は ' + sum + '（コスト ' + cost + '）を支払い、時代' + age + 'の達成カードを獲得した！');
       if (game.winner == null && human.achievements.length >= engine.achievementsNeededToWin(game)) {
         game.winner = human.id;
         game.endReason = 'achievements';
-        game.log.push(human.name + ' wins the game with ' + human.achievements.length + ' achievements!');
+        game.log.push(human.name + ' は達成カード' + human.achievements.length + '個でゲームに勝利した！');
       }
       return true;
     }
@@ -219,7 +221,7 @@
       } else if (action.type === 'dogma') {
         var cardId = engine.topCard(human, action.color);
         if (cardId == null) throw new Error('Illegal dogma: no top card');
-        game.log.push(human.name + ' activates dogma on ' + engine.card(game, cardId).name);
+        game.log.push(human.name + ' は ' + engine.card(game, cardId).name + ' のドグマを発動した');
         await soloExecuteDogma(game, human, cardId);
       } else if (action.type === 'achieve') {
         if (!soloAchieve(game, human, action.age)) throw new Error('Illegal achieve: not eligible');
@@ -247,10 +249,10 @@
     // for that icon is a demand - resolve it against the human immediately.
     async function advanceCultureTrack(game, rp, icon, meldedCard) {
       game.cultureTrack[icon]++;
-      game.log.push('(SoloPlay) The Ruling Party\'s ' + icon + ' culture marker advances to ' + game.cultureTrack[icon] + '.');
+      game.log.push('（ソロプレイ）支配政党の' + (ICON_JA[icon] || icon) + '文化マーカーが ' + game.cultureTrack[icon] + ' に進んだ');
       if (game.cultureTrack[icon] % LINE_SIZE !== 0) return;
       game.soloGoal += 3;
-      game.log.push('(SoloPlay) A scoring line is crossed! The Ruling Party\'s goal rises to ' + game.soloGoal + '.');
+      game.log.push('（ソロプレイ）得点ラインを超えた！支配政党の目標が ' + game.soloGoal + ' に上昇した');
       if (!meldedCard) return;
       var defs = (effectDefs[meldedCard.id] || []).filter(function (e) { return e.icon === icon && e.demand; });
       if (!defs.length) return;
@@ -260,10 +262,10 @@
         var rpCount = rpIconCount(game, rp, icon, true);
         var humanCount = engine.iconCount(game, human, icon);
         if (rpCount > humanCount) {
-          game.log.push('(SoloPlay) The Ruling Party demands compliance with ' + meldedCard.name + '!');
+          game.log.push('（ソロプレイ）支配政党が ' + meldedCard.name + ' により要求した！');
           await eff.run({ game: game, actor: rp, target: human, helpers: {} });
         } else {
-          game.log.push('(SoloPlay) You successfully defend against the Ruling Party\'s demand.');
+          game.log.push('（ソロプレイ）支配政党の要求を防御した');
         }
       }
       stripRPSpecialAchievements(game, rp);
@@ -315,8 +317,8 @@
     }
 
     var CULTURE_RATINGS = [
-      null, 'Prehistory', 'Classical', 'Medieval', 'Renaissance', 'Exploration',
-      'Enlightenment', 'Romance', 'Modern', 'Postmodern', 'Information'
+      null, '先史時代', '古典時代', '中世', 'ルネサンス', '大航海時代',
+      '啓蒙時代', 'ロマン主義', '近代', '現代', '情報化時代'
     ];
 
     function marginScore(margin) {

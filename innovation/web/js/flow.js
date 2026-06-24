@@ -31,7 +31,7 @@
       for (var i = 0; i < dealt.length; i++) {
         var d = dealt[i];
         var keep = await d.player.controller.chooseCard(d.player, {
-          ids: [d.a, d.b], prompt: 'Choose a card to meld as your first card.', min: 1, max: 1
+          ids: [d.a, d.b], prompt: '最初にメルドするカードを選んでください。', min: 1, max: 1
         });
         var meldId = (keep && keep[0]) || d.a;
         engine.meldCard(game, d.player, meldId, { silent: true });
@@ -48,7 +48,7 @@
       game.firstTurnSingleActionFor = {};
       game.firstTurnSingleActionFor[firstIdx] = true;
       if (n === 4) game.firstTurnSingleActionFor[(firstIdx + 1) % n] = true;
-      game.log.push(game.players[firstIdx].name + ' goes first.');
+      game.log.push(game.players[firstIdx].name + ' が先手です');
     }
 
     function legalActions(game, player) {

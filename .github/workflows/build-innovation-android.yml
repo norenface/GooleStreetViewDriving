@@ -1,0 +1,61 @@
+name: Build Innovation Android APK
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "innovation/web/**"
+      - "innovation/android/**"
+      - ".github/workflows/build-innovation-android.yml"
+  workflow_dispatch:
+
+jobs:
+  build-innovation-android:
+    name: Build Innovation APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Install required SDK components
+        run: |
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            2>&1 | grep -v "^\[=" || true
+
+      # innovation/web/ の内容を Android assets/ にコピー
+      - name: Sync web assets → Android assets
+        run: |
+          mkdir -p innovation/android/app/src/main/assets
+          cp -r innovation/web/. innovation/android/app/src/main/assets/
+
+      - name: Make gradlew executable
+        run: chmod +x innovation/android/gradlew
+
+      - name: Build debug APK
+        working-directory: innovation/android
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx2g"
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Locate APK
+        run: |
+          find innovation/android/app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Innovation-debug
+          path: innovation/android/app/build/outputs/apk/debug/*.apk
+          retention-days: 30

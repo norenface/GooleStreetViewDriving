@@ -7,6 +7,10 @@ android/.gradle/
 android/app/build/
 android/local.properties
 android/app/src/main/assets/
+innovation/android/.gradle/
+innovation/android/app/build/
+innovation/android/local.properties
+innovation/android/app/src/main/assets/
 
 # Signing keys
 *.jks

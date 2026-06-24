@@ -45,7 +45,6 @@ jobs:
       - name: Build debug APK
         working-directory: innovation/android
         env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-Xmx2g"
         run: ./gradlew assembleDebug --stacktrace
 

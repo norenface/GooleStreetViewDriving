@@ -41,8 +41,21 @@
       modalTitle: document.getElementById('modal-title'),
       modalBody: document.getElementById('modal-body'),
       modalFooter: document.getElementById('modal-footer'),
-      gameOver: document.getElementById('game-over-banner')
+      gameOver: document.getElementById('game-over-banner'),
+      cardDetailOverlay: document.getElementById('card-detail-overlay'),
+      cardDetailTitle: document.getElementById('card-detail-title'),
+      cardDetailBody: document.getElementById('card-detail-body'),
+      cardDetailClose: document.getElementById('card-detail-close')
     };
+
+    if (el.cardDetailClose) {
+      el.cardDetailClose.addEventListener('click', closeCardDetail);
+    }
+    if (el.cardDetailOverlay) {
+      el.cardDetailOverlay.addEventListener('click', function (e) {
+        if (e.target === el.cardDetailOverlay) closeCardDetail();
+      });
+    }
 
     function setHumanPlayer(id) { humanPlayerId = id; }
 
@@ -68,7 +81,15 @@
       name.textContent = c.name + ' (' + c.age + ')';
       div.appendChild(name);
       div.appendChild(iconRow(c.icons));
-      if (opts.onClick) div.addEventListener('click', opts.onClick);
+      if (opts.onClick) {
+        div.addEventListener('click', opts.onClick);
+      } else {
+        div.className += ' clickable';
+        div.addEventListener('click', function (e) {
+          e.stopPropagation();
+          showCardDetail(cardId);
+        });
+      }
       return div;
     }
 
@@ -239,6 +260,37 @@
       b.addEventListener('click', onClick);
       el.modalFooter.appendChild(b);
       return b;
+    }
+
+    // ---- card detail popup ---------------------------------------------------
+    // Independent of the ask*/modal-overlay plumbing above: it has no Promise
+    // to resolve, so it can be opened at any time (even while an ask* prompt
+    // is pending) without disturbing the in-flight prompt.
+
+    function showCardDetail(cardId) {
+      var c = byId[cardId];
+      if (!c || !el.cardDetailOverlay) return;
+      el.cardDetailTitle.textContent = c.name + '（時代' + c.age + '・' + (COLOR_JA[c.color] || c.color) + '）';
+      el.cardDetailBody.innerHTML = '';
+      el.cardDetailBody.appendChild(iconRow(c.icons));
+      c.dogma.forEach(function (d) {
+        var block = document.createElement('div');
+        block.className = 'card-detail-dogma';
+        var label = document.createElement('div');
+        label.className = 'card-detail-dogma-label';
+        label.textContent = ICON_GLYPH[d.icon] + ' ' + (d.demand ? '【強制】ドグマ' : 'ドグマ');
+        block.appendChild(label);
+        var body = document.createElement('div');
+        body.className = 'card-detail-dogma-text';
+        body.textContent = d.textJa || d.text || '';
+        block.appendChild(body);
+        el.cardDetailBody.appendChild(block);
+      });
+      el.cardDetailOverlay.classList.remove('hidden');
+    }
+
+    function closeCardDetail() {
+      el.cardDetailOverlay.classList.add('hidden');
     }
 
     // ---- controller-facing ask* methods --------------------------------------

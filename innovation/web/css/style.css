@@ -173,3 +173,32 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 #modal-body .card-chip.selected { outline: 3px solid #5aa9e6; }
 .modal-hint { width: 100%; font-size: 0.8rem; color: #b7bfc8; }
 #modal-footer { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ---- card detail ---- */
+
+.card-chip.clickable:hover { outline: 2px solid #5aa9e6; }
+
+#card-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+#card-detail-box {
+  background: #262b32;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 90%;
+}
+#card-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
+#card-detail-title { font-weight: bold; font-size: 1.05rem; }
+.card-detail-meta { font-size: 0.85rem; color: #b7bfc8; margin-bottom: 10px; }
+.card-detail-dogma { margin-bottom: 10px; }
+.card-detail-dogma-label { font-size: 0.8rem; color: #b7bfc8; margin-bottom: 2px; }
+.card-detail-dogma-text { font-size: 0.9rem; line-height: 1.4; }

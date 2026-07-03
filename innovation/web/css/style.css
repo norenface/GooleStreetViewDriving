@@ -91,6 +91,35 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   color: #14171a;
 }
 
+/* Narrow strip showing only the visible side of a tucked card */
+.card-peek {
+  min-width: 96px;
+  border-radius: 3px;
+  margin-bottom: 2px;
+  padding: 2px 6px;
+  color: #14171a;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  min-height: 20px;
+}
+.card-peek:hover { outline: 2px solid rgba(90,169,230,0.7); }
+/* left splay: ic[3] (top-right icon) visible, push it to the right */
+.peek-left { justify-content: flex-end; }
+/* right splay: ic[0] (bottom-left icon) visible, push it to the left */
+.peek-right { justify-content: flex-start; }
+/* up splay: ic[0..2] (bottom row) visible, laid out left-to-right */
+.peek-up { gap: 2px; }
+
+.stack-count {
+  font-size: 0.7rem;
+  color: #b7bfc8;
+  text-align: center;
+  padding: 2px 4px;
+  letter-spacing: 0.02em;
+}
+
 .zone-row { display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
 .zone-label { font-size: 0.8rem; color: #b7bfc8; margin-bottom: 4px; }
 .zone-cards { display: flex; gap: 6px; flex-wrap: wrap; }

@@ -114,6 +114,31 @@
       return div;
     }
 
+    // Narrow strip shown for a tucked card under a splayed stack.
+    // Only the icons that the splay direction exposes are rendered.
+    //   left  splay → shows ic[3] (top-right icon) flush-right
+    //   right splay → shows ic[0] (bottom-left icon) flush-left
+    //   up    splay → shows ic[0..2] (bottom row)
+    function cardPeek(cardId, splayDir) {
+      var c = byId[cardId];
+      var strip = document.createElement('div');
+      strip.className = 'card-peek color-' + c.color + ' peek-' + splayDir;
+      strip.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showCardDetail(cardId);
+      });
+      if (splayDir === 'left') {
+        strip.appendChild(iconSlot(c.icons[3]));
+      } else if (splayDir === 'right') {
+        strip.appendChild(iconSlot(c.icons[0]));
+      } else { // up
+        strip.appendChild(iconSlot(c.icons[0]));
+        strip.appendChild(iconSlot(c.icons[1]));
+        strip.appendChild(iconSlot(c.icons[2]));
+      }
+      return strip;
+    }
+
     // ---- main board render -------------------------------------------------
 
     function render(g) {
@@ -163,13 +188,43 @@
           var stack = p.board[color];
           var col = document.createElement('div');
           col.className = 'board-column';
+
+          // Column header: color name + splay/count info
           var colHeader = document.createElement('div');
           colHeader.className = 'column-header color-' + color;
-          colHeader.textContent = COLOR_JA[color] + (stack.cards.length > 1 ? '（' + DIR_JA[stack.splay] + 'スプレイ）' : '');
+          var headerInfo = '';
+          if (stack.cards.length > 1) {
+            headerInfo = stack.splay !== 'none'
+              ? '（' + DIR_JA[stack.splay] + 'スプレイ×' + stack.cards.length + '）'
+              : '（' + stack.cards.length + '枚）';
+          }
+          colHeader.textContent = COLOR_JA[color] + headerInfo;
           col.appendChild(colHeader);
-          stack.cards.slice().reverse().forEach(function (cardId, idx) {
-            col.appendChild(cardChip(cardId, { dim: idx !== 0 }));
-          });
+
+          if (stack.cards.length > 0) {
+            // cards[last] = top, cards[0] = bottom; reverse to get [top, …, bottom]
+            var ordered = stack.cards.slice().reverse();
+
+            // Top card: always render as full chip
+            col.appendChild(cardChip(ordered[0]));
+
+            var tucked = ordered.slice(1);
+            if (tucked.length > 0) {
+              if (stack.splay === 'none') {
+                // Not splayed — hide tucked cards, show count only
+                var badge = document.createElement('div');
+                badge.className = 'stack-count';
+                badge.textContent = '＋' + tucked.length + '枚';
+                col.appendChild(badge);
+              } else {
+                // Splayed — show a narrow "peek" strip for each tucked card
+                tucked.forEach(function (cardId) {
+                  col.appendChild(cardPeek(cardId, stack.splay));
+                });
+              }
+            }
+          }
+
           board.appendChild(col);
         });
         panel.appendChild(board);

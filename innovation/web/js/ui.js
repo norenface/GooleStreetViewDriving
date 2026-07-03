@@ -59,16 +59,23 @@
 
     function setHumanPlayer(id) { humanPlayerId = id; }
 
-    function iconRow(icons) {
-      var row = document.createElement('span');
-      row.className = 'icon-row';
-      icons.forEach(function (i) {
-        var s = document.createElement('span');
-        s.className = 'icon-slot' + (i ? '' : ' empty');
-        s.textContent = i ? ICON_GLYPH[i] : '';
-        row.appendChild(s);
-      });
-      return row;
+    // Card icon positions:
+    //   icons[0] = bottom-left   (revealed by right splay)
+    //   icons[1] = bottom-center (revealed by up splay only)
+    //   icons[2] = bottom-right  (revealed by up splay only)
+    //   icons[3] = top-right     (revealed by left splay)
+    function iconSlot(icon) {
+      var s = document.createElement('span');
+      s.className = 'icon-slot' + (icon ? '' : ' empty');
+      s.textContent = icon ? ICON_GLYPH[icon] : '';
+      return s;
+    }
+
+    function iconSlotLg(icon) {
+      var s = document.createElement('span');
+      s.className = 'icon-slot-lg' + (icon ? '' : ' empty');
+      s.textContent = icon ? ICON_GLYPH[icon] : '·';
+      return s;
     }
 
     function cardChip(cardId, opts) {
@@ -76,11 +83,25 @@
       var c = byId[cardId];
       var div = document.createElement('div');
       div.className = 'card-chip color-' + c.color + (opts.dim ? ' dim' : '') + (opts.selected ? ' selected' : '');
-      var name = document.createElement('div');
+
+      // Header row: card name (left) + top-right icon ic[3] (right)
+      var header = document.createElement('div');
+      header.className = 'chip-header';
+      var name = document.createElement('span');
       name.className = 'card-name';
       name.textContent = c.name + ' (' + c.age + ')';
-      div.appendChild(name);
-      div.appendChild(iconRow(c.icons));
+      header.appendChild(name);
+      header.appendChild(iconSlot(c.icons[3]));
+      div.appendChild(header);
+
+      // Bottom icon row: ic[0]=left, ic[1]=center, ic[2]=right
+      var bottom = document.createElement('div');
+      bottom.className = 'icon-row';
+      bottom.appendChild(iconSlot(c.icons[0]));
+      bottom.appendChild(iconSlot(c.icons[1]));
+      bottom.appendChild(iconSlot(c.icons[2]));
+      div.appendChild(bottom);
+
       if (opts.onClick) {
         div.addEventListener('click', opts.onClick);
       } else {
@@ -272,7 +293,27 @@
       if (!c || !el.cardDetailOverlay) return;
       el.cardDetailTitle.textContent = c.name + '（時代' + c.age + '・' + (COLOR_JA[c.color] || c.color) + '）';
       el.cardDetailBody.innerHTML = '';
-      el.cardDetailBody.appendChild(iconRow(c.icons));
+
+      // Icon layout diagram:
+      //              [ic[3]=右上]
+      // [ic[0]=左下] [ic[1]=中下] [ic[2]=右下]
+      var iconGrid = document.createElement('div');
+      iconGrid.className = 'detail-icon-grid';
+
+      var topRow = document.createElement('div');
+      topRow.className = 'detail-icon-top';
+      topRow.appendChild(iconSlotLg(c.icons[3]));
+      iconGrid.appendChild(topRow);
+
+      var botRow = document.createElement('div');
+      botRow.className = 'detail-icon-bottom';
+      botRow.appendChild(iconSlotLg(c.icons[0]));
+      botRow.appendChild(iconSlotLg(c.icons[1]));
+      botRow.appendChild(iconSlotLg(c.icons[2]));
+      iconGrid.appendChild(botRow);
+
+      el.cardDetailBody.appendChild(iconGrid);
+
       c.dogma.forEach(function (d) {
         var block = document.createElement('div');
         block.className = 'card-detail-dogma';

@@ -79,8 +79,8 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   font-size: 0.85rem;
 }
 
-.board-row { display: flex; gap: 8px; overflow-x: auto; }
-.board-column { flex: 1; min-width: 110px; }
+.board-row { display: flex; gap: 8px; overflow-x: auto; align-items: flex-start; }
+.board-column { flex: 0 0 auto; min-width: 110px; }
 .column-header {
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -93,24 +93,67 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 
 /* Narrow strip showing only the visible side of a tucked card */
 .card-peek {
-  min-width: 96px;
   border-radius: 3px;
-  margin-bottom: 2px;
-  padding: 2px 6px;
   color: #14171a;
   font-size: 0.85rem;
   display: flex;
   align-items: center;
   cursor: pointer;
-  min-height: 20px;
 }
 .card-peek:hover { outline: 2px solid rgba(90,169,230,0.7); }
-/* left splay: ic[3] (top-right icon) visible, push it to the right */
-.peek-left { justify-content: flex-end; }
-/* right splay: ic[0] (bottom-left icon) visible, push it to the left */
-.peek-right { justify-content: flex-start; }
-/* up splay: ic[0..2] (bottom row) visible, laid out left-to-right */
-.peek-up { gap: 2px; }
+
+/* Up splay: horizontal strip at bottom of each tucked card (ic[0]+ic[1]+ic[2]) */
+.peek-up {
+  min-width: 96px;
+  min-height: 20px;
+  padding: 2px 6px;
+  margin-bottom: 2px;
+  gap: 4px;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+/* Horizontal splay container: wraps top-card + vertical peek strips side by side */
+.splay-h {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 4px;
+}
+
+/* Left splay: peek strips on LEFT of top card — each shows ic[2] (right-edge icon) */
+.splay-h-left { flex-direction: row; }
+.peek-left {
+  width: 22px;
+  min-width: 22px;
+  flex: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 2px;
+  align-self: stretch;
+  border-radius: 4px 0 0 4px;
+  margin-right: 1px;
+}
+
+/* Right splay: peek strips on RIGHT of top card — each shows ic[3]+ic[0] (left-edge icons) */
+.splay-h-right { flex-direction: row; }
+.peek-right {
+  width: 26px;
+  min-width: 26px;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 2px;
+  align-self: stretch;
+  border-radius: 0 4px 4px 0;
+  margin-left: 1px;
+}
+
+/* Top card chip inside horizontal splay: no bottom margin */
+.splay-h .card-chip { margin-bottom: 0; }
 
 .stack-count {
   font-size: 0.7rem;
@@ -237,7 +280,7 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .card-detail-dogma-text { font-size: 0.9rem; line-height: 1.4; }
 
 /* Icon position diagram in card detail popup:
- *           [ic3=右上]
+ * [ic3=左上]
  * [ic0=左下][ic1=中下][ic2=右下] */
 .detail-icon-grid { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 6px 8px; margin-bottom: 12px; }
 .detail-icon-top { display: flex; justify-content: flex-end; margin-bottom: 2px; }

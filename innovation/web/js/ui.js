@@ -205,23 +205,45 @@
           if (stack.cards.length > 0) {
             // cards[last] = top, cards[0] = bottom; reverse to get [top, …, bottom]
             var ordered = stack.cards.slice().reverse();
-
-            // Top card: always render as full chip
-            col.appendChild(cardChip(ordered[0]));
-
             var tucked = ordered.slice(1);
-            if (tucked.length > 0) {
-              if (stack.splay === 'none') {
-                // Not splayed — hide tucked cards, show count only
-                var badge = document.createElement('div');
-                badge.className = 'stack-count';
-                badge.textContent = '＋' + tucked.length + '枚';
-                col.appendChild(badge);
-              } else {
-                // Splayed — show a narrow "peek" strip for each tucked card
-                tucked.forEach(function (cardId) {
-                  col.appendChild(cardPeek(cardId, stack.splay));
+
+            if (stack.splay === 'left' || stack.splay === 'right') {
+              // Horizontal layout: peek strips + top card side by side
+              var splCont = document.createElement('div');
+              splCont.className = 'splay-h splay-h-' + stack.splay;
+
+              if (stack.splay === 'left') {
+                // Left splay: deepest card at far-left, top card at right
+                // tucked = [2nd-from-top, …, bottom]; reverse → [bottom, …, 2nd-from-top]
+                tucked.slice().reverse().forEach(function (cardId) {
+                  splCont.appendChild(cardPeek(cardId, 'left'));
                 });
+                splCont.appendChild(cardChip(ordered[0]));
+              } else {
+                // Right splay: top card at left, then peeks extending right
+                splCont.appendChild(cardChip(ordered[0]));
+                tucked.forEach(function (cardId) {
+                  splCont.appendChild(cardPeek(cardId, 'right'));
+                });
+              }
+              col.appendChild(splCont);
+
+            } else {
+              // Vertical layout: top card, then peek strips or badge below
+              col.appendChild(cardChip(ordered[0]));
+              if (tucked.length > 0) {
+                if (stack.splay === 'none') {
+                  // Not splayed — show count only
+                  var badge = document.createElement('div');
+                  badge.className = 'stack-count';
+                  badge.textContent = '＋' + tucked.length + '枚';
+                  col.appendChild(badge);
+                } else {
+                  // Up splay — horizontal strip below each tucked card
+                  tucked.forEach(function (cardId) {
+                    col.appendChild(cardPeek(cardId, 'up'));
+                  });
+                }
               }
             }
           }

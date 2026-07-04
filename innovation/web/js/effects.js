@@ -136,7 +136,7 @@
         var g = ctx.game, target = ctx.target, actor = ctx.actor;
         if (!target.hand.length) return;
         var highest = extremeByAge(g, target.hand, 'max');
-        var id = await pickOne(target, highest, actor.name + ' に手札の最高値カードを渡しますか？');
+        var id = await pickOne(target, highest, actor.name + ' に手札の最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'score' });
           await drawAndTuck(g, actor, 1);
@@ -149,7 +149,7 @@
       run: async function (ctx) {
         var g = ctx.game, target = ctx.target, actor = ctx.actor;
         var ids = topCardsWithIcon(g, target, 'castle');
-        var id = await pickOne(target, ids, actor.name + ' に一番上の城カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に一番上の城カードを渡してください。');
         if (id) {
           var a = ageOf(g, id);
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
@@ -241,7 +241,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = target.hand.filter(function (id) { return hasIcon(g, id, 'crown'); });
-        var id = await pickOne(target, ids, actor.name + ' に王冠カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に王冠カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'score' });
           await drawAndTuck(g, actor, 1);
@@ -369,7 +369,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = target.hand.filter(function (id) { return hasIcon(g, id, 'crown'); });
-        var id = await pickOne(target, ids, actor.name + ' の手札に王冠カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' の手札に王冠カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'hand' });
           engine.drawCard(g, actor, 1);
@@ -415,7 +415,7 @@
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var actorColors = COLORS.filter(function (c) { return engine.topCard(actor, c) != null; });
         var ids = topCardsOf(g, target).filter(function (id) { return actorColors.indexOf(colorOf(g, id)) === -1; });
-        var id = await pickOne(target, ids, actor.name + ' に、共有していない色の一番上のカードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に、共有していない色の一番上のカードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
           await drawAndTuck(g, actor, 1);
@@ -462,7 +462,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = target.hand.filter(function (id) { return hasIcon(g, id, 'castle'); });
-        var id = await pickOne(target, ids, actor.name + ' の手札に城カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' の手札に城カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'hand' });
           var lo = extremeByAge(g, target.hand, 'min')[0];
@@ -476,7 +476,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, topCardsWithIcon(g, target, 'castle'), 'max');
-        var id = await pickOne(target, ids, actor.name + ' に一番上の城カードのうち最高値のものを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に一番上の城カードのうち最高値のものを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
           await maybeReturnFromHand(g, target, '手札からカードを1枚戻しますか？');
@@ -548,8 +548,8 @@
         var actorIds = extremeByAge(g, topCardsWithIcon(g, actor, 'castle'), 'max');
         var targetIds = extremeByAge(g, topCardsWithIcon(g, target, 'castle'), 'max');
         if (!targetIds.length) { await drawAndMeld(g, actor, 1); return; }
-        var aId = await pickOne(actor, actorIds, '一番上の城カードのうち最高値のものを交換してください。', true);
-        var tId = await pickOne(target, targetIds, '一番上の城カードのうち最高値のものを交換してください。', true);
+        var aId = await pickOne(actor, actorIds, '一番上の城カードのうち最高値のものを交換してください。');
+        var tId = await pickOne(target, targetIds, '一番上の城カードのうち最高値のものを交換してください。');
         if (aId && tId) {
           var aColor = colorOf(g, aId), tColor = colorOf(g, tId);
           engine.transferCard(g, aId, { player: actor, zone: 'board', color: aColor }, { player: target, zone: 'board', color: aColor });
@@ -587,7 +587,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, target.score, 'max');
-        var id = await pickOne(target, ids, '得点パイルの一番上のカードを戻してください。', true);
+        var id = await pickOne(target, ids, '得点パイルの一番上のカードを戻してください。');
         if (id) {
           engine.returnCardFromPlayer(g, target, id);
           var mine = extremeByAge(g, actor.score, 'min')[0];
@@ -668,7 +668,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, topCardsOf(g, target), 'max');
-        var id = await pickOne(target, ids, actor.name + ' のボードに一番上のカードのうち最高値のものを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' のボードに一番上のカードのうち最高値のものを渡してください。');
         if (id) {
           var a = ageOf(g, id), color = colorOf(g, id);
           engine.transferCard(g, id, { player: target, zone: 'board', color: color }, { player: actor, zone: 'board', color: color });
@@ -685,7 +685,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = topCardsWithIcon(g, target, 'castle');
-        var id = await pickOne(target, ids, actor.name + ' のボードに一番上の城カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' のボードに一番上の城カードを渡してください。');
         if (id) {
           var color = colorOf(g, id);
           engine.transferCard(g, id, { player: target, zone: 'board', color: color }, { player: actor, zone: 'board', color: color });
@@ -743,7 +743,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, target.score, 'max');
-        var id = await pickOne(target, ids, actor.name + ' に得点パイルの最高値カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に得点パイルの最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'score' }, { player: actor, zone: 'score' });
           engine.drawCard(g, actor, 5);
@@ -785,11 +785,11 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = topCardsOf(g, target);
-        var id = await pickOne(target, ids, 'ボードの一番上のカードを戻してください。', true);
+        var id = await pickOne(target, ids, 'ボードの一番上のカードを戻してください。');
         if (id) {
           engine.returnCardFromPlayer(g, target, id);
           var aids = topCardsOf(g, actor);
-          var aid = await pickOne(actor, aids, 'ボードの一番上のカードを戻してください。', true);
+          var aid = await pickOne(actor, aids, 'ボードの一番上のカードを戻してください。');
           if (aid) engine.returnCardFromPlayer(g, actor, aid);
         }
       }
@@ -930,7 +930,7 @@
         demand: true, icon: 'crown',
         run: async function (ctx) {
           var g = ctx.game, actor = ctx.actor, target = ctx.target;
-          var id = await pickOne(target, target.hand.slice(), actor.name + ' に手札のカードを渡しますか？', true);
+          var id = await pickOne(target, target.hand.slice(), actor.name + ' に手札のカードを渡してください。');
           if (id) {
             engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'score' });
             engine.drawCard(g, actor, 1);
@@ -970,7 +970,7 @@
       demand: true, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
-        var id = await pickOne(target, target.score.slice(), actor.name + ' に得点パイルのカードを渡しますか？', true);
+        var id = await pickOne(target, target.score.slice(), actor.name + ' に得点パイルのカードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'score' }, { player: actor, zone: 'score' });
           engine.drawCard(g, actor, 6);
@@ -996,7 +996,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, topCardsOf(g, target).filter(function (id) { return !hasIcon(g, id, 'castle'); }), 'max');
-        var id = await pickOne(target, ids, '軍事アイコンを持たない一番上のカードのうち最高値のものを渡してください。', true);
+        var id = await pickOne(target, ids, '軍事アイコンを持たない一番上のカードのうち最高値のものを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
           engine.drawCard(g, actor, 7);
@@ -1098,7 +1098,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var common = COLORS.filter(function (c) { return engine.topCard(actor, c) != null && engine.topCard(target, c) != null; });
-        var color = await pickColor(actor, common, '共有しているどの色の一番上のカードを交換しますか？', true);
+        var color = await pickColor(actor, common, '共有している色の一番上のカードを交換する色を選んでください。');
         if (color) {
           var aId = engine.topCard(actor, color), tId = engine.topCard(target, color);
           engine.transferCard(g, aId, { player: actor, zone: 'board', color: color }, { player: target, zone: 'board', color: color });
@@ -1121,7 +1121,7 @@
         if (!colors.length) return;
         var minCount = Math.min.apply(null, colors.map(function (c) { return counts[c]; }));
         var leastColors = colors.filter(function (c) { return counts[c] === minCount; });
-        var color = await pickColor(target, leastColors, '渡す、最も少ない色はどれですか？', true);
+        var color = await pickColor(target, leastColors, '渡す色を選んでください（最も枚数の少ない色）。');
         if (color) {
           var id = engine.topCard(target, color);
           engine.transferCard(g, id, { player: target, zone: 'board', color: color }, { player: actor, zone: 'score' });
@@ -1240,7 +1240,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, target.hand, 'max');
-        var id = await pickOne(target, ids, actor.name + ' に手札の最高値カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に手札の最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'hand' });
           engine.drawCard(g, actor, 8);
@@ -1410,7 +1410,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, topCardsOf(g, target), 'min');
-        var id = await pickOne(target, ids, actor.name + ' に一番上のカードのうち最低値のものを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に一番上のカードのうち最低値のものを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
           engine.drawCard(g, actor, 1);
@@ -1427,7 +1427,7 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, target.hand, 'max');
-        var id = await pickOne(target, ids, actor.name + ' に手札の最高値カードを渡しますか？', true);
+        var id = await pickOne(target, ids, actor.name + ' に手札の最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'hand' });
           engine.drawCard(g, actor, 10);

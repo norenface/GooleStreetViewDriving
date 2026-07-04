@@ -59,11 +59,11 @@
 
     function setHumanPlayer(id) { humanPlayerId = id; }
 
-    // Card icon positions:
-    //   icons[0] = bottom-left   (revealed by right splay)
-    //   icons[1] = bottom-center (revealed by up splay only)
-    //   icons[2] = bottom-right  (revealed by up splay only)
-    //   icons[3] = top-right     (revealed by left splay)
+    // Card icon positions (match physical card / BGA spot numbering):
+    //   icons[0] = bottom-left   spot_2 (revealed by right splay + up splay)
+    //   icons[1] = bottom-center spot_3 (revealed by up splay only)
+    //   icons[2] = bottom-right  spot_4 (revealed by left splay + up splay)
+    //   icons[3] = top-left      spot_1 (revealed by right splay only; shown in chip header)
     function iconSlot(icon) {
       var s = document.createElement('span');
       s.className = 'icon-slot' + (icon ? '' : ' empty');
@@ -116,9 +116,9 @@
 
     // Narrow strip shown for a tucked card under a splayed stack.
     // Only the icons that the splay direction exposes are rendered.
-    //   left  splay → shows ic[3] (top-right icon) flush-right
-    //   right splay → shows ic[0] (bottom-left icon) flush-left
-    //   up    splay → shows ic[0..2] (bottom row)
+    //   left  splay → shows ic[2] (spot_4, bottom-right)
+    //   right splay → shows ic[3] (spot_1, top-left) + ic[0] (spot_2, bottom-left)
+    //   up    splay → shows ic[0..2] (bottom row: spot_2+3+4)
     function cardPeek(cardId, splayDir) {
       var c = byId[cardId];
       var strip = document.createElement('div');
@@ -128,8 +128,9 @@
         showCardDetail(cardId);
       });
       if (splayDir === 'left') {
-        strip.appendChild(iconSlot(c.icons[3]));
+        strip.appendChild(iconSlot(c.icons[2]));
       } else if (splayDir === 'right') {
+        strip.appendChild(iconSlot(c.icons[3]));
         strip.appendChild(iconSlot(c.icons[0]));
       } else { // up
         strip.appendChild(iconSlot(c.icons[0]));

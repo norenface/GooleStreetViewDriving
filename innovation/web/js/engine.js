@@ -294,11 +294,14 @@
       var c = card(game, cards[i]);
       var ic = c.icons;
       if (stack.splay === 'left') {
-        if (ic[3]) icons.push(ic[3]); // rightmost icon revealed
+        if (ic[2]) icons.push(ic[2]); // spot_4 (bottom-right) revealed
       } else if (stack.splay === 'right') {
-        if (ic[0]) icons.push(ic[0]); // leftmost icon revealed
+        if (ic[3]) icons.push(ic[3]); // spot_1 (top-left) revealed
+        if (ic[0]) icons.push(ic[0]); // spot_2 (bottom-left) revealed
       } else if (stack.splay === 'up') {
-        icons = icons.concat(ic.filter(Boolean)); // whole row revealed
+        if (ic[0]) icons.push(ic[0]); // spot_2 (bottom-left)
+        if (ic[1]) icons.push(ic[1]); // spot_3 (bottom-center)
+        if (ic[2]) icons.push(ic[2]); // spot_4 (bottom-right)
       }
     }
     return icons;

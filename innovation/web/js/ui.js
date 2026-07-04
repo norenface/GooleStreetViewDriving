@@ -115,14 +115,14 @@
         (opts.selected ? ' selected' : '') +
         ' clickable';
 
-      // Header row: card name (left) + top-left icon ic[3] shown at top-right slot
+      // Header row: top-left icon ic[3] (left) + card name (right)
       var header = document.createElement('div');
       header.className = 'chip-header';
       var name = document.createElement('span');
       name.className = 'card-name';
       name.textContent = c.name + ' (' + c.age + ')';
-      header.appendChild(name);
       header.appendChild(iconSlot(c.icons[3]));
+      header.appendChild(name);
       div.appendChild(header);
 
       // Bottom icon row: ic[0]=left corner, ic[1]=center, ic[2]=right corner
@@ -311,17 +311,17 @@
               splCont.className = 'splay-h splay-h-' + stack.splay;
 
               if (stack.splay === 'left') {
-                // Deepest card at far-left, top card at right
-                tucked.slice().reverse().forEach(function (cardId) {
-                  splCont.appendChild(cardPeek(cardId, 'left'));
-                });
-                splCont.appendChild(cardChip(topCardId, topCardOpts));
-              } else {
-                // Top card at left, peeks extending right
+                // Left splay: cards slide left → top card at LEFT, peeks on RIGHT (ic[2] visible)
                 splCont.appendChild(cardChip(topCardId, topCardOpts));
                 tucked.forEach(function (cardId) {
+                  splCont.appendChild(cardPeek(cardId, 'left'));
+                });
+              } else {
+                // Right splay: cards slide right → peeks on LEFT (ic[3]+ic[0] visible), top card at RIGHT
+                tucked.slice().reverse().forEach(function (cardId) {
                   splCont.appendChild(cardPeek(cardId, 'right'));
                 });
+                splCont.appendChild(cardChip(topCardId, topCardOpts));
               }
               col.appendChild(splCont);
 

@@ -120,7 +120,7 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   margin-bottom: 4px;
 }
 
-/* Left splay: peek strips on LEFT of top card — each shows ic[2] (right-edge icon) */
+/* Left splay: top card at LEFT, peek strips on RIGHT — each shows ic[2] (right-edge icon) */
 .splay-h-left { flex-direction: row; }
 .peek-left {
   width: 22px;
@@ -132,11 +132,11 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   gap: 2px;
   padding: 4px 2px;
   align-self: stretch;
-  border-radius: 4px 0 0 4px;
-  margin-right: 1px;
+  border-radius: 0 4px 4px 0;
+  margin-left: 1px;
 }
 
-/* Right splay: peek strips on RIGHT of top card — each shows ic[3]+ic[0] (left-edge icons) */
+/* Right splay: peek strips on LEFT, top card at RIGHT — each shows ic[3]+ic[0] (left-edge icons) */
 .splay-h-right { flex-direction: row; }
 .peek-right {
   width: 26px;
@@ -148,8 +148,8 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   gap: 2px;
   padding: 4px 2px;
   align-self: stretch;
-  border-radius: 0 4px 4px 0;
-  margin-left: 1px;
+  border-radius: 4px 0 0 4px;
+  margin-right: 1px;
 }
 
 /* Top card chip inside horizontal splay: no bottom margin */
@@ -183,7 +183,7 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .card-chip.dim { opacity: 0.55; }
 .card-chip[data-clickable], .card-chip.clickable { cursor: pointer; }
 
-/* Header row: card name (left) + top-right icon ic[3] (right) */
+/* Header row: top-left icon ic[3] (left) + card name (right) */
 .chip-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; margin-bottom: 2px; }
 .card-name { font-weight: bold; flex: 1; min-width: 0; }
 

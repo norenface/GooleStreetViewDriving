@@ -191,7 +191,7 @@
     }];
 
     effectDefs.domestication = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'castle',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -211,7 +211,7 @@
     }];
 
     effectDefs.metalworking = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'castle',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         for (;;) {
@@ -224,7 +224,7 @@
     }];
 
     effectDefs.mysticism = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'castle',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = engine.drawCard(g, p, 1);
@@ -253,7 +253,7 @@
     }];
 
     effectDefs.pottery = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var chosen = await pickSome(p, p.hand.slice(), '手札から最大3枚のカードを戻してください。', 0, Math.min(3, p.hand.length));
@@ -265,12 +265,12 @@
     effectDefs.sailing = [{ demand: false, icon: 'crown', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 1); } }];
 
     effectDefs.the_wheel = [{
-      demand: false, icon: 'leaf',
+      demand: false, icon: 'castle',
       run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 1); engine.drawCard(ctx.game, ctx.actor, 1); }
     }];
 
     effectDefs.tools = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         if (p.hand.length >= 3 && await yesNo(p, '手札から3枚戻して3を引いてメルドしますか？')) {
@@ -356,7 +356,7 @@
     }];
 
     effectDefs.mathematics = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -410,7 +410,7 @@
     ];
 
     effectDefs.monotheism = [{
-      demand: true, icon: 'crown',
+      demand: true, icon: 'castle',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var actorColors = COLORS.filter(function (c) { return engine.topCard(actor, c) != null; });
@@ -439,7 +439,7 @@
     // ======================================================================
 
     effectDefs.alchemy = [{
-      demand: false, icon: 'lightbulb',
+      demand: false, icon: 'castle',
       run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, engine.highestTopValue(ctx.game, ctx.actor) + 1); }
     }];
 
@@ -472,7 +472,7 @@
     }];
 
     effectDefs.gunpowder = [{
-      demand: true, icon: 'castle',
+      demand: true, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, topCardsWithIcon(g, target, 'castle'), 'max');
@@ -500,26 +500,37 @@
       }
     }];
 
-    effectDefs.paper = [{
-      demand: false, icon: 'crown',
-      run: async function (ctx) {
-        var g = ctx.game, p = ctx.actor;
-        var ids = p.hand.filter(function (id) { return hasIcon(g, id, 'crown'); });
-        var id = await pickOne(p, ids, '手札から王冠カードを得点しますか？', true);
-        if (id) {
-          var crowns = engine.card(g, id).icons.filter(function (i) { return i === 'crown'; }).length;
-          engine.scoreCard(g, p, id);
-          for (var i = 0; i < crowns - 1; i++) {
-            var extra = await pickOne(p, p.hand.slice(), '手札から追加でカードを得点しますか？', true);
-            if (!extra) break;
-            engine.scoreCard(g, p, extra);
+    effectDefs.paper = [
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          var opts = splayableColors(p, ['left']).filter(function (o) { return o.color === 'yellow' || o.color === 'green'; });
+          var choice = await pickSplay(p, opts, '黄か緑のカードを左にスプレイしますか？', true);
+          if (choice) engine.setSplay(g, p, choice.color, choice.direction);
+        }
+      },
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          var ids = p.hand.filter(function (id) { return hasIcon(g, id, 'lightbulb'); });
+          var id = await pickOne(p, ids, '手札から電球カードを得点しますか？', true);
+          if (id) {
+            var bulbs = engine.card(g, id).icons.filter(function (i) { return i === 'lightbulb'; }).length;
+            engine.scoreCard(g, p, id);
+            for (var i = 0; i < bulbs - 1; i++) {
+              var extra = await pickOne(p, p.hand.slice(), '手札から追加でカードを得点しますか？', true);
+              if (!extra) break;
+              engine.scoreCard(g, p, extra);
+            }
           }
         }
       }
-    }];
+    ];
 
     effectDefs.translation = [{
-      demand: false, icon: 'lightbulb',
+      demand: false, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         if (!p.score.length) return;
@@ -531,7 +542,7 @@
     }];
 
     effectDefs.machinery = [{
-      demand: true, icon: 'castle',
+      demand: true, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var actorIds = extremeByAge(g, topCardsWithIcon(g, actor, 'castle'), 'max');
@@ -550,7 +561,7 @@
     }];
 
     effectDefs.colonialism = [{
-      demand: false, icon: 'castle',
+      demand: false, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -559,7 +570,7 @@
     }];
 
     effectDefs.vaccination = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -572,7 +583,7 @@
     // ======================================================================
 
     effectDefs.anatomy = [{
-      demand: true, icon: 'castle',
+      demand: true, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, target.score, 'max');
@@ -638,7 +649,7 @@
     }];
 
     effectDefs.reformation = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var colors = ['yellow', 'purple'].filter(function (c) { return p.board[c].cards.length > 1 && p.board[c].splay !== 'left'; });
@@ -670,7 +681,7 @@
     effectDefs.experimentation = [{ demand: false, icon: 'lightbulb', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 5); } }];
 
     effectDefs.enterprise = [{
-      demand: true, icon: 'castle',
+      demand: true, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = topCardsWithIcon(g, target, 'castle');
@@ -689,7 +700,7 @@
     // ======================================================================
 
     effectDefs.astronomy = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var ids = p.hand.filter(function (id) { return ageOf(g, id) <= 5; });
@@ -700,7 +711,7 @@
     }];
 
     effectDefs.banking = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var ids = extremeByAge(g, topCardsWithIcon(g, p, 'crown'), 'min');
@@ -741,7 +752,7 @@
     }];
 
     effectDefs.measurement = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var opts = splayableColors(p, ['left', 'right', 'up']);
@@ -751,7 +762,7 @@
     }];
 
     effectDefs.physics = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var drawn = [];
@@ -770,7 +781,7 @@
     }];
 
     effectDefs.statistics = [{
-      demand: true, icon: 'factory',
+      demand: true, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = topCardsOf(g, target);
@@ -785,7 +796,7 @@
     }];
 
     effectDefs.pirate_code = [{
-      demand: true, icon: 'factory',
+      demand: true, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = target.score.filter(function (id) { return ageOf(g, id) <= 5; });
@@ -811,7 +822,7 @@
     }];
 
     effectDefs.university = [{
-      demand: false, icon: 'lightbulb',
+      demand: false, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -823,19 +834,24 @@
     // AGE 6
     // ======================================================================
 
-    effectDefs.atomic_theory = [{
-      demand: false, icon: 'factory',
-      run: async function (ctx) {
-        var g = ctx.game, p = ctx.actor;
-        if (p.board.blue.cards.length > 1 && p.board.blue.splay !== 'right' && await yesNo(p, '青のカードを右にスプレイしますか？')) {
-          engine.setSplay(g, p, 'blue', 'right');
+    effectDefs.atomic_theory = [
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          if (p.board.blue.cards.length > 1 && p.board.blue.splay !== 'right' && await yesNo(p, '青のカードを右にスプレイしますか？')) {
+            engine.setSplay(g, p, 'blue', 'right');
+          }
         }
-        await drawAndMeld(g, p, 7);
+      },
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 7); }
       }
-    }];
+    ];
 
     effectDefs.classification = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var pool = p.hand.concat(p.score);
@@ -850,7 +866,7 @@
     }];
 
     effectDefs.democracy = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var chosen = await pickSome(p, p.hand.slice(), '手札から好きな数のカードを戻してください。', 0, p.hand.length);
@@ -860,7 +876,7 @@
     }];
 
     effectDefs.encyclopedia = [{
-      demand: false, icon: 'lightbulb',
+      demand: false, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         if (p.hand.length < 2) return;
@@ -886,7 +902,7 @@
     }];
 
     effectDefs.lensmaking = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var opts = splayableColors(p, ['left']);
@@ -896,7 +912,7 @@
     }];
 
     effectDefs.metric_system = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var opts = splayableColors(p, ['right']);
@@ -951,7 +967,7 @@
     }];
 
     effectDefs.canning = [{
-      demand: true, icon: 'crown',
+      demand: true, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var id = await pickOne(target, target.score.slice(), actor.name + ' に得点パイルのカードを渡しますか？', true);
@@ -967,7 +983,7 @@
     // ======================================================================
 
     effectDefs.bicycle = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var times = Math.min(3, Math.floor(engine.iconCount(g, p, 'clock') / 2));
@@ -976,7 +992,7 @@
     }];
 
     effectDefs.combustion = [{
-      demand: true, icon: 'factory',
+      demand: true, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, topCardsOf(g, target).filter(function (id) { return !hasIcon(g, id, 'castle'); }), 'max');
@@ -999,7 +1015,7 @@
     }];
 
     effectDefs.evolution = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -1012,7 +1028,7 @@
     }];
 
     effectDefs.lighting = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var opts = splayableColors(p, ['up']);
@@ -1021,17 +1037,25 @@
       }
     }];
 
-    effectDefs.publication = [{
-      demand: false, icon: 'clock',
-      run: async function (ctx) {
-        var g = ctx.game, p = ctx.actor;
-        var myScore = engine.scoreValue(g, p);
-        var highest = g.players.every(function (o) { return o.id === p.id || myScore >= engine.scoreValue(g, o); });
-        if (highest) engine.specialAchievementCheck(g, p, 'wonder');
-        var id = await maybeReturnFromHand(g, p, '手札のカードを戻して、より高い値のカードを得点しますか？');
-        if (id) await drawAndScore(g, p, ageOf(g, id) + 1);
+    effectDefs.publication = [
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          var myScore = engine.scoreValue(g, p);
+          var highest = g.players.every(function (o) { return o.id === p.id || myScore >= engine.scoreValue(g, o); });
+          if (highest) engine.specialAchievementCheck(g, p, 'wonder');
+        }
+      },
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          var id = await maybeReturnFromHand(g, p, '手札のカードを戻して、より高い値のカードを得点しますか？');
+          if (id) await drawAndScore(g, p, ageOf(g, id) + 1);
+        }
       }
-    }];
+    ];
 
     effectDefs.railroad = [{
       demand: false, icon: 'clock',
@@ -1047,7 +1071,7 @@
     }];
 
     effectDefs.refrigeration = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -1056,7 +1080,7 @@
     }];
 
     effectDefs.sanitation = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await pickOne(p, p.hand.slice(), '手札からカードをメルドしますか？', true);
@@ -1088,7 +1112,7 @@
     // ======================================================================
 
     effectDefs.antibiotics = [{
-      demand: true, icon: 'factory',
+      demand: true, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var counts = {};
@@ -1107,7 +1131,7 @@
     }];
 
     effectDefs.corporations = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var chosen = await pickSome(p, p.hand.slice(), '手札から最大3枚のカードを戻してください。', 0, Math.min(3, p.hand.length));
@@ -1117,7 +1141,7 @@
     }];
 
     effectDefs.empiricism = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var myColors = COLORS.filter(function (c) { return engine.topCard(p, c) != null; });
@@ -1159,10 +1183,10 @@
       }
     }];
 
-    effectDefs.flight = [{ demand: false, icon: 'clock', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 9); } }];
+    effectDefs.flight = [{ demand: false, icon: 'crown', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 9); } }];
 
     effectDefs.mass_media = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         if (p.hand.length < 2) return;
@@ -1175,7 +1199,7 @@
     }];
 
     effectDefs.skyscrapers = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'crown',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var ids = p.hand.filter(function (id) { return hasIcon(g, id, 'castle') || hasIcon(g, id, 'factory'); });
@@ -1198,7 +1222,7 @@
     }];
 
     effectDefs.socialism = [{
-      demand: false, icon: 'crown',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var candidates = g.players.filter(function (o) { return o.id !== p.id && o.hand.length < p.hand.length; });
@@ -1229,12 +1253,12 @@
     // ======================================================================
 
     effectDefs.collaboration = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'crown',
       run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 9); }
     }];
 
     effectDefs.composites = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         for (var i = 0; i < 3; i++) {
@@ -1257,7 +1281,7 @@
     }];
 
     effectDefs.ecology = [{
-      demand: true, icon: 'clock',
+      demand: true, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var actorColors = COLORS.filter(function (c) { return engine.topCard(actor, c) != null; });
@@ -1296,7 +1320,7 @@
     }];
 
     effectDefs.specialization = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var counts = {};
@@ -1315,7 +1339,7 @@
     }];
 
     effectDefs.radio = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var revealed = [];
@@ -1337,7 +1361,7 @@
     }];
 
     effectDefs.telephone = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'factory',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await maybeReturnFromHand(g, p, '手札からカードを1枚戻しますか？');
@@ -1346,7 +1370,7 @@
     }];
 
     effectDefs.suburbia = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var id = await pickOne(p, p.hand.slice(), '手札からカードをメルドしますか？', true);
@@ -1367,7 +1391,7 @@
     // ======================================================================
 
     effectDefs.artificial_intelligence = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'lightbulb',
       run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); }
     }];
 
@@ -1377,12 +1401,12 @@
     }];
 
     effectDefs.globalization = [{
-      demand: false, icon: 'clock',
+      demand: false, icon: 'factory',
       run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); }
     }];
 
     effectDefs.miniaturization = [{
-      demand: true, icon: 'clock',
+      demand: true, icon: 'lightbulb',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, topCardsOf(g, target), 'min');
@@ -1394,12 +1418,12 @@
       }
     }];
 
-    effectDefs.robotics = [{ demand: false, icon: 'clock', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); } }];
-    effectDefs.self_service = [{ demand: false, icon: 'clock', run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 1); } }];
+    effectDefs.robotics = [{ demand: false, icon: 'factory', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); } }];
+    effectDefs.self_service = [{ demand: false, icon: 'crown', run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 1); } }];
     effectDefs.software10 = [{ demand: false, icon: 'clock', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); } }];
 
     effectDefs.stem_cells10 = [{
-      demand: true, icon: 'clock',
+      demand: true, icon: 'leaf',
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = extremeByAge(g, target.hand, 'max');
@@ -1439,7 +1463,7 @@
     }];
 
     effectDefs.nanotechnology = [{
-      demand: false, icon: 'factory',
+      demand: false, icon: 'clock',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
         var times = Math.min(3, Math.floor(engine.iconCount(g, p, 'factory') / 2));

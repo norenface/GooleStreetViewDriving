@@ -87,7 +87,10 @@
     { id: 'optics', name: '光学', age: 3, color: 'green', icons: [C, C, null, C],
       dogma: [{ demand: false, icon: C, text: 'Draw a 3. If it has a crown icon, score it and meld a card from your hand. Otherwise, meld it.', textJa: '3を引く。王冠アイコンを持っていれば、それを得点し、さらに手札からカードを1枚メルドする。持っていなければ、それをメルドする。' }] },
     { id: 'paper', name: '紙', age: 3, color: 'yellow', icons: [B, B, C, null],
-      dogma: [{ demand: false, icon: B, text: 'You may score a card from your hand with a lightbulb icon. If you do, score an additional card from your hand for each lightbulb icon on the card you scored, beyond the first.', textJa: 'あなたは、電球アイコン付きカードを手札から1枚得点してもよい。した場合、得点したカードの電球アイコンの数（1個目を除く）と同じ枚数のカードを手札から追加で得点する。' }] },
+      dogma: [
+        { demand: false, icon: B, text: 'You may splay your yellow or green cards left.', textJa: 'あなたは黄または緑のカードを左にスプレイしてもよい。' },
+        { demand: false, icon: B, text: 'You may score a card from your hand with a lightbulb icon. If you do, score an additional card from your hand for each lightbulb icon on the card you scored, beyond the first.', textJa: 'あなたは、電球アイコン付きカードを手札から1枚得点してもよい。した場合、得点したカードの電球アイコンの数（1個目を除く）と同じ枚数のカードを手札から追加で得点する。' }
+      ] },
     { id: 'translation', name: '翻訳', age: 3, color: 'green', icons: [C, C, C, null],
       dogma: [{ demand: false, icon: C, text: 'Meld any number of top cards from your score pile with the highest value in your score pile. Claim the World special achievement if eligible.', textJa: '得点パイルの一番上のカードのうち、得点パイル内で最高値のものを好きな数メルドする。条件を満たせば世界特別達成カードを獲得する。' }] },
     { id: 'machinery', name: '機械', age: 3, color: 'yellow', icons: [L, null, T, L],
@@ -141,7 +144,10 @@
 
     // ---------------- AGE 6 (10 cards) ----------------
     { id: 'atomic_theory', name: '原子論', age: 6, color: 'blue', icons: [B, B, null, B],
-      dogma: [{ demand: false, icon: B, text: 'You may splay your blue cards right. Draw and meld a 7.', textJa: 'あなたは青のカードを右にスプレイしてもよい。7を引いてメルドする。' }] },
+      dogma: [
+        { demand: false, icon: B, text: 'You may splay your blue cards right.', textJa: 'あなたは青のカードを右にスプレイしてもよい。' },
+        { demand: false, icon: B, text: 'Draw and meld a 7.', textJa: '7を引いてメルドする。' }
+      ] },
     { id: 'classification', name: '分類法', age: 6, color: 'green', icons: [B, B, null, B],
       dogma: [{ demand: false, icon: B, text: 'Reveal the highest valued card in your hand and score pile. Then transfer all cards of that color from your hand to your score pile.', textJa: '手札と得点パイルの中で最高値のカードを公開する。その後、その色のカードをすべて手札から得点パイルに移す。' }] },
     { id: 'democracy', name: '民主主義', age: 6, color: 'purple', icons: [B, B, null, C],
@@ -176,7 +182,10 @@
     { id: 'lighting', name: '照明', age: 7, color: 'purple', icons: [L, K, L, null],
       dogma: [{ demand: false, icon: L, text: 'You may splay any one of your colors up. If you do, draw and score a 7.', textJa: 'あなたは、自分のカードのうち1色を上にスプレイしてもよい。した場合、7を引いて得点する。' }] },
     { id: 'publication', name: '出版', age: 7, color: 'blue', icons: [B, K, B, null],
-      dogma: [{ demand: false, icon: B, text: 'If you have the highest score, claim the Wonder special achievement if eligible. Then, you may return a card from your hand to draw and score a card one value higher.', textJa: 'あなたの得点が最も高ければ、条件を満たせば驚異特別達成カードを獲得する。その後、手札からカードを1枚戻して、価値が1高いカードを引いて得点してもよい。' }] },
+      dogma: [
+        { demand: false, icon: B, text: 'If you have the highest score, claim the Wonder special achievement if eligible.', textJa: 'あなたの得点が最も高ければ、条件を満たせば驚異特別達成カードを獲得する。' },
+        { demand: false, icon: B, text: 'You may return a card from your hand to draw and score a card one value higher.', textJa: '手札からカードを1枚戻して、価値が1高いカードを引いて得点してもよい。' }
+      ] },
     { id: 'railroad', name: '鉄道', age: 7, color: 'red', icons: [F, K, null, K],
       dogma: [{ demand: false, icon: K, text: 'Meld any number of cards from your hand of the same color. If you melded two or more, draw and score a card of value equal to the number of cards melded.', textJa: '手札から同じ色のカードを好きな数メルドする。2枚以上メルドした場合、メルドした枚数と同じ価値のカードを引いて得点する。' }] },
     { id: 'refrigeration', name: '冷蔵', age: 7, color: 'yellow', icons: [L, L, C, null],
@@ -216,7 +225,7 @@
     { id: 'computers', name: 'コンピュータ', age: 9, color: 'blue', icons: [null, K, F, K],
       dogma: [{ demand: false, icon: K, text: 'You may meld a card from your hand. If you do, draw and meld a 10.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、10を引いてメルドする。' }] },
     { id: 'ecology', name: '生態学', age: 9, color: 'yellow', icons: [B, B, null, L],
-      dogma: [{ demand: false, icon: B, text: 'I DEMAND you return all top cards on your board with value 8 or less that share a color with one of my top cards! If you do, draw a card for each card returned.', textJa: '【強制】対象プレイヤーは、あなたの一番上のカードのいずれかと同じ色で、価値8以下のボード上の一番上のカードをすべて戻す。戻した場合、対象プレイヤーは戻した枚数分のカードを引く。' }] },
+      dogma: [{ demand: true, icon: B, text: 'I DEMAND you return all top cards on your board with value 8 or less that share a color with one of my top cards! If you do, draw a card for each card returned.', textJa: '【強制】対象プレイヤーは、あなたの一番上のカードのいずれかと同じ色で、価値8以下のボード上の一番上のカードをすべて戻す。戻した場合、対象プレイヤーは戻した枚数分のカードを引く。' }] },
     { id: 'fission', name: '核分裂', age: 9, color: 'red', icons: [K, K, K, null],
       dogma: [{ demand: true, icon: K, text: 'I DEMAND that, if you have two top cards with a castle icon, every player including me remove all cards from their hand, score pile, and board, and we each draw and meld a 10. Otherwise, I draw and meld a 10.', textJa: '【強制】対象プレイヤーが城アイコンを持つ一番上のカードを2枚持っている場合、あなたを含むすべてのプレイヤーは手札・得点パイル・ボードのカードをすべてゲームから除外し、各プレイヤーが10を引いてメルドする。そうでない場合、あなたが10を引いてメルドする。' }] },
     { id: 'satellites', name: '人工衛星', age: 9, color: 'blue', icons: [K, K, K, null],

@@ -78,13 +78,44 @@
       return s;
     }
 
+    // Long-press detection: fires callback after 600ms hold.
+    // Suppresses the subsequent mobile click event via capture-phase guard.
+    // Also handles desktop right-click (contextmenu).
+    function addLongPress(element, callback) {
+      var timer = null;
+      var guard = false;
+      element.addEventListener('touchstart', function () {
+        timer = setTimeout(function () {
+          timer = null;
+          guard = true;
+          callback();
+        }, 600);
+      }, { passive: true });
+      function cancelTimer() {
+        if (timer) { clearTimeout(timer); timer = null; }
+      }
+      element.addEventListener('touchend', cancelTimer);
+      element.addEventListener('touchcancel', cancelTimer);
+      element.addEventListener('touchmove', cancelTimer);
+      element.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        callback();
+      });
+      element.addEventListener('click', function (e) {
+        if (guard) { guard = false; e.stopImmediatePropagation(); }
+      }, true);
+    }
+
     function cardChip(cardId, opts) {
       opts = opts || {};
       var c = byId[cardId];
       var div = document.createElement('div');
-      div.className = 'card-chip color-' + c.color + (opts.dim ? ' dim' : '') + (opts.selected ? ' selected' : '');
+      div.className = 'card-chip color-' + c.color +
+        (opts.dim ? ' dim' : '') +
+        (opts.selected ? ' selected' : '') +
+        ' clickable';
 
-      // Header row: card name (left) + top-right icon ic[3] (right)
+      // Header row: card name (left) + top-left icon ic[3] shown at top-right slot
       var header = document.createElement('div');
       header.className = 'chip-header';
       var name = document.createElement('span');
@@ -94,7 +125,7 @@
       header.appendChild(iconSlot(c.icons[3]));
       div.appendChild(header);
 
-      // Bottom icon row: ic[0]=left, ic[1]=center, ic[2]=right
+      // Bottom icon row: ic[0]=left corner, ic[1]=center, ic[2]=right corner
       var bottom = document.createElement('div');
       bottom.className = 'icon-row';
       bottom.appendChild(iconSlot(c.icons[0]));
@@ -102,15 +133,11 @@
       bottom.appendChild(iconSlot(c.icons[2]));
       div.appendChild(bottom);
 
-      if (opts.onClick) {
-        div.addEventListener('click', opts.onClick);
-      } else {
-        div.className += ' clickable';
-        div.addEventListener('click', function (e) {
-          e.stopPropagation();
-          showCardDetail(cardId);
-        });
-      }
+      div.addEventListener('click', opts.onClick || function (e) {
+        e.stopPropagation();
+        showCardDetail(cardId);
+      });
+      if (opts.onLongPress) addLongPress(div, opts.onLongPress);
       return div;
     }
 
@@ -140,6 +167,45 @@
       return strip;
     }
 
+    // ---- action popup (bottom sheet) ----------------------------------------
+
+    var _actionPopupEl = null;
+
+    function showActionPopup(title, buttons) {
+      closeActionPopup();
+      var overlay = document.createElement('div');
+      overlay.id = 'action-popup-overlay';
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeActionPopup();
+      });
+      var box = document.createElement('div');
+      box.id = 'action-popup-box';
+      var titleEl = document.createElement('div');
+      titleEl.id = 'action-popup-title';
+      titleEl.textContent = title;
+      box.appendChild(titleEl);
+      var btnWrap = document.createElement('div');
+      btnWrap.id = 'action-popup-buttons';
+      buttons.forEach(function (b) {
+        var btn = document.createElement('button');
+        btn.className = 'btn' + (b.primary ? ' btn-primary' : '');
+        btn.textContent = b.label;
+        btn.addEventListener('click', function () {
+          closeActionPopup();
+          b.onSelect();
+        });
+        btnWrap.appendChild(btn);
+      });
+      box.appendChild(btnWrap);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+      _actionPopupEl = overlay;
+    }
+
+    function closeActionPopup() {
+      if (_actionPopupEl) { _actionPopupEl.remove(); _actionPopupEl = null; }
+    }
+
     // ---- main board render -------------------------------------------------
 
     function render(g) {
@@ -159,7 +225,10 @@
       el.log.scrollTop = el.log.scrollHeight;
     }
 
-    function renderPlayers() {
+    // interactiveOpts (optional): { meldActions, dogmaActions, onAction }
+    // When set and the player is human, board top cards and hand cards get
+    // tap→action-popup and long-press→card-detail behaviour.
+    function renderPlayers(interactiveOpts) {
       el.players.innerHTML = '';
       game.players.forEach(function (p) {
         var panel = document.createElement('div');
@@ -185,6 +254,8 @@
 
         var board = document.createElement('div');
         board.className = 'board-row';
+        var isHumanPlayer = p.id === humanPlayerId;
+
         engine.COLORS.forEach(function (color) {
           var stack = p.board[color];
           var col = document.createElement('div');
@@ -203,9 +274,36 @@
           col.appendChild(colHeader);
 
           if (stack.cards.length > 0) {
-            // cards[last] = top, cards[0] = bottom; reverse to get [top, …, bottom]
+            // cards[last]=top, cards[0]=bottom; reverse → [top, …, bottom]
             var ordered = stack.cards.slice().reverse();
             var tucked = ordered.slice(1);
+            var topCardId = ordered[0];
+
+            // Build opts for the top card chip
+            var topCardOpts = {};
+            if (interactiveOpts && isHumanPlayer) {
+              var dogmaAction = null;
+              for (var di = 0; di < interactiveOpts.dogmaActions.length; di++) {
+                if (interactiveOpts.dogmaActions[di].color === color) {
+                  dogmaAction = interactiveOpts.dogmaActions[di];
+                  break;
+                }
+              }
+              if (dogmaAction) {
+                topCardOpts.onClick = (function (da, tcId) {
+                  return function () {
+                    var cardName = (byId[tcId] || {}).name || tcId;
+                    showActionPopup(cardName + ' のドグマ', [
+                      { label: '発動', primary: true, onSelect: function () { interactiveOpts.onAction(da); } },
+                      { label: '戻る', onSelect: function () {} }
+                    ]);
+                  };
+                })(dogmaAction, topCardId);
+                topCardOpts.onLongPress = (function (tcId) {
+                  return function () { showCardDetail(tcId); };
+                })(topCardId);
+              }
+            }
 
             if (stack.splay === 'left' || stack.splay === 'right') {
               // Horizontal layout: peek strips + top card side by side
@@ -213,15 +311,14 @@
               splCont.className = 'splay-h splay-h-' + stack.splay;
 
               if (stack.splay === 'left') {
-                // Left splay: deepest card at far-left, top card at right
-                // tucked = [2nd-from-top, …, bottom]; reverse → [bottom, …, 2nd-from-top]
+                // Deepest card at far-left, top card at right
                 tucked.slice().reverse().forEach(function (cardId) {
                   splCont.appendChild(cardPeek(cardId, 'left'));
                 });
-                splCont.appendChild(cardChip(ordered[0]));
+                splCont.appendChild(cardChip(topCardId, topCardOpts));
               } else {
-                // Right splay: top card at left, then peeks extending right
-                splCont.appendChild(cardChip(ordered[0]));
+                // Top card at left, peeks extending right
+                splCont.appendChild(cardChip(topCardId, topCardOpts));
                 tucked.forEach(function (cardId) {
                   splCont.appendChild(cardPeek(cardId, 'right'));
                 });
@@ -230,10 +327,9 @@
 
             } else {
               // Vertical layout: top card, then peek strips or badge below
-              col.appendChild(cardChip(ordered[0]));
+              col.appendChild(cardChip(topCardId, topCardOpts));
               if (tucked.length > 0) {
                 if (stack.splay === 'none') {
-                  // Not splayed — show count only
                   var badge = document.createElement('div');
                   badge.className = 'stack-count';
                   badge.textContent = '＋' + tucked.length + '枚';
@@ -261,7 +357,33 @@
           handZone.appendChild(zoneLabel('手札（' + p.hand.length + '）'));
           var handCards = document.createElement('div');
           handCards.className = 'zone-cards';
-          p.hand.forEach(function (id) { handCards.appendChild(cardChip(id)); });
+          p.hand.forEach(function (id) {
+            var handOpts = {};
+            if (interactiveOpts) {
+              var meldAction = null;
+              for (var mi = 0; mi < interactiveOpts.meldActions.length; mi++) {
+                if (interactiveOpts.meldActions[mi].cardId === id) {
+                  meldAction = interactiveOpts.meldActions[mi];
+                  break;
+                }
+              }
+              if (meldAction) {
+                handOpts.onClick = (function (ma, cardId) {
+                  return function () {
+                    var cardName = (byId[cardId] || {}).name || cardId;
+                    showActionPopup(cardName, [
+                      { label: 'メルドする', primary: true, onSelect: function () { interactiveOpts.onAction(ma); } },
+                      { label: '戻る', onSelect: function () {} }
+                    ]);
+                  };
+                })(meldAction, id);
+                handOpts.onLongPress = (function (cardId) {
+                  return function () { showCardDetail(cardId); };
+                })(id);
+              }
+            }
+            handCards.appendChild(cardChip(id, handOpts));
+          });
           handZone.appendChild(handCards);
         } else {
           handZone.appendChild(zoneLabel('手札：' + p.hand.length + '枚'));
@@ -414,36 +536,46 @@
 
     // ---- controller-facing ask* methods --------------------------------------
 
+    // Replaces the old button-list action bar.
+    // Draw and Achieve actions appear as buttons in the action bar.
+    // Meld and Dogma actions are triggered by tapping the card on the board/hand.
+    // Long-pressing any card shows its card detail.
     function askAction(player, ctx) {
       return new Promise(function (resolve) {
+        var settled = false;
+        function settle(action) {
+          if (settled) return;
+          settled = true;
+          closeActionPopup();
+          el.actionBar.innerHTML = '';
+          renderPlayers(); // clear interactive handlers
+          resolve(action);
+        }
+
         el.actionBar.innerHTML = '';
         var label = document.createElement('div');
         label.className = 'action-bar-label';
-        label.textContent = 'あなたの番です — 行動を選んでください：';
+        label.textContent = 'あなたの番です — 手札・盤面のカードをタップして行動：';
         el.actionBar.appendChild(label);
+
         ctx.legal.forEach(function (action) {
+          if (action.type !== 'draw' && action.type !== 'achieve') return;
           var b = document.createElement('button');
-          b.className = 'btn';
-          b.textContent = describeAction(ctx.game, player, action);
-          b.addEventListener('click', function () {
-            el.actionBar.innerHTML = '';
-            resolve(action);
-          });
+          b.className = 'btn' + (action.type === 'draw' ? ' btn-primary' : '');
+          b.textContent = action.type === 'draw' ? 'カードを引く' : '時代' + action.age + 'を達成';
+          b.addEventListener('click', function () { settle(action); });
           el.actionBar.appendChild(b);
         });
-      });
-    }
 
-    function describeAction(g, player, action) {
-      if (action.type === 'draw') return 'カードを引く';
-      if (action.type === 'meld') return byId[action.cardId].name + ' をメルドする';
-      if (action.type === 'dogma') {
-        var topId = engine.topCard(player, action.color);
-        var topName = topId != null ? byId[topId].name : '';
-        return COLOR_JA[action.color] + 'のドグマを発動する（' + topName + '）';
-      }
-      if (action.type === 'achieve') return '時代' + action.age + 'の達成カードを獲得する';
-      return action.type;
+        var meldActions = ctx.legal.filter(function (a) { return a.type === 'meld'; });
+        var dogmaActions = ctx.legal.filter(function (a) { return a.type === 'dogma'; });
+
+        renderPlayers({
+          meldActions: meldActions,
+          dogmaActions: dogmaActions,
+          onAction: settle
+        });
+      });
     }
 
     function askCard(player, opts) {

@@ -187,8 +187,8 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .chip-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; margin-bottom: 2px; }
 .card-name { font-weight: bold; flex: 1; min-width: 0; }
 
-/* Bottom row: ic[0]=left  ic[1]=center  ic[2]=right */
-.icon-row { display: flex; gap: 2px; }
+/* Bottom row: ic[0]=left corner  ic[1]=center  ic[2]=right corner */
+.icon-row { display: flex; justify-content: space-between; }
 .icon-slot { width: 14px; text-align: center; font-size: 0.85rem; line-height: 1; }
 .icon-slot.empty { opacity: 0.18; font-size: 0.4rem; }
 
@@ -284,7 +284,7 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
  * [ic0=左下][ic1=中下][ic2=右下] */
 .detail-icon-grid { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 6px 8px; margin-bottom: 12px; }
 .detail-icon-top { display: flex; justify-content: flex-end; margin-bottom: 2px; }
-.detail-icon-bottom { display: flex; gap: 4px; }
+.detail-icon-bottom { display: flex; justify-content: space-between; gap: 4px; }
 .icon-slot-lg {
   width: 30px; height: 30px;
   display: inline-flex; align-items: center; justify-content: center;
@@ -294,4 +294,40 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .icon-slot-lg.empty {
   border: 1px dashed rgba(255,255,255,0.12);
   font-size: 0.5rem; color: rgba(255,255,255,0.2);
+}
+
+/* ---- action popup (bottom sheet) ---- */
+
+#action-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 30;
+}
+#action-popup-box {
+  background: #262b32;
+  border-radius: 12px 12px 0 0;
+  padding: 20px 16px 24px;
+  width: 100%;
+  max-width: 480px;
+}
+#action-popup-title {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 14px;
+  text-align: center;
+}
+#action-popup-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#action-popup-buttons .btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  text-align: center;
 }

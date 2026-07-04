@@ -206,7 +206,7 @@
         var ids = p.hand.filter(function (id) { return hasIcon(g, id, 'castle'); });
         var chosen = await pickSome(p, ids, '城アイコンのカードを好きな数メルドしてください。', 0, ids.length);
         chosen.forEach(function (id) { engine.meldCard(g, p, id); });
-        if (chosen.length >= 3) engine.specialAchievementCheck(g, p, 'monument');
+        if (chosen.length >= 4) engine.claimSpecialAchievement(g, p, 'monument');
       }
     }];
 
@@ -610,7 +610,7 @@
         demand: false, icon: 'lightbulb',
         run: async function (ctx) {
           var g = ctx.game, p = ctx.actor;
-          if (engine.splayedColorCount(p) >= 5) engine.specialAchievementCheck(g, p, 'wonder');
+          if (engine.splayedColorCount(p) >= 5) engine.claimSpecialAchievement(g, p, 'wonder');
         }
       }
     ];

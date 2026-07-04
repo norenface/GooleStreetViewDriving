@@ -354,7 +354,21 @@
 
   function specialAchievementCheck(game, player, name) {
     if (game.specialAchievementsAvailable.indexOf(name) === -1) return false;
+    if (player.achievements.indexOf(name) !== -1) return false;
     if (!specialAchievementMet(game, player, name)) return false;
+    game.specialAchievementsAvailable.splice(game.specialAchievementsAvailable.indexOf(name), 1);
+    player.achievements.push(name);
+    log(game, player.name + ' は特別達成カードを獲得した：' + (ACHIEVEMENT_JA[name] || name) + '！');
+    checkWinByAchievements(game, player);
+    return true;
+  }
+
+  // Direct grant from a card effect — bypasses the standard condition check.
+  // Use this when the card itself defines the eligibility condition (e.g., Masonry,
+  // Invention). Availability is still checked to prevent double-claiming.
+  function claimSpecialAchievement(game, player, name) {
+    if (game.specialAchievementsAvailable.indexOf(name) === -1) return false;
+    if (player.achievements.indexOf(name) !== -1) return false;
     game.specialAchievementsAvailable.splice(game.specialAchievementsAvailable.indexOf(name), 1);
     player.achievements.push(name);
     log(game, player.name + ' は特別達成カードを獲得した：' + (ACHIEVEMENT_JA[name] || name) + '！');
@@ -514,6 +528,7 @@
     canAchieve: canAchieve,
     achieve: achieve,
     specialAchievementCheck: specialAchievementCheck,
+    claimSpecialAchievement: claimSpecialAchievement,
     checkAllSpecialAchievements: checkAllSpecialAchievements,
     achievementsNeededToWin: achievementsNeededToWin,
     scoreValue: scoreValue,

@@ -36,6 +36,12 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 
 #game-screen { max-width: 1100px; margin: 0 auto; padding: 12px; }
 
+#game-info-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
 #game-over-banner {
   background: #3a7d44;
   color: #fff;

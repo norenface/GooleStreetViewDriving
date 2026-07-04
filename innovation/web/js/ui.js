@@ -57,6 +57,11 @@
       });
     }
 
+    var specialAchBtn = document.getElementById('special-ach-btn');
+    if (specialAchBtn) {
+      specialAchBtn.addEventListener('click', showSpecialAchievements);
+    }
+
     function setHumanPlayer(id) { humanPlayerId = id; }
 
     // Card icon positions (match physical card / BGA spot numbering):
@@ -534,6 +539,83 @@
       el.cardDetailOverlay.classList.add('hidden');
     }
 
+    // ---- special achievement conditions viewer --------------------------------
+
+    var SPECIAL_ACH_INFO = [
+      { id: 'monument', glyph: '🗿', name: '記念碑', condition: '1ターン中にタック/スコアを6回行う' },
+      { id: 'empire',   glyph: '🎖️', name: '帝国',   condition: '6種類すべてのアイコンをそれぞれ3個以上持つ' },
+      { id: 'wonder',   glyph: '✨',  name: '驚異',   condition: '5色すべての山を「上」または「右」にスプレイする' },
+      { id: 'world',    glyph: '🌍', name: '世界',   condition: '盤面上の時計アイコンが合計12個以上' },
+      { id: 'universe', glyph: '🌌', name: '宇宙',   condition: '5色すべてのトップカードが時代8以上' }
+    ];
+
+    function showSpecialAchievements() {
+      if (!el.cardDetailOverlay) return;
+      el.cardDetailTitle.textContent = '特別達成条件';
+      el.cardDetailBody.innerHTML = '';
+
+      var p = game && game.players[humanPlayerId];
+
+      SPECIAL_ACH_INFO.forEach(function (info) {
+        var block = document.createElement('div');
+        block.className = 'card-detail-dogma';
+
+        var label = document.createElement('div');
+        label.className = 'card-detail-dogma-label';
+        var acquired = p && p.achievements.indexOf(info.id) !== -1;
+        var available = game && game.specialAchievementsAvailable &&
+                        game.specialAchievementsAvailable.indexOf(info.id) !== -1;
+        var status = acquired ? ' ✅取得済み' : (!available ? ' ⚫他プレイヤーが取得済み' : '');
+        label.textContent = info.glyph + ' ' + info.name + status;
+        block.appendChild(label);
+
+        var condEl = document.createElement('div');
+        condEl.className = 'card-detail-dogma-text';
+        condEl.textContent = info.condition;
+        block.appendChild(condEl);
+
+        if (p && game) {
+          var progEl = document.createElement('div');
+          progEl.style.cssText = 'font-size:0.8rem; color:#9aa4ae; margin-top:4px;';
+          var txt = '';
+          switch (info.id) {
+            case 'monument':
+              txt = '今ターンのタック/スコア: ' + (p.tuckOrScoreCountThisTurn || 0) + ' / 6';
+              break;
+            case 'empire':
+              var minIcons = Math.min.apply(null, engine.ICONS.map(function (ic) {
+                return engine.iconCount(game, p, ic);
+              }));
+              txt = '最小アイコン数: ' + minIcons + ' / 3';
+              break;
+            case 'wonder':
+              var splayOk = engine.COLORS.filter(function (c) {
+                return p.board[c].cards.length > 0 &&
+                       (p.board[c].splay === 'up' || p.board[c].splay === 'right');
+              }).length;
+              txt = '上/右スプレイ済みの色: ' + splayOk + ' / 5';
+              break;
+            case 'world':
+              txt = '時計アイコン: ' + engine.iconCount(game, p, 'clock') + ' / 12';
+              break;
+            case 'universe':
+              var age8ok = engine.COLORS.filter(function (c) {
+                var t = engine.topCardObj(game, p, c);
+                return t && t.age >= 8;
+              }).length;
+              txt = '時代8以上のトップカード: ' + age8ok + ' / 5';
+              break;
+          }
+          progEl.textContent = 'あなたの現在の状況: ' + txt;
+          block.appendChild(progEl);
+        }
+
+        el.cardDetailBody.appendChild(block);
+      });
+
+      el.cardDetailOverlay.classList.remove('hidden');
+    }
+
     // ---- controller-facing ask* methods --------------------------------------
 
     // Replaces the old button-list action bar.
@@ -605,7 +687,8 @@
               }
               chip.classList.toggle('selected', selected.indexOf(id) !== -1);
               refreshConfirm();
-            }
+            },
+            onLongPress: function () { showCardDetail(id); }
           });
           chips[id] = chip;
           el.modalBody.appendChild(chip);

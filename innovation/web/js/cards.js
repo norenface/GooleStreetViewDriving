@@ -49,7 +49,7 @@
     { id: 'tools', name: '道具', age: 1, color: 'blue', icons: [B, B, T, null],
       dogma: [{ demand: false, icon: B, text: 'You may return three cards from your hand. If you do, draw and meld a 3. Otherwise, you may return a card from your hand with a lightbulb icon. If you do, draw and meld a card of value one higher than the card you returned.', textJa: 'あなたは手札から3枚のカードを戻してもよい。した場合、3を引いてメルドする。そうしなかった場合、手札から電球アイコン付きカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いてメルドする。' }] },
     { id: 'writing', name: '文字', age: 1, color: 'yellow', icons: [B, B, C, null],
-      dogma: [{ demand: false, icon: B, text: 'Draw a 1.', textJa: '1を引く。' }] },
+      dogma: [{ demand: false, icon: B, text: 'Draw a 2.', textJa: '2を引く。' }] },
 
     // ---------------- AGE 2 (10 cards) ----------------
     { id: 'calendar', name: '暦', age: 2, color: 'yellow', icons: [L, L, B, null],

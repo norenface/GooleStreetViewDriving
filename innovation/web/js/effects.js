@@ -139,7 +139,7 @@
         var id = await pickOne(target, highest, actor.name + ' に手札の最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'score' });
-          await drawAndTuck(g, actor, 1);
+          engine.drawCard(g, target, 1);
         }
       }
     }];
@@ -206,7 +206,7 @@
         var ids = p.hand.filter(function (id) { return hasIcon(g, id, 'castle'); });
         var chosen = await pickSome(p, ids, '城アイコンのカードを好きな数メルドしてください。', 0, ids.length);
         chosen.forEach(function (id) { engine.meldCard(g, p, id); });
-        if (chosen.length >= 4) engine.claimSpecialAchievement(g, p, 'monument');
+        if (chosen.length >= 3) engine.claimSpecialAchievement(g, p, 'monument');
       }
     }];
 
@@ -244,10 +244,10 @@
         var id = await pickOne(target, ids, actor.name + ' に王冠カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'score' });
-          await drawAndTuck(g, actor, 1);
+          engine.drawCard(g, target, 1);
           await effectDefs.oars[0].run(ctx);
         } else {
-          await drawAndTuck(g, actor, 1);
+          engine.drawCard(g, actor, 1);
         }
       }
     }];
@@ -278,8 +278,8 @@
           chosen.forEach(function (id) { engine.returnCardFromPlayer(g, p, id); });
           await drawAndMeld(g, p, 3);
         } else {
-          var ids = p.hand.filter(function (id) { return hasIcon(g, id, 'factory'); });
-          var id = await pickOne(p, ids, '手札から工場カードを戻しますか？', true);
+          var ids = p.hand.filter(function (id) { return hasIcon(g, id, 'lightbulb'); });
+          var id = await pickOne(p, ids, '手札から電球カードを戻しますか？', true);
           if (id) {
             var a = ageOf(g, id);
             engine.returnCardFromPlayer(g, p, id);
@@ -289,7 +289,7 @@
       }
     }];
 
-    effectDefs.writing = [{ demand: false, icon: 'lightbulb', run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 1); } }];
+    effectDefs.writing = [{ demand: false, icon: 'lightbulb', run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 2); } }];
 
     // ======================================================================
     // AGE 2
@@ -372,7 +372,7 @@
         var id = await pickOne(target, ids, actor.name + ' の手札に王冠カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'hand' });
-          engine.drawCard(g, actor, 1);
+          engine.drawCard(g, target, 1);
         }
       }
     }];
@@ -418,7 +418,7 @@
         var id = await pickOne(target, ids, actor.name + ' に、共有していない色の一番上のカードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
-          await drawAndTuck(g, actor, 1);
+          await drawAndTuck(g, target, 1);
         }
       }
     }];
@@ -673,7 +673,7 @@
           var a = ageOf(g, id), color = colorOf(g, id);
           engine.transferCard(g, id, { player: target, zone: 'board', color: color }, { player: actor, zone: 'board', color: color });
           await drawAndTuck(g, actor, a);
-          await drawAndTuck(g, target, 1);
+          engine.drawCard(g, target, 1);
         }
       }
     }];
@@ -746,7 +746,7 @@
         var id = await pickOne(target, ids, actor.name + ' に得点パイルの最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'score' }, { player: actor, zone: 'score' });
-          engine.drawCard(g, actor, 5);
+          engine.drawCard(g, target, 5);
         }
       }
     }];
@@ -897,7 +897,7 @@
         var loColor = colors.filter(function (c) { return ageOf(g, engine.topCard(target, c)) === loAge; })[0];
         var id = engine.topCard(target, loColor);
         engine.transferCard(g, id, { player: target, zone: 'board', color: loColor }, { player: actor, zone: 'score' });
-        engine.drawCard(g, actor, 6);
+        engine.drawCard(g, target, 6);
       }
     }];
 
@@ -933,7 +933,7 @@
           var id = await pickOne(target, target.hand.slice(), actor.name + ' に手札のカードを渡してください。');
           if (id) {
             engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'score' });
-            engine.drawCard(g, actor, 1);
+            engine.drawCard(g, target, 1);
           }
         }
       },
@@ -973,7 +973,7 @@
         var id = await pickOne(target, target.score.slice(), actor.name + ' に得点パイルのカードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'score' }, { player: actor, zone: 'score' });
-          engine.drawCard(g, actor, 6);
+          engine.drawCard(g, target, 6);
         }
       }
     }];
@@ -999,7 +999,7 @@
         var id = await pickOne(target, ids, '軍事アイコンを持たない一番上のカードのうち最高値のものを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
-          engine.drawCard(g, actor, 7);
+          engine.drawCard(g, target, 7);
         }
       }
     }];
@@ -1125,7 +1125,7 @@
         if (color) {
           var id = engine.topCard(target, color);
           engine.transferCard(g, id, { player: target, zone: 'board', color: color }, { player: actor, zone: 'score' });
-          engine.drawCard(g, actor, 8);
+          engine.drawCard(g, target, 8);
         }
       }
     }];
@@ -1243,7 +1243,7 @@
         var id = await pickOne(target, ids, actor.name + ' に手札の最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'hand' });
-          engine.drawCard(g, actor, 8);
+          engine.drawCard(g, target, 8);
         }
       }
     }];
@@ -1413,7 +1413,7 @@
         var id = await pickOne(target, ids, actor.name + ' に一番上のカードのうち最低値のものを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
-          engine.drawCard(g, actor, 1);
+          engine.drawCard(g, target, 1);
         }
       }
     }];
@@ -1430,7 +1430,7 @@
         var id = await pickOne(target, ids, actor.name + ' に手札の最高値カードを渡してください。');
         if (id) {
           engine.transferCard(g, id, { player: target, zone: 'hand' }, { player: actor, zone: 'hand' });
-          engine.drawCard(g, actor, 10);
+          engine.drawCard(g, target, 10);
         }
       }
     }];
@@ -1439,15 +1439,17 @@
       demand: false, icon: 'clock',
       run: async function (ctx) {
         var g = ctx.game, p = ctx.actor;
-        var colors = COLORS.filter(function (c) { return engine.topCard(p, c) != null; });
+        var allColors = COLORS.filter(function (c) { return engine.topCard(p, c) != null; });
+        var hiAge = allColors.reduce(function (m, c) { return Math.max(m, ageOf(g, engine.topCard(p, c))); }, -Infinity);
+        var hiColors = allColors.filter(function (c) { return ageOf(g, engine.topCard(p, c)) === hiAge; });
         var options = [];
-        colors.forEach(function (c) {
+        hiColors.forEach(function (c) {
           g.players.forEach(function (o) {
             if (o.id === p.id) return;
-            if (engine.topCard(o, c) != null) options.push(c);
+            if (engine.topCard(o, c) != null && options.indexOf(c) === -1) options.push(c);
           });
         });
-        var color = await pickColor(p, options, '自分の一番上のカードを、同じ色を持つ他のプレイヤーの最低値の一番上のカードと交換しますか？', true);
+        var color = await pickColor(p, options, '自分の最高値の一番上のカードを、同じ色の他のプレイヤーの最低値のカードと交換しますか？', true);
         if (!color) return;
         var others = g.players.filter(function (o) { return o.id !== p.id && engine.topCard(o, color) != null; });
         var lowestOther = null, lowestAge = Infinity, lowestPlayer = null;

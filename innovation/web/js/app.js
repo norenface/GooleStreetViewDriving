@@ -100,6 +100,139 @@
     });
   });
 
+  // ---- card list overlay -------------------------------------------------------
+
+  var ICON_GLYPH_CL = {
+    leaf: '🌿', crown: '👑', lightbulb: '💡',
+    factory: '🏭', castle: '🏰', clock: '🕰️'
+  };
+  var COLOR_JA_CL = { yellow: '黄', red: '赤', green: '緑', blue: '青', purple: '紫' };
+
+  function addLongPressCL(elem, cb) {
+    var timer = null;
+    var guard = false;
+    elem.addEventListener('touchstart', function () {
+      timer = setTimeout(function () { timer = null; guard = true; cb(); }, 600);
+    }, { passive: true });
+    function cancel() { if (timer) { clearTimeout(timer); timer = null; } }
+    elem.addEventListener('touchend', cancel);
+    elem.addEventListener('touchcancel', cancel);
+    elem.addEventListener('touchmove', cancel);
+    elem.addEventListener('contextmenu', function (e) { e.preventDefault(); cb(); });
+    elem.addEventListener('click', function (e) {
+      if (guard) { guard = false; e.stopImmediatePropagation(); }
+    }, true);
+  }
+
+  function makeIconSlotLgCL(icon) {
+    var span = document.createElement('span');
+    span.className = 'icon-slot-lg' + (icon ? '' : ' empty');
+    span.textContent = icon ? (ICON_GLYPH_CL[icon] || icon) : '·';
+    return span;
+  }
+
+  function showCardDetailCL(c) {
+    var overlay = document.getElementById('card-detail-overlay');
+    var titleEl = document.getElementById('card-detail-title');
+    var bodyEl = document.getElementById('card-detail-body');
+    if (!overlay) return;
+    titleEl.textContent = c.name + '（時代' + c.age + '・' + (COLOR_JA_CL[c.color] || c.color) + '）';
+    bodyEl.innerHTML = '';
+
+    var iconGrid = document.createElement('div');
+    iconGrid.className = 'detail-icon-grid';
+    var topRow = document.createElement('div');
+    topRow.className = 'detail-icon-top';
+    topRow.appendChild(makeIconSlotLgCL(c.icons[3]));
+    iconGrid.appendChild(topRow);
+    var botRow = document.createElement('div');
+    botRow.className = 'detail-icon-bottom';
+    [c.icons[0], c.icons[1], c.icons[2]].forEach(function (ic) {
+      botRow.appendChild(makeIconSlotLgCL(ic));
+    });
+    iconGrid.appendChild(botRow);
+    bodyEl.appendChild(iconGrid);
+
+    c.dogma.forEach(function (d) {
+      var block = document.createElement('div');
+      block.className = 'card-detail-dogma';
+      var label = document.createElement('div');
+      label.className = 'card-detail-dogma-label';
+      label.textContent = (ICON_GLYPH_CL[d.icon] || '') + ' ' + (d.demand ? '【強制】ドグマ' : 'ドグマ');
+      block.appendChild(label);
+      var text = document.createElement('div');
+      text.className = 'card-detail-dogma-text';
+      text.textContent = d.textJa || d.text || '';
+      block.appendChild(text);
+      bodyEl.appendChild(block);
+    });
+
+    overlay.classList.remove('hidden');
+  }
+
+  function renderCardList() {
+    var body = document.getElementById('card-list-body');
+    body.innerHTML = '';
+    var byAge = {};
+    cardsDb.forEach(function (c) {
+      if (!byAge[c.age]) byAge[c.age] = [];
+      byAge[c.age].push(c);
+    });
+    for (var age = 1; age <= 10; age++) {
+      var cards = byAge[age];
+      if (!cards || !cards.length) continue;
+      var ageHeader = document.createElement('div');
+      ageHeader.className = 'card-list-age-header';
+      ageHeader.textContent = '時代 ' + age;
+      body.appendChild(ageHeader);
+      var row = document.createElement('div');
+      row.className = 'card-list-row';
+      cards.forEach(function (c) {
+        var chip = document.createElement('div');
+        chip.className = 'card-chip color-' + c.color;
+
+        var header = document.createElement('div');
+        header.className = 'chip-header';
+        var name = document.createElement('span');
+        name.className = 'card-name';
+        name.textContent = c.name;
+        var ic3 = document.createElement('span');
+        ic3.className = 'icon-slot' + (c.icons[3] ? '' : ' empty');
+        ic3.textContent = c.icons[3] ? (ICON_GLYPH_CL[c.icons[3]] || '') : '·';
+        header.appendChild(name);
+        header.appendChild(ic3);
+        chip.appendChild(header);
+
+        var iconRow = document.createElement('div');
+        iconRow.className = 'icon-row';
+        [c.icons[0], c.icons[1], c.icons[2]].forEach(function (ic) {
+          var slot = document.createElement('span');
+          slot.className = 'icon-slot' + (ic ? '' : ' empty');
+          slot.textContent = ic ? (ICON_GLYPH_CL[ic] || '') : '·';
+          iconRow.appendChild(slot);
+        });
+        chip.appendChild(iconRow);
+
+        addLongPressCL(chip, (function (card) {
+          return function () { showCardDetailCL(card); };
+        }(c)));
+
+        row.appendChild(chip);
+      });
+      body.appendChild(row);
+    }
+  }
+
+  document.getElementById('card-list-btn').addEventListener('click', function () {
+    renderCardList();
+    document.getElementById('card-list-overlay').classList.remove('hidden');
+  });
+  document.getElementById('card-list-close').addEventListener('click', function () {
+    document.getElementById('card-list-overlay').classList.add('hidden');
+  });
+
+  // ----------------------------------------------------------------------------
+
   function startSoloGame() {
     var game = soloplay.makeSoloGame(cardsDb, 'あなた');
     ui.setHumanPlayer(HUMAN_SEAT);

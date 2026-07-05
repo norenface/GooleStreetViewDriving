@@ -27,7 +27,10 @@
     { id: 'city_states', name: '都市国家', age: 1, color: 'purple', icons: [C, C, T, null],
       dogma: [{ demand: true, icon: C, text: 'I DEMAND you transfer a top card on your board with a castle icon to my score pile, draw and tuck a card of the same value. If you cannot, I draw and tuck a 1.', textJa: '【強制】対象プレイヤーは、ボードの一番上にある城アイコン付きカードをあなたの得点パイルに渡し、同じ価値のカードを引いてタックする。渡せない場合、あなたが1を引いてタックする。' }] },
     { id: 'clothing', name: '衣服', age: 1, color: 'green', icons: [C, L, L, null],
-      dogma: [{ demand: false, icon: L, text: 'You may score a card from your hand of value 1. If you do, draw and score a 1 for each top card you have with a leaf icon.', textJa: 'あなたは手札から価値1のカードを得点してもよい。した場合、葉アイコンを持つ一番上のカード1枚につき1を引いて得点する。' }] },
+      dogma: [
+        { demand: true, icon: L, text: 'I DEMAND you transfer a top card from your board with a leaf to my score pile! If you do, draw and score a 1!', textJa: '【強制】対象プレイヤーは、葉アイコン付きの一番上のカードをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引いて得点する。' },
+        { demand: false, icon: L, text: 'You may score a card from your hand of value 1. If you do, draw and score a 1 for each top card you have with a leaf icon.', textJa: 'あなたは手札から価値1のカードを得点してもよい。した場合、葉アイコンを持つ一番上のカード1枚につき1を引いて得点する。' }
+      ] },
     { id: 'code_of_laws', name: '法典', age: 1, color: 'purple', icons: [C, C, L, null],
       dogma: [{ demand: false, icon: C, text: 'You may tuck a card from your hand that shares a color with a top card on your board. If you do, you may splay that color left.', textJa: 'あなたは、ボードの一番上のカードと同じ色のカードを手札からタックしてもよい。した場合、その色を左にスプレイしてもよい。' }] },
     { id: 'domestication', name: '家畜化', age: 1, color: 'yellow', icons: [C, null, T, T],
@@ -112,7 +115,10 @@
     { id: 'reformation', name: '宗教改革', age: 4, color: 'purple', icons: [L, null, L, L],
       dogma: [{ demand: false, icon: L, text: 'You may splay your yellow or purple cards left. If you do, draw and score a 4 for every two colors you have splayed left.', textJa: 'あなたは黄または紫のカードを左にスプレイしてもよい。した場合、左にスプレイしている色2つにつき4を引いて得点する。' }] },
     { id: 'chivalry', name: '騎士道', age: 4, color: 'red', icons: [T, null, T, T],
-      dogma: [{ demand: true, icon: T, text: 'I DEMAND you transfer your highest value top card to my board, and I draw and tuck a card of the same value! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、一番上のカードのうち最高値のものをあなたのボードに渡す。あなたは同じ価値のカードを引いてタックする。渡された場合、対象プレイヤーは1を引く。' }] },
+      dogma: [
+        { demand: true, icon: T, text: 'I DEMAND you transfer your highest value top card to my board, and I draw and tuck a card of the same value! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、一番上のカードのうち最高値のものをあなたのボードに渡す。あなたは同じ価値のカードを引いてタックする。渡された場合、対象プレイヤーは1を引く。' },
+        { demand: false, icon: T, text: 'You may splay your red cards left.', textJa: 'あなたは赤のカードを左にスプレイしてもよい。' }
+      ] },
     { id: 'experimentation', name: '実験', age: 4, color: 'green', icons: [B, B, B, null],
       dogma: [{ demand: false, icon: B, text: 'Draw and meld a 5.', textJa: '5を引いてメルドする。' }] },
     { id: 'enterprise', name: '企業', age: 4, color: 'purple', icons: [C, C, C, null],
@@ -219,11 +225,17 @@
 
     // ---------------- AGE 9 (10 cards) ----------------
     { id: 'collaboration', name: '協調', age: 9, color: 'green', icons: [C, K, C, null],
-      dogma: [{ demand: false, icon: C, text: 'Draw a 9.', textJa: '9を引く。' }] },
+      dogma: [
+        { demand: false, icon: C, text: 'Draw a 9.', textJa: '9を引く。' },
+        { demand: false, icon: C, text: 'If all other players have fewer achievements than you, you win!', textJa: '他のすべてのプレイヤーより達成カードが多ければ、あなたの勝利です！' }
+      ] },
     { id: 'composites', name: '複合材料', age: 9, color: 'green', icons: [F, null, F, F],
       dogma: [{ demand: false, icon: F, text: 'You may return the highest card in your hand to draw and score a 9, repeat for the next highest, up to a maximum of three cards.', textJa: 'あなたは手札の最高値カードを戻して9を引いて得点してもよい。これを次に高いカードについて繰り返す（最大3枚まで）。' }] },
     { id: 'computers', name: 'コンピュータ', age: 9, color: 'blue', icons: [null, K, F, K],
-      dogma: [{ demand: false, icon: K, text: 'You may meld a card from your hand. If you do, draw and meld a 10.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、10を引いてメルドする。' }] },
+      dogma: [
+        { demand: false, icon: K, text: 'Splay your blue and green cards right.', textJa: '青と緑のカードを右にスプレイする。' },
+        { demand: false, icon: K, text: 'You may meld a card from your hand. If you do, draw and meld a 10.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、10を引いてメルドする。' }
+      ] },
     { id: 'ecology', name: '生態学', age: 9, color: 'yellow', icons: [B, B, null, L],
       dogma: [{ demand: true, icon: B, text: 'I DEMAND you return all top cards on your board with value 8 or less that share a color with one of my top cards! If you do, draw a 9 for each card returned.', textJa: '【強制】対象プレイヤーは、あなたの一番上のカードのいずれかと同じ色で、価値8以下のボード上の一番上のカードをすべて戻す。戻した場合、対象プレイヤーは戻した枚数分、9を引く。' }] },
     { id: 'fission', name: '核分裂', age: 9, color: 'red', icons: [K, K, K, null],
@@ -241,13 +253,25 @@
 
     // ---------------- AGE 10 (10 cards) ----------------
     { id: 'artificial_intelligence', name: 'A.I.', age: 10, color: 'purple', icons: [B, K, null, B],
-      dogma: [{ demand: false, icon: B, text: 'Draw and meld a 10.', textJa: '10を引いてメルドする。' }] },
+      dogma: [
+        { demand: false, icon: B, text: 'Draw and meld a 10.', textJa: '10を引いてメルドする。' },
+        { demand: false, icon: B, text: 'If you have more score than every other player, you win!', textJa: '他のすべてのプレイヤーより得点が高ければ、あなたの勝利です！' }
+      ] },
     { id: 'bioengineering', name: '生体工学', age: 10, color: 'blue', icons: [K, K, null, B],
-      dogma: [{ demand: false, icon: K, text: 'Draw a 10.', textJa: '10を引く。' }] },
+      dogma: [
+        { demand: false, icon: K, text: 'Draw a 10.', textJa: '10を引く。' },
+        { demand: false, icon: K, text: 'If all other players have fewer achievements than you, you win!', textJa: '他のすべてのプレイヤーより達成カードが多ければ、あなたの勝利です！' }
+      ] },
     { id: 'globalization', name: 'グローバル化', age: 10, color: 'yellow', icons: [F, F, F, null],
-      dogma: [{ demand: false, icon: F, text: 'Draw and meld a 10.', textJa: '10を引いてメルドする。' }] },
+      dogma: [
+        { demand: false, icon: F, text: 'Return all cards from your hand of value 5 or less. Draw a 10 for each card you returned this way.', textJa: '手札から価値5以下のカードをすべて戻す。戻した枚数分だけ10を引く。' },
+        { demand: false, icon: F, text: 'If no other player has a factory icon on their board, you win!', textJa: '他のプレイヤー誰もボード上に工場アイコンを持っていなければ、あなたの勝利です！' }
+      ] },
     { id: 'miniaturization', name: '小型化', age: 10, color: 'red', icons: [B, K, B, null],
-      dogma: [{ demand: true, icon: B, text: 'I DEMAND you transfer the top card with the lowest value from your board to my score pile! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、ボード上の一番上のカードのうち最低値のものをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引く。' }] },
+      dogma: [
+        { demand: true, icon: B, text: 'I DEMAND you transfer the top card with the lowest value from your board to my score pile! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、ボード上の一番上のカードのうち最低値のものをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引く。' },
+        { demand: false, icon: B, text: 'Score a card from your hand. If you have more score than every other player, you win!', textJa: '手札からカードを1枚得点する。他のすべてのプレイヤーより得点が高ければ、あなたの勝利です！' }
+      ] },
     { id: 'robotics', name: 'ロボット工学', age: 10, color: 'red', icons: [F, null, F, null],
       dogma: [{ demand: false, icon: F, text: 'You do not execute the non-demand effects of other players\' Robotics or Software dogma actions. Draw and meld a 10.', textJa: '他のプレイヤーが発動した「ロボット工学」または「ソフトウェア」のドグマの非強制効果は実行しない。10を引いてメルドする。' }] },
     { id: 'self_service', name: 'セルフサービス', age: 10, color: 'green', icons: [C, null, C, null],

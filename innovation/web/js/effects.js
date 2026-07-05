@@ -160,19 +160,33 @@
       }
     }];
 
-    effectDefs.clothing = [{
-      demand: false, icon: 'leaf',
-      run: async function (ctx) {
-        var g = ctx.game, p = ctx.actor;
-        var ones = p.hand.filter(function (id) { return ageOf(g, id) === 1; });
-        var id = await pickOne(p, ones, '手札から価値1のカードを得点しますか？', true);
-        if (id) {
-          engine.scoreCard(g, p, id);
-          var leafTops = topCardsWithIcon(g, p, 'leaf').length;
-          for (var i = 0; i < leafTops; i++) await drawAndScore(g, p, 1);
+    effectDefs.clothing = [
+      {
+        demand: true, icon: 'leaf',
+        run: async function (ctx) {
+          var g = ctx.game, actor = ctx.actor, target = ctx.target;
+          var ids = topCardsWithIcon(g, target, 'leaf');
+          var id = await pickOne(target, ids, actor.name + ' に葉アイコン付きの一番上のカードを渡してください。');
+          if (id) {
+            engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
+            await drawAndScore(g, target, 1);
+          }
+        }
+      },
+      {
+        demand: false, icon: 'leaf',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          var ones = p.hand.filter(function (id) { return ageOf(g, id) === 1; });
+          var id = await pickOne(p, ones, '手札から価値1のカードを得点しますか？', true);
+          if (id) {
+            engine.scoreCard(g, p, id);
+            var leafTops = topCardsWithIcon(g, p, 'leaf').length;
+            for (var i = 0; i < leafTops; i++) await drawAndScore(g, p, 1);
+          }
         }
       }
-    }];
+    ];
 
     effectDefs.code_of_laws = [{
       demand: false, icon: 'crown',
@@ -664,20 +678,30 @@
       }
     }];
 
-    effectDefs.chivalry = [{
-      demand: true, icon: 'castle',
-      run: async function (ctx) {
-        var g = ctx.game, actor = ctx.actor, target = ctx.target;
-        var ids = extremeByAge(g, topCardsOf(g, target), 'max');
-        var id = await pickOne(target, ids, actor.name + ' のボードに一番上のカードのうち最高値のものを渡してください。');
-        if (id) {
-          var a = ageOf(g, id), color = colorOf(g, id);
-          engine.transferCard(g, id, { player: target, zone: 'board', color: color }, { player: actor, zone: 'board', color: color });
-          await drawAndTuck(g, actor, a);
-          engine.drawCard(g, target, 1);
+    effectDefs.chivalry = [
+      {
+        demand: true, icon: 'castle',
+        run: async function (ctx) {
+          var g = ctx.game, actor = ctx.actor, target = ctx.target;
+          var ids = extremeByAge(g, topCardsOf(g, target), 'max');
+          var id = await pickOne(target, ids, actor.name + ' のボードに一番上のカードのうち最高値のものを渡してください。');
+          if (id) {
+            var a = ageOf(g, id), color = colorOf(g, id);
+            engine.transferCard(g, id, { player: target, zone: 'board', color: color }, { player: actor, zone: 'board', color: color });
+            await drawAndTuck(g, actor, a);
+            engine.drawCard(g, target, 1);
+          }
+        }
+      },
+      {
+        demand: false, icon: 'castle',
+        run: async function (ctx) {
+          var opts = splayableColors(ctx.actor, ['left']).filter(function (o) { return o.color === 'red'; });
+          var choice = await pickSplay(ctx.actor, opts, '赤のカードを左にスプレイしますか？', true);
+          if (choice) engine.setSplay(ctx.game, ctx.actor, choice.color, choice.direction);
         }
       }
-    }];
+    ];
 
     effectDefs.experimentation = [{ demand: false, icon: 'lightbulb', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 5); } }];
 
@@ -1260,10 +1284,29 @@
     // AGE 9
     // ======================================================================
 
-    effectDefs.collaboration = [{
-      demand: false, icon: 'crown',
-      run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 9); }
-    }];
+    effectDefs.collaboration = [
+      {
+        demand: false, icon: 'crown',
+        run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 9); }
+      },
+      {
+        demand: false, icon: 'crown',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          if (g.winner != null) return;
+          var myAch = p.achievements.length;
+          if (myAch === 0) return;
+          var allOthersLess = g.players.every(function (pl) {
+            return pl.id === p.id || pl.achievements.length < myAch;
+          });
+          if (allOthersLess) {
+            g.winner = p.id;
+            g.endReason = 'dogma_win';
+            engine.log(g, p.name + ' は「協調」の効果で達成数優勢により勝利した！');
+          }
+        }
+      }
+    ];
 
     effectDefs.composites = [{
       demand: false, icon: 'factory',
@@ -1279,14 +1322,27 @@
       }
     }];
 
-    effectDefs.computers = [{
-      demand: false, icon: 'clock',
-      run: async function (ctx) {
-        var g = ctx.game, p = ctx.actor;
-        var id = await pickOne(p, p.hand.slice(), '手札からカードをメルドしますか？', true);
-        if (id) { engine.meldCard(g, p, id); await drawAndMeld(g, p, 10); }
+    effectDefs.computers = [
+      {
+        demand: false, icon: 'clock',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          ['blue', 'green'].forEach(function (c) {
+            if (p.board[c].cards.length >= 2 && p.board[c].splay !== 'right') {
+              engine.setSplay(g, p, c, 'right');
+            }
+          });
+        }
+      },
+      {
+        demand: false, icon: 'clock',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          var id = await pickOne(p, p.hand.slice(), '手札からカードをメルドしますか？', true);
+          if (id) { engine.meldCard(g, p, id); await drawAndMeld(g, p, 10); }
+        }
       }
-    }];
+    ];
 
     effectDefs.ecology = [{
       demand: true, icon: 'lightbulb',
@@ -1398,33 +1454,116 @@
     // AGE 10
     // ======================================================================
 
-    effectDefs.artificial_intelligence = [{
-      demand: false, icon: 'lightbulb',
-      run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); }
-    }];
-
-    effectDefs.bioengineering = [{
-      demand: false, icon: 'clock',
-      run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 10); }
-    }];
-
-    effectDefs.globalization = [{
-      demand: false, icon: 'factory',
-      run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); }
-    }];
-
-    effectDefs.miniaturization = [{
-      demand: true, icon: 'lightbulb',
-      run: async function (ctx) {
-        var g = ctx.game, actor = ctx.actor, target = ctx.target;
-        var ids = extremeByAge(g, topCardsOf(g, target), 'min');
-        var id = await pickOne(target, ids, actor.name + ' に一番上のカードのうち最低値のものを渡してください。');
-        if (id) {
-          engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
-          engine.drawCard(g, target, 1);
+    effectDefs.artificial_intelligence = [
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); }
+      },
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          if (g.winner != null) return;
+          var myScore = engine.scoreValue(g, p);
+          if (myScore === 0) return;
+          var allOthersLess = g.players.every(function (pl) {
+            return pl.id === p.id || engine.scoreValue(g, pl) < myScore;
+          });
+          if (allOthersLess) {
+            g.winner = p.id;
+            g.endReason = 'dogma_win';
+            engine.log(g, p.name + ' は「A.I.」の効果で得点優勢により勝利した！');
+          }
         }
       }
-    }];
+    ];
+
+    effectDefs.bioengineering = [
+      {
+        demand: false, icon: 'clock',
+        run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 10); }
+      },
+      {
+        demand: false, icon: 'clock',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          if (g.winner != null) return;
+          var myAch = p.achievements.length;
+          if (myAch === 0) return;
+          var allOthersLess = g.players.every(function (pl) {
+            return pl.id === p.id || pl.achievements.length < myAch;
+          });
+          if (allOthersLess) {
+            g.winner = p.id;
+            g.endReason = 'dogma_win';
+            engine.log(g, p.name + ' は「生体工学」の効果で達成数優勢により勝利した！');
+          }
+        }
+      }
+    ];
+
+    effectDefs.globalization = [
+      {
+        demand: false, icon: 'factory',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          var low = p.hand.filter(function (id) { return ageOf(g, id) <= 5; });
+          var count = low.length;
+          low.forEach(function (id) { engine.returnCardFromPlayer(g, p, id); });
+          for (var i = 0; i < count; i++) engine.drawCard(g, p, 10);
+        }
+      },
+      {
+        demand: false, icon: 'factory',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          if (g.winner != null) return;
+          var allOthersNoFactory = g.players.every(function (pl) {
+            return pl.id === p.id || engine.iconCount(g, pl, 'factory') === 0;
+          });
+          if (allOthersNoFactory) {
+            g.winner = p.id;
+            g.endReason = 'dogma_win';
+            engine.log(g, p.name + ' は「グローバル化」の効果で工場アイコン独占により勝利した！');
+          }
+        }
+      }
+    ];
+
+    effectDefs.miniaturization = [
+      {
+        demand: true, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, actor = ctx.actor, target = ctx.target;
+          var ids = extremeByAge(g, topCardsOf(g, target), 'min');
+          var id = await pickOne(target, ids, actor.name + ' に一番上のカードのうち最低値のものを渡してください。');
+          if (id) {
+            engine.transferCard(g, id, { player: target, zone: 'board', color: colorOf(g, id) }, { player: actor, zone: 'score' });
+            engine.drawCard(g, target, 1);
+          }
+        }
+      },
+      {
+        demand: false, icon: 'lightbulb',
+        run: async function (ctx) {
+          var g = ctx.game, p = ctx.actor;
+          if (!p.hand.length) return;
+          var id = await pickOne(p, p.hand.slice(), '手札からカードを1枚得点してください。');
+          if (!id) return;
+          engine.scoreCard(g, p, id);
+          if (g.winner != null) return;
+          var myScore = engine.scoreValue(g, p);
+          var allOthersLess = g.players.every(function (pl) {
+            return pl.id === p.id || engine.scoreValue(g, pl) < myScore;
+          });
+          if (allOthersLess && myScore > 0) {
+            g.winner = p.id;
+            g.endReason = 'dogma_win';
+            engine.log(g, p.name + ' は「小型化」の効果で得点優勢により勝利した！');
+          }
+        }
+      }
+    ];
 
     effectDefs.robotics = [{ demand: false, icon: 'factory', run: async function (ctx) { await drawAndMeld(ctx.game, ctx.actor, 10); } }];
     effectDefs.self_service = [{ demand: false, icon: 'crown', run: async function (ctx) { engine.drawCard(ctx.game, ctx.actor, 1); } }];

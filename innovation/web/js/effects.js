@@ -492,7 +492,7 @@
         if (!id) return;
         if (hasIcon(g, id, 'crown')) {
           engine.scoreCard(g, p, id);
-          var id2 = await pickOne(p, p.hand.slice(), '手札からカードをメルドしますか？', true);
+          var id2 = await pickOne(p, p.hand.slice(), '手札からカードをメルドしてください。');
           if (id2) engine.meldCard(g, p, id2);
         } else {
           engine.meldCard(g, p, id);
@@ -536,7 +536,8 @@
         if (!p.score.length) return;
         var hiAge = extremeByAge(g, p.score, 'max').map(function (id) { return ageOf(g, id); })[0];
         var ids = p.score.filter(function (id) { return ageOf(g, id) === hiAge; });
-        ids.slice().forEach(function (id) { engine.meldCard(g, p, id); });
+        var chosen = await pickSome(p, ids, '得点パイルの最高値カードをメルドしますか？（好きな数選択）', 0, ids.length);
+        chosen.slice().forEach(function (id) { engine.meldCard(g, p, id); });
         engine.specialAchievementCheck(g, p, 'world');
       }
     }];
@@ -1087,7 +1088,7 @@
         if (id) {
           engine.meldCard(g, p, id);
           var ids = extremeByAge(g, topCardsWithIcon(g, p, 'clock'), 'min');
-          var sid = await pickOne(p, ids, '一番上の時計カードのうち最低値のものを得点してください。', true);
+          var sid = await pickOne(p, ids, '一番上の時計カードのうち最低値のものを得点してください。');
           if (sid) engine.scoreCard(g, p, sid);
         }
       }
@@ -1098,7 +1099,14 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var common = COLORS.filter(function (c) { return engine.topCard(actor, c) != null && engine.topCard(target, c) != null; });
-        var color = await pickColor(actor, common, '共有している色の一番上のカードを交換する色を選んでください。');
+        if (!common.length) return;
+        var hiAge = common.reduce(function (m, c) {
+          return Math.max(m, ageOf(g, engine.topCard(actor, c)), ageOf(g, engine.topCard(target, c)));
+        }, -Infinity);
+        var hiColors = common.filter(function (c) {
+          return ageOf(g, engine.topCard(actor, c)) === hiAge || ageOf(g, engine.topCard(target, c)) === hiAge;
+        });
+        var color = await pickColor(actor, hiColors, '交換する色を選んでください（最高値の共有色）。');
         if (color) {
           var aId = engine.topCard(actor, color), tId = engine.topCard(target, color);
           engine.transferCard(g, aId, { player: actor, zone: 'board', color: color }, { player: target, zone: 'board', color: color });

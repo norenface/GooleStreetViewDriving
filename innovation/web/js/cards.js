@@ -225,7 +225,7 @@
     { id: 'computers', name: 'コンピュータ', age: 9, color: 'blue', icons: [null, K, F, K],
       dogma: [{ demand: false, icon: K, text: 'You may meld a card from your hand. If you do, draw and meld a 10.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、10を引いてメルドする。' }] },
     { id: 'ecology', name: '生態学', age: 9, color: 'yellow', icons: [B, B, null, L],
-      dogma: [{ demand: true, icon: B, text: 'I DEMAND you return all top cards on your board with value 8 or less that share a color with one of my top cards! If you do, draw a card for each card returned.', textJa: '【強制】対象プレイヤーは、あなたの一番上のカードのいずれかと同じ色で、価値8以下のボード上の一番上のカードをすべて戻す。戻した場合、対象プレイヤーは戻した枚数分のカードを引く。' }] },
+      dogma: [{ demand: true, icon: B, text: 'I DEMAND you return all top cards on your board with value 8 or less that share a color with one of my top cards! If you do, draw a 9 for each card returned.', textJa: '【強制】対象プレイヤーは、あなたの一番上のカードのいずれかと同じ色で、価値8以下のボード上の一番上のカードをすべて戻す。戻した場合、対象プレイヤーは戻した枚数分、9を引く。' }] },
     { id: 'fission', name: '核分裂', age: 9, color: 'red', icons: [K, K, K, null],
       dogma: [{ demand: true, icon: K, text: 'I DEMAND that, if you have two top cards with a castle icon, every player including me remove all cards from their hand, score pile, and board, and we each draw and meld a 10. Otherwise, I draw and meld a 10.', textJa: '【強制】対象プレイヤーが城アイコンを持つ一番上のカードを2枚持っている場合、あなたを含むすべてのプレイヤーは手札・得点パイル・ボードのカードをすべてゲームから除外し、各プレイヤーが10を引いてメルドする。そうでない場合、あなたが10を引いてメルドする。' }] },
     { id: 'satellites', name: '人工衛星', age: 9, color: 'blue', icons: [K, K, K, null],

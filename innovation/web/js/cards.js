@@ -8,7 +8,7 @@
 // null = empty slot.
 // dogma: [{ demand: bool, icon: iconName, text, textJa }]
 //
-// Icon data sourced from BGA Innovation SQL (micahstairs/bga-innovation).
+// Data sourced from BGA Innovation SQL (micahstairs/bga-innovation), 3rd edition.
 // Splay reveals: left→ic[2], right→ic[3]+ic[0], up→ic[0]+ic[1]+ic[2].
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -20,270 +20,778 @@
 
   var CARDS = [
     // ---------------- AGE 1 (15 cards) ----------------
-    { id: 'agriculture', name: '農業', age: 1, color: 'yellow', icons: [L, L, L, null],
-      dogma: [{ demand: false, icon: L, text: 'You may return a card from your hand. If you do, score a card from the supply of value equal to the card you returned.', textJa: 'あなたは手札からカードを1枚戻してもよい。戻した場合、戻したカードと同じ価値のカードを補充パイルから得点する。' }] },
-    { id: 'archery', name: '弓術', age: 1, color: 'red', icons: [B, null, T, T],
-      dogma: [{ demand: true, icon: T, text: 'I DEMAND you give me your highest value card in hand! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、手札の最高値カードをあなたに渡す。渡した場合、対象プレイヤーは1を引く。' }] },
-    { id: 'city_states', name: '都市国家', age: 1, color: 'purple', icons: [C, C, T, null],
-      dogma: [{ demand: true, icon: C, text: 'I DEMAND you transfer a top card on your board with a castle icon to my score pile, draw and tuck a card of the same value. If you cannot, I draw and tuck a 1.', textJa: '【強制】対象プレイヤーは、ボードの一番上にある城アイコン付きカードをあなたの得点パイルに渡し、同じ価値のカードを引いてタックする。渡せない場合、あなたが1を引いてタックする。' }] },
-    { id: 'clothing', name: '衣服', age: 1, color: 'green', icons: [C, L, L, null],
-      dogma: [
-        { demand: true, icon: L, text: 'I DEMAND you transfer a top card from your board with a leaf to my score pile! If you do, draw and score a 1!', textJa: '【強制】対象プレイヤーは、葉アイコン付きの一番上のカードをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引いて得点する。' },
-        { demand: false, icon: L, text: 'You may score a card from your hand of value 1. If you do, draw and score a 1 for each top card you have with a leaf icon.', textJa: 'あなたは手札から価値1のカードを得点してもよい。した場合、葉アイコンを持つ一番上のカード1枚につき1を引いて得点する。' }
-      ] },
-    { id: 'code_of_laws', name: '法典', age: 1, color: 'purple', icons: [C, C, L, null],
-      dogma: [{ demand: false, icon: C, text: 'You may tuck a card from your hand that shares a color with a top card on your board. If you do, you may splay that color left.', textJa: 'あなたは、ボードの一番上のカードと同じ色のカードを手札からタックしてもよい。した場合、その色を左にスプレイしてもよい。' }] },
-    { id: 'domestication', name: '家畜化', age: 1, color: 'yellow', icons: [C, null, T, T],
-      dogma: [{ demand: false, icon: T, text: 'You may return a card from your hand. If you do, draw and tuck a 1.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、1を引いてタックする。' }] },
-    { id: 'masonry', name: '石工術', age: 1, color: 'red', icons: [null, T, T, T],
-      dogma: [{ demand: false, icon: T, text: 'You may meld any number of cards from your hand with a castle icon. If you meld 3 or more cards this way, claim the Monument special achievement (if available).', textJa: 'あなたは手札の城アイコン付きカードを好きな数メルドしてもよい。この方法で3枚以上メルドした場合、記念碑特別達成カード（残っていれば）を獲得する。' }] },
-    { id: 'metalworking', name: '金属加工', age: 1, color: 'red', icons: [T, null, T, T],
-      dogma: [{ demand: false, icon: T, text: 'Draw and reveal a 1. If it has a castle icon, score it and repeat this dogma effect. Otherwise, keep it in hand.', textJa: '1を引いて公開する。城アイコンを持っていれば、それを得点してこの効果を繰り返す。持っていなければ、手札に加える。' }] },
-    { id: 'mysticism', name: '神秘主義', age: 1, color: 'blue', icons: [T, T, T, null],
-      dogma: [{ demand: false, icon: T, text: 'Draw a 1, then if it is the same color as any of your top cards, you may meld it.', textJa: '1を引く。それがあなたの一番上のカードのいずれかと同じ色であれば、メルドしてもよい。' }] },
-    { id: 'oars', name: '櫂', age: 1, color: 'red', icons: [C, null, T, T],
-      dogma: [{ demand: true, icon: C, text: 'I DEMAND you transfer a card with a crown icon from your hand to my score pile! If you do, draw a 1, and repeat this dogma effect! If no cards were transferred due to this demand, draw a 1.', textJa: '【強制】対象プレイヤーは、王冠アイコン付きカードを手札からあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引き、この効果を繰り返す。この要求で渡せなかった場合、あなたが1を引く。' }] },
     { id: 'pottery', name: '陶器', age: 1, color: 'green', icons: [L, L, L, null],
-      dogma: [{ demand: false, icon: L, text: 'You may return up to three cards from your hand. If you returned any cards, draw and score a card of value equal to the number of cards you returned.', textJa: 'あなたは手札から最大3枚のカードを戻してもよい。1枚以上戻した場合、戻した枚数と同じ価値のカードを引いて得点する。' }] },
+      dogma: [{ demand: false, icon: L,
+        text: 'You may return up to three cards from your hand. If you returned any cards, draw and score a card of value equal to the number of cards you returned.',
+        textJa: '手札から最大3枚のカードを戻してもよい。1枚以上戻した場合、戻した枚数と同じ価値のカードを引いて得点する。' }] },
+
+    { id: 'tools', name: '道具', age: 1, color: 'green', icons: [B, B, T, null],
+      dogma: [
+        { demand: false, icon: B,
+          text: 'You may return three cards from your hand. If you do, draw and meld a 3.',
+          textJa: '手札から3枚のカードを戻してもよい。した場合、3を引いてメルドする。' },
+        { demand: false, icon: B,
+          text: 'You may return a 3 from your hand. If you do, draw three 1s.',
+          textJa: '手札から3を戻してもよい。した場合、1を3枚引く。' }
+      ] },
+
+    { id: 'writing', name: '文字', age: 1, color: 'green', icons: [B, B, C, null],
+      dogma: [{ demand: false, icon: B,
+        text: 'Draw a 2.',
+        textJa: '2を引く。' }] },
+
+    { id: 'archery', name: '弓術', age: 1, color: 'red', icons: [B, null, T, T],
+      dogma: [{ demand: true, icon: T,
+        text: 'I DEMAND you give me the highest card in your hand! If you do, draw a 1.',
+        textJa: '【強制】対象プレイヤーは手札の最高値カードをあなたに渡す。渡した場合、対象プレイヤーは1を引く。' }] },
+
+    { id: 'metalworking', name: '金属加工', age: 1, color: 'red', icons: [T, null, T, T],
+      dogma: [{ demand: false, icon: T,
+        text: 'Draw and reveal a 1. If it has a castle icon, score it and repeat this effect. Otherwise, keep it.',
+        textJa: '1を引いて公開する。城アイコンを持っていれば、それを得点してこの効果を繰り返す。持っていなければ、手札に加える。' }] },
+
+    { id: 'oars', name: '櫂', age: 1, color: 'red', icons: [C, null, T, T],
+      dogma: [{ demand: true, icon: T,
+        text: 'I DEMAND you transfer a card with a crown icon from your hand to my score pile! If you do, draw a 1, and repeat this demand! If no cards were transferred, I draw a 1.',
+        textJa: '【強制】対象プレイヤーは王冠アイコン付きカードを手札からあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引き、この要求を繰り返す。渡せなかった場合、あなたが1を引く。' }] },
+
+    { id: 'clothing', name: '衣服', age: 1, color: 'blue', icons: [C, L, L, null],
+      dogma: [
+        { demand: false, icon: L,
+          text: 'Meld a card from your hand of different color from any card on your board.',
+          textJa: '自分のボード上のどのカードとも異なる色のカードを手札からメルドする。' },
+        { demand: false, icon: L,
+          text: 'Draw and score a 1 for each color present on your board not present on any opponent\'s board.',
+          textJa: '自分のボードにある色のうち、どの対戦相手のボードにもない色の数だけ、1を引いて得点する。' }
+      ] },
+
     { id: 'sailing', name: '帆走', age: 1, color: 'blue', icons: [C, null, L, C],
-      dogma: [{ demand: false, icon: C, text: 'Draw and meld a 1.', textJa: '1を引いてメルドする。' }] },
-    { id: 'the_wheel', name: '車輪', age: 1, color: 'green', icons: [T, T, T, null],
-      dogma: [{ demand: false, icon: T, text: 'Draw two 1s.', textJa: '1を2枚引く。' }] },
-    { id: 'tools', name: '道具', age: 1, color: 'blue', icons: [B, B, T, null],
-      dogma: [{ demand: false, icon: B, text: 'You may return three cards from your hand. If you do, draw and meld a 3. Otherwise, you may return a card from your hand with a lightbulb icon. If you do, draw and meld a card of value one higher than the card you returned.', textJa: 'あなたは手札から3枚のカードを戻してもよい。した場合、3を引いてメルドする。そうしなかった場合、手札から電球アイコン付きカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いてメルドする。' }] },
-    { id: 'writing', name: '文字', age: 1, color: 'yellow', icons: [B, B, C, null],
-      dogma: [{ demand: false, icon: B, text: 'Draw a 2.', textJa: '2を引く。' }] },
+      dogma: [{ demand: false, icon: C,
+        text: 'Draw and meld a 1.',
+        textJa: '1を引いてメルドする。' }] },
+
+    { id: 'the_wheel', name: '車輪', age: 1, color: 'blue', icons: [T, T, T, null],
+      dogma: [{ demand: false, icon: T,
+        text: 'Draw two 1s.',
+        textJa: '1を2枚引く。' }] },
+
+    { id: 'agriculture', name: '農業', age: 1, color: 'yellow', icons: [L, L, L, null],
+      dogma: [{ demand: false, icon: L,
+        text: 'You may return a card from your hand. If you do, draw and score a card of value one higher than the card you returned.',
+        textJa: '手札からカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いて得点する。' }] },
+
+    { id: 'domestication', name: '家畜化', age: 1, color: 'yellow', icons: [C, null, T, T],
+      dogma: [{ demand: false, icon: T,
+        text: 'Meld the lowest card in your hand. Draw a 1.',
+        textJa: '手札の最低値カードをメルドする。1を引く。' }] },
+
+    { id: 'masonry', name: '石工術', age: 1, color: 'yellow', icons: [null, T, T, T],
+      dogma: [{ demand: false, icon: T,
+        text: 'You may meld any number of cards from your hand, each with a castle icon. If you meld 4 or more, claim the Monument special achievement.',
+        textJa: '手札から城アイコン付きカードを好きな数メルドしてもよい。4枚以上メルドした場合、記念碑特別達成カードを獲得する。' }] },
+
+    { id: 'city_states', name: '都市国家', age: 1, color: 'purple', icons: [C, C, T, null],
+      dogma: [{ demand: true, icon: C,
+        text: 'I DEMAND you transfer a top card with a castle icon from your board to my board if you have four or more castle icons! If you do, draw a 1!',
+        textJa: '【強制】対象プレイヤーが城アイコンを4個以上持っている場合、ボードの一番上の城アイコン付きカードをあなたのボードに渡す。渡した場合、対象プレイヤーは1を引く。' }] },
+
+    { id: 'code_of_laws', name: '法典', age: 1, color: 'purple', icons: [C, C, L, null],
+      dogma: [{ demand: false, icon: C,
+        text: 'You may tuck a card from your hand that shares a color with a top card on your board. If you do, you may splay that color left.',
+        textJa: '自分のボードの一番上のカードと同じ色のカードを手札からタックしてもよい。した場合、その色を左にスプレイしてもよい。' }] },
+
+    { id: 'mysticism', name: '神秘主義', age: 1, color: 'purple', icons: [T, T, T, null],
+      dogma: [{ demand: false, icon: T,
+        text: 'Draw and reveal a 1. If it is the same color as any card on your board, meld it and draw a 1.',
+        textJa: '1を引いて公開する。ボード上のどれかのカードと同じ色であれば、それをメルドして1を引く。' }] },
 
     // ---------------- AGE 2 (10 cards) ----------------
-    { id: 'calendar', name: '暦', age: 2, color: 'yellow', icons: [L, L, B, null],
-      dogma: [{ demand: false, icon: L, text: 'If you have more cards in hand than each other player, score a card from your hand for each leaf icon you have, then draw a 2.', textJa: '他のすべてのプレイヤーより手札が多ければ、あなたが持つ葉アイコン1つにつき手札からカードを1枚得点し、その後2を引く。' }] },
-    { id: 'canal_building', name: '運河建設', age: 2, color: 'blue', icons: [C, L, C, null],
-      dogma: [{ demand: false, icon: C, text: 'You may exchange all the cards in your hand with all the cards in your score pile.', textJa: 'あなたは手札のカードすべてを得点パイルのカードすべてと交換してもよい。' }] },
+    { id: 'calendar', name: '暦', age: 2, color: 'green', icons: [L, L, B, null],
+      dogma: [{ demand: false, icon: L,
+        text: 'If you have more cards in your score pile than in your hand, draw two 3s.',
+        textJa: '得点パイルのカード枚数が手札より多ければ、3を2枚引く。' }] },
+
+    { id: 'mathematics', name: '数学', age: 2, color: 'green', icons: [B, C, B, null],
+      dogma: [{ demand: false, icon: B,
+        text: 'You may return a card from your hand. If you do, draw and meld a card of value one higher than the card you returned.',
+        textJa: '手札からカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いてメルドする。' }] },
+
     { id: 'construction', name: '建築', age: 2, color: 'red', icons: [null, T, T, T],
-      dogma: [{ demand: false, icon: T, text: 'You may meld a card from your hand for each castle icon you have, only one of which may have value 1. Claim the Empire special achievement if eligible.', textJa: 'あなたが持つ城アイコン1つにつき、手札からカードを1枚メルドしてもよい（価値1のカードは1枚まで）。条件を満たせば帝国特別達成カードを獲得する。' }] },
-    { id: 'currency', name: '貨幣', age: 2, color: 'green', icons: [C, null, C, L],
-      dogma: [{ demand: false, icon: C, text: 'You may return any number of cards from your hand. If you do, score a card from your hand for every two cards you returned.', textJa: 'あなたは手札から好きな数のカードを戻してもよい。した場合、戻した枚数2枚につき手札からカードを1枚得点する。' }] },
-    { id: 'mathematics', name: '数学', age: 2, color: 'blue', icons: [B, C, B, null],
-      dogma: [{ demand: false, icon: B, text: 'You may return a card from your hand. If you do, draw and meld a card of value one higher than the card you returned.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いてメルドする。' }] },
-    { id: 'mapmaking', name: '地図作成', age: 2, color: 'red', icons: [C, C, T, null],
-      dogma: [{ demand: true, icon: C, text: 'I DEMAND you transfer a card with a crown icon from your hand to my hand! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、王冠アイコン付きカードを手札からあなたの手札に渡す。渡した場合、対象プレイヤーは1を引く。' }] },
-    { id: 'medicine', name: '医学', age: 2, color: 'green', icons: [L, L, null, C],
-      dogma: [{ demand: false, icon: L, text: 'Exchange the highest card in your score pile with the lowest card in your hand.', textJa: '得点パイルの最高値カードと、手札の最低値カードを交換する。' }] },
-    { id: 'philosophy', name: '哲学', age: 2, color: 'purple', icons: [B, B, B, null],
-      dogma: [{ demand: false, icon: B, text: 'You may splay left any one color of your cards.', textJa: 'あなたは、自分のカードのうち1色を左にスプレイしてもよい。' }, { demand: false, icon: B, text: 'You may score a card from your hand.', textJa: 'あなたは手札からカードを1枚得点してもよい。' }] },
-    { id: 'monotheism', name: '一神教', age: 2, color: 'purple', icons: [T, T, T, null],
-      dogma: [{ demand: true, icon: T, text: 'I DEMAND you transfer a top card on your board of a different color from any card on my board to my score pile! If you do, draw and tuck a 1!', textJa: '【強制】対象プレイヤーは、あなたのボードにあるどの色とも異なる色のボード上の一番上のカードを、あなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引いてタックする。' }] },
+      dogma: [
+        { demand: true, icon: T,
+          text: 'I DEMAND you transfer two cards from your hand to my hand! Draw a 2!',
+          textJa: '【強制】対象プレイヤーは手札から2枚のカードをあなたの手札に渡す。対象プレイヤーは2を引く。' },
+        { demand: false, icon: T,
+          text: 'If you are the only player with five top cards, claim the Empire achievement.',
+          textJa: 'あなただけが5枚の一番上のカードを持っていれば、帝国達成カードを獲得する。' }
+      ] },
+
     { id: 'road_building', name: '道路建設', age: 2, color: 'red', icons: [T, null, T, T],
-      dogma: [{ demand: false, icon: T, text: 'You may meld a card from your hand of value one lower than a card on your board.', textJa: 'あなたは、自分のボードにあるカードより価値が1低いカードを手札からメルドしてもよい。' }] },
+      dogma: [{ demand: false, icon: T,
+        text: 'Meld one or two cards from your hand. If you melded two, you may transfer your top red card to an opponent\'s board, and if you do, take their top green card.',
+        textJa: '手札から1〜2枚のカードをメルドする。2枚メルドした場合、赤の一番上のカードを対戦相手のボードに渡してもよい。渡した場合、その対戦相手の緑の一番上のカードを取る。' }] },
+
+    { id: 'currency', name: '貨幣', age: 2, color: 'blue', icons: [C, null, C, L],
+      dogma: [{ demand: false, icon: C,
+        text: 'You may return any number of cards from your hand. If you returned any, draw and score a 2 for each different value among the returned cards.',
+        textJa: '手札から好きな数のカードを戻してもよい。1枚以上戻した場合、戻したカードの異なる価値1種につき2を引いて得点する。' }] },
+
+    { id: 'mapmaking', name: '地図作成', age: 2, color: 'blue', icons: [C, C, T, null],
+      dogma: [
+        { demand: true, icon: C,
+          text: 'I DEMAND you transfer a card of value 1 from your score pile to my score pile!',
+          textJa: '【強制】対象プレイヤーは得点パイルから価値1のカードをあなたの得点パイルに渡す。' },
+        { demand: false, icon: C,
+          text: 'If any card was transferred as a result of the demand, draw and score a 1.',
+          textJa: 'この要求でカードが渡されていた場合、1を引いて得点する。' }
+      ] },
+
+    { id: 'canal_building', name: '運河建設', age: 2, color: 'yellow', icons: [C, L, C, null],
+      dogma: [{ demand: false, icon: C,
+        text: 'You may exchange all the cards in your hand with all the cards in your score pile.',
+        textJa: '手札のカードすべてを得点パイルのカードすべてと交換してもよい。' }] },
+
+    { id: 'fermenting', name: '発酵', age: 2, color: 'yellow', icons: [L, null, T, L],
+      dogma: [{ demand: false, icon: L,
+        text: 'Draw a 2 for every two leaf icons on your board.',
+        textJa: 'ボード上の葉アイコン2個につき2を引く。' }] },
+
+    { id: 'monotheism', name: '一神教', age: 2, color: 'purple', icons: [T, T, T, null],
+      dogma: [
+        { demand: true, icon: T,
+          text: 'I DEMAND you transfer a top card on your board of different color from any card on my board to my score pile! If you do, draw and tuck a 1!',
+          textJa: '【強制】対象プレイヤーは、あなたのボードにあるカードとは異なる色のボードの一番上のカードをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引いてタックする。' },
+        { demand: false, icon: T,
+          text: 'Draw and tuck a 1.',
+          textJa: '1を引いてタックする。' }
+      ] },
+
+    { id: 'philosophy', name: '哲学', age: 2, color: 'purple', icons: [B, B, B, null],
+      dogma: [
+        { demand: false, icon: B,
+          text: 'You may splay left any one color of your cards.',
+          textJa: '自分のカードのうち1色を左にスプレイしてもよい。' },
+        { demand: false, icon: B,
+          text: 'You may score a card from your hand.',
+          textJa: '手札からカードを1枚得点してもよい。' }
+      ] },
 
     // ---------------- AGE 3 (10 cards) ----------------
-    { id: 'alchemy', name: '錬金術', age: 3, color: 'purple', icons: [L, T, T, null],
-      dogma: [{ demand: false, icon: T, text: 'Draw a card of value one higher than the highest top card on your board, and meld it.', textJa: '自分のボードの一番上のカードのうち最高値のものより価値が1高いカードを引き、メルドする。' }] },
-    { id: 'compass', name: '羅針盤', age: 3, color: 'blue', icons: [C, C, L, null],
-      dogma: [{ demand: false, icon: C, text: 'You may meld a card from your hand. If you do, draw and score a 3.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、3を引いて得点する。' }] },
-    { id: 'education', name: '教育', age: 3, color: 'blue', icons: [B, B, null, B],
-      dogma: [{ demand: false, icon: B, text: 'Draw and meld a card of value one higher than your highest top card.', textJa: '自分の一番上のカードのうち最高値のものより価値が1高いカードを引いてメルドする。' }] },
-    { id: 'feudalism', name: '封建制', age: 3, color: 'red', icons: [T, L, T, null],
-      dogma: [{ demand: true, icon: T, text: 'I DEMAND you transfer a card with a castle icon from your hand to my hand! If you do, score your lowest card in hand.', textJa: '【強制】対象プレイヤーは、城アイコン付きカードを手札からあなたの手札に渡す。渡した場合、対象プレイヤーは自分の手札の最低値カードを得点する。' }] },
-    { id: 'gunpowder', name: '火薬', age: 4, color: 'red', icons: [F, C, F, null],
-      dogma: [{ demand: true, icon: F, text: 'I DEMAND you transfer the highest value top card on your board with a castle icon to my score pile! If you do, you may return a card from your hand.', textJa: '【強制】対象プレイヤーは、城アイコンを持つボード上の一番上のカードのうち最高値のものを、あなたの得点パイルに渡す。渡した場合、対象プレイヤーは手札からカードを1枚戻してもよい。' }] },
-    { id: 'optics', name: '光学', age: 3, color: 'green', icons: [C, C, null, C],
-      dogma: [{ demand: false, icon: C, text: 'Draw a 3. If it has a crown icon, score it and meld a card from your hand. Otherwise, meld it.', textJa: '3を引く。王冠アイコンを持っていれば、それを得点し、さらに手札からカードを1枚メルドする。持っていなければ、それをメルドする。' }] },
-    { id: 'paper', name: '紙', age: 3, color: 'yellow', icons: [B, B, C, null],
+    { id: 'alchemy', name: '錬金術', age: 3, color: 'green', icons: [L, T, T, null],
       dogma: [
-        { demand: false, icon: B, text: 'You may splay your yellow or green cards left.', textJa: 'あなたは黄または緑のカードを左にスプレイしてもよい。' },
-        { demand: false, icon: B, text: 'You may score a card from your hand with a lightbulb icon. If you do, score an additional card from your hand for each lightbulb icon on the card you scored, beyond the first.', textJa: 'あなたは、電球アイコン付きカードを手札から1枚得点してもよい。した場合、得点したカードの電球アイコンの数（1個目を除く）と同じ枚数のカードを手札から追加で得点する。' }
+        { demand: false, icon: T,
+          text: 'Draw and reveal a 4 for every three castle icons on your board. If any of the drawn cards are red, return the cards drawn and all cards in your hand. Otherwise, keep them.',
+          textJa: 'ボード上の城アイコン3個につき4を引いて公開する。引いたカードに赤があれば、引いたカードと手札のカードをすべて戻す。なければそのまま持つ。' },
+        { demand: false, icon: T,
+          text: 'Meld a card from your hand, then score a card from your hand.',
+          textJa: '手札からカードを1枚メルドし、その後手札からカードを1枚得点する。' }
       ] },
+
     { id: 'translation', name: '翻訳', age: 3, color: 'green', icons: [C, C, C, null],
-      dogma: [{ demand: false, icon: C, text: 'Meld any number of top cards from your score pile with the highest value in your score pile. Claim the World special achievement if eligible.', textJa: '得点パイルの一番上のカードのうち、得点パイル内で最高値のものを好きな数メルドする。条件を満たせば世界特別達成カードを獲得する。' }] },
+      dogma: [
+        { demand: false, icon: C,
+          text: 'You may meld all the cards in your score pile. If you meld one, you must meld them all.',
+          textJa: '得点パイルのカードをすべてメルドしてもよい。1枚メルドする場合はすべてメルドしなければならない。' },
+        { demand: false, icon: C,
+          text: 'If each top card on your board has a crown icon, claim the World achievement.',
+          textJa: '自分のボードの一番上のカードすべてに王冠アイコンがあれば、世界達成カードを獲得する。' }
+      ] },
+
+    { id: 'engineering', name: '工学', age: 3, color: 'red', icons: [null, B, T, T],
+      dogma: [
+        { demand: true, icon: T,
+          text: 'I DEMAND you transfer all top cards with a castle icon from your board to my score pile!',
+          textJa: '【強制】対象プレイヤーは、ボードの一番上にある城アイコン付きカードをすべてあなたの得点パイルに渡す。' },
+        { demand: false, icon: T,
+          text: 'You may splay your red cards left.',
+          textJa: '赤のカードを左にスプレイしてもよい。' }
+      ] },
+
+    { id: 'optics', name: '光学', age: 3, color: 'red', icons: [C, C, null, C],
+      dogma: [{ demand: false, icon: C,
+        text: 'Draw and meld a 3. If it has a crown icon, draw and score a 4. Otherwise, transfer a card from your score pile to the score pile of an opponent with fewer points than you.',
+        textJa: '3を引いてメルドする。王冠アイコンを持っていれば4を引いて得点する。持っていなければ、自分より得点が少ない対戦相手の得点パイルに得点パイルからカードを1枚渡す。' }] },
+
+    { id: 'compass', name: '羅針盤', age: 3, color: 'blue', icons: [C, C, L, null],
+      dogma: [{ demand: true, icon: C,
+        text: 'I DEMAND you transfer a top non-green card with a leaf icon from your board to my board, and then you transfer a top card without a leaf icon from my board to your board!',
+        textJa: '【強制】対象プレイヤーは、ボードの一番上の緑以外の葉アイコン付きカードをあなたのボードに渡す。さらにあなたのボードから葉アイコンのない一番上のカードを対象プレイヤーのボードに渡す。' }] },
+
+    { id: 'paper', name: '紙', age: 3, color: 'blue', icons: [B, B, C, null],
+      dogma: [
+        { demand: false, icon: B,
+          text: 'You may splay your green or blue cards left.',
+          textJa: '緑または青のカードを左にスプレイしてもよい。' },
+        { demand: false, icon: B,
+          text: 'Draw a 4 for every color you have splayed left.',
+          textJa: '左にスプレイしている色1つにつき4を引く。' }
+      ] },
+
     { id: 'machinery', name: '機械', age: 3, color: 'yellow', icons: [L, null, T, L],
-      dogma: [{ demand: true, icon: L, text: 'I DEMAND we trade our highest value top cards with a castle icon! If you have no such card, I draw and meld a 1.', textJa: '【強制】あなたと対象プレイヤーは、城アイコンを持つ一番上のカードのうち最高値のものを交換する。対象プレイヤーがそのようなカードを持っていない場合、あなたが1を引いてメルドする。' }] },
-    { id: 'colonialism', name: '植民地主義', age: 3, color: 'red', icons: [F, B, F, null],
-      dogma: [{ demand: false, icon: F, text: 'You may return a card from your hand. If you do, draw and tuck a card of value one higher than the card you returned.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いてタックする。' }] },
+      dogma: [{ demand: true, icon: L,
+        text: 'I DEMAND we trade our highest value top cards with a castle icon! If you have no such card, I draw and meld a 1.',
+        textJa: '【強制】あなたと対象プレイヤーは、城アイコンを持つ一番上のカードのうち最高値のものを交換する。対象プレイヤーにそのようなカードがなければ、あなたが1を引いてメルドする。' }] },
+
+    { id: 'medicine', name: '医学', age: 3, color: 'yellow', icons: [L, L, null, C],
+      dogma: [{ demand: true, icon: L,
+        text: 'I DEMAND you exchange the highest card in your score pile with the lowest card in my score pile!',
+        textJa: '【強制】対象プレイヤーの得点パイルの最高値カードと、あなたの得点パイルの最低値カードを交換する。' }] },
+
+    { id: 'education', name: '教育', age: 3, color: 'purple', icons: [B, B, null, B],
+      dogma: [{ demand: false, icon: B,
+        text: 'You may return the highest card from your score pile. If you do, draw a card of value two higher than your new highest card in your score pile.',
+        textJa: '得点パイルの最高値カードを戻してもよい。した場合、新たな得点パイルの最高値カードより価値が2高いカードを引く。' }] },
+
+    { id: 'feudalism', name: '封建制', age: 3, color: 'purple', icons: [T, L, T, null],
+      dogma: [
+        { demand: true, icon: T,
+          text: 'I DEMAND you transfer a card with a castle icon from your hand to my hand!',
+          textJa: '【強制】対象プレイヤーは城アイコン付きカードを手札からあなたの手札に渡す。' },
+        { demand: false, icon: T,
+          text: 'You may splay your yellow or purple cards left.',
+          textJa: '黄または紫のカードを左にスプレイしてもよい。' }
+      ] },
 
     // ---------------- AGE 4 (10 cards) ----------------
-    { id: 'anatomy', name: '解剖学', age: 4, color: 'yellow', icons: [L, L, null, L],
-      dogma: [{ demand: true, icon: L, text: 'I DEMAND you return a top card from your score pile. If you do, I return the lowest card in my score pile.', textJa: '【強制】対象プレイヤーは、得点パイルの一番上のカードを1枚戻す。戻した場合、あなたは自分の得点パイルの最低値カードを戻す。' }] },
-    { id: 'invention', name: '発明', age: 4, color: 'green', icons: [B, B, F, null],
-      dogma: [{ demand: false, icon: B, text: 'You may splay right any one color of your cards currently splayed left. If you do, draw and score a 4.', textJa: 'あなたは、左にスプレイしている色のうち1つを右にスプレイしてもよい。した場合、4を引いて得点する。' }, { demand: false, icon: B, text: 'If you have five colors splayed, each in any direction, claim the Wonder achievement.', textJa: '5色すべてを（方向は問わず）スプレイしていれば、驚異達成カードを獲得する。' }] },
-    { id: 'navigation', name: '航海術', age: 4, color: 'blue', icons: [C, C, C, null],
-      dogma: [{ demand: false, icon: C, text: 'Take a 2 from the supply, then take a 1 from the supply, before drawing further cards this turn.', textJa: '補充パイルから2を1枚取り、続けて1を1枚取る。これはこのターンの他のカードを引く処理より先に行う。' }] },
-    { id: 'perspective', name: '遠近法', age: 4, color: 'yellow', icons: [B, B, L, null],
-      dogma: [{ demand: false, icon: B, text: 'You may return a card from your hand. If you do, score a card from your hand for every two lightbulb icons on your board.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、ボード上の電球アイコン2個につき手札からカードを1枚得点する。' }] },
-    { id: 'printing_press', name: '活版印刷', age: 4, color: 'blue', icons: [B, B, C, null],
-      dogma: [{ demand: false, icon: B, text: 'If you have at least 4 cards in your hand, you may return all cards in your hand. If you do, draw and score a 4 for each card you returned this way (up to a max determined by your hand size).', textJa: '手札が4枚以上あれば、手札のカードをすべて戻してもよい。した場合、戻した枚数分だけ4を引いて得点する。' }] },
-    { id: 'reformation', name: '宗教改革', age: 4, color: 'purple', icons: [L, null, L, L],
-      dogma: [{ demand: false, icon: L, text: 'You may splay your yellow or purple cards left. If you do, draw and score a 4 for every two colors you have splayed left.', textJa: 'あなたは黄または紫のカードを左にスプレイしてもよい。した場合、左にスプレイしている色2つにつき4を引いて得点する。' }] },
-    { id: 'chivalry', name: '騎士道', age: 4, color: 'red', icons: [T, null, T, T],
-      dogma: [
-        { demand: true, icon: T, text: 'I DEMAND you transfer your highest value top card to my board, and I draw and tuck a card of the same value! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、一番上のカードのうち最高値のものをあなたのボードに渡す。あなたは同じ価値のカードを引いてタックする。渡された場合、対象プレイヤーは1を引く。' },
-        { demand: false, icon: T, text: 'You may splay your red cards left.', textJa: 'あなたは赤のカードを左にスプレイしてもよい。' }
-      ] },
     { id: 'experimentation', name: '実験', age: 4, color: 'green', icons: [B, B, B, null],
-      dogma: [{ demand: false, icon: B, text: 'Draw and meld a 5.', textJa: '5を引いてメルドする。' }] },
+      dogma: [{ demand: false, icon: B,
+        text: 'Draw and meld a 5.',
+        textJa: '5を引いてメルドする。' }] },
+
+    { id: 'printing_press', name: '活版印刷', age: 4, color: 'green', icons: [B, B, C, null],
+      dogma: [
+        { demand: false, icon: B,
+          text: 'You may return a card from your score pile. If you do, draw a card of value two higher than the top purple card on your board.',
+          textJa: '得点パイルからカードを1枚戻してもよい。した場合、ボードの一番上の紫カードより価値が2高いカードを引く。' },
+        { demand: false, icon: B,
+          text: 'You may splay your blue cards right.',
+          textJa: '青のカードを右にスプレイしてもよい。' }
+      ] },
+
+    { id: 'colonialism', name: '植民地主義', age: 4, color: 'red', icons: [F, B, F, null],
+      dogma: [{ demand: false, icon: F,
+        text: 'Draw and tuck a 3. If the tucked card has a crown icon, repeat this effect.',
+        textJa: '3を引いてタックする。タックしたカードに王冠アイコンがあれば、この効果を繰り返す。' }] },
+
+    { id: 'gunpowder', name: '火薬', age: 4, color: 'red', icons: [F, C, F, null],
+      dogma: [
+        { demand: true, icon: F,
+          text: 'I DEMAND you transfer the highest top card on your board with a castle icon to my score pile! If you do, you may return a card from your hand.',
+          textJa: '【強制】対象プレイヤーは城アイコンを持つボードの一番上のカードのうち最高値のものをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは手札からカードを1枚戻してもよい。' },
+        { demand: false, icon: F,
+          text: 'If any card was transferred as a result of the demand, draw and score a 2.',
+          textJa: 'この要求でカードが渡されていた場合、2を引いて得点する。' }
+      ] },
+
+    { id: 'invention', name: '発明', age: 4, color: 'blue', icons: [B, B, F, null],
+      dogma: [
+        { demand: false, icon: B,
+          text: 'You may splay right any one color of your cards currently splayed left. If you do, draw and score a 4.',
+          textJa: '左にスプレイしている色のうち1つを右にスプレイしてもよい。した場合、4を引いて得点する。' },
+        { demand: false, icon: B,
+          text: 'If you have five colors splayed, each in any direction, claim the Wonder achievement.',
+          textJa: '5色すべてを（方向は問わず）スプレイしていれば、驚異達成カードを獲得する。' }
+      ] },
+
+    { id: 'navigation', name: '航海術', age: 4, color: 'blue', icons: [C, C, C, null],
+      dogma: [{ demand: true, icon: C,
+        text: 'I DEMAND you transfer a 2 or a 3 from your score pile to my score pile!',
+        textJa: '【強制】対象プレイヤーは得点パイルから価値2または3のカードをあなたの得点パイルに渡す。' }] },
+
+    { id: 'anatomy', name: '解剖学', age: 4, color: 'yellow', icons: [L, L, null, L],
+      dogma: [{ demand: true, icon: L,
+        text: 'I DEMAND you return a card from your score pile! If you do, return a top card of equal value from your board!',
+        textJa: '【強制】対象プレイヤーは得点パイルからカードを1枚戻す。戻した場合、そのカードと同じ価値のボードの一番上のカードを戻す。' }] },
+
+    { id: 'perspective', name: '遠近法', age: 4, color: 'yellow', icons: [B, B, L, null],
+      dogma: [{ demand: false, icon: B,
+        text: 'You may return a card from your hand. If you do, score a card from your hand for every two lightbulb icons on your board.',
+        textJa: '手札からカードを1枚戻してもよい。した場合、ボード上の電球アイコン2個につき手札からカードを1枚得点する。' }] },
+
     { id: 'enterprise', name: '企業', age: 4, color: 'purple', icons: [C, C, C, null],
-      dogma: [{ demand: true, icon: C, text: 'I DEMAND you transfer a top card with a castle icon from your board to my board! If you do, you may return a card from your hand, then draw and meld a card of the same value.', textJa: '【強制】対象プレイヤーは、城アイコン付きの一番上のカードをボードからあなたのボードに渡す。渡した場合、対象プレイヤーは手札からカードを1枚戻してもよく、した場合は同じ価値のカードを引いてメルドする。' }] },
-    { id: 'vaccination', name: 'ワクチン', age: 3, color: 'yellow', icons: [F, L, null, L],
-      dogma: [{ demand: false, icon: L, text: 'You may return a card from your hand. If you do, draw and score a card of value one higher than the card you returned.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いて得点する。' }] },
+      dogma: [
+        { demand: true, icon: C,
+          text: 'I DEMAND you transfer a top non-purple card with a crown icon from your board to my board! If you do, draw and meld a 4!',
+          textJa: '【強制】対象プレイヤーは王冠アイコン付きの紫以外の一番上のカードをあなたのボードに渡す。渡した場合、対象プレイヤーは4を引いてメルドする。' },
+        { demand: false, icon: C,
+          text: 'You may splay your green cards right.',
+          textJa: '緑のカードを右にスプレイしてもよい。' }
+      ] },
+
+    { id: 'reformation', name: '宗教改革', age: 4, color: 'purple', icons: [L, null, L, L],
+      dogma: [
+        { demand: false, icon: L,
+          text: 'You may tuck a card from your hand for every two leaf icons on your board.',
+          textJa: 'ボード上の葉アイコン2個につき手札からカードを1枚タックしてもよい。' },
+        { demand: false, icon: L,
+          text: 'You may tuck a card from your hand for every two leaf icons on your board.',
+          textJa: 'ボード上の葉アイコン2個につき手札からカードを1枚タックしてもよい。' }
+      ] },
 
     // ---------------- AGE 5 (10 cards) ----------------
-    { id: 'astronomy', name: '天文学', age: 5, color: 'blue', icons: [B, B, null, C],
-      dogma: [{ demand: false, icon: B, text: 'You may return a card from your hand of value 5 or less. If you do, draw and score two cards of value one higher than the card you returned. Claim the Universe special achievement if eligible.', textJa: 'あなたは手札から価値5以下のカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを2枚引いて得点する。条件を満たせば宇宙特別達成カードを獲得する。' }] },
-    { id: 'banking', name: '銀行', age: 5, color: 'purple', icons: [C, null, C, F],
-      dogma: [{ demand: false, icon: C, text: 'Score the lowest card on your board with a crown icon. Then, score a card from your hand for every two crown icons on your board.', textJa: 'ボード上で王冠アイコンを持つ最低値のカードを得点する。その後、ボード上の王冠アイコン2個につき手札からカードを1枚得点する。' }] },
-    { id: 'chemistry', name: '化学', age: 5, color: 'red', icons: [B, F, null, F],
-      dogma: [{ demand: false, icon: F, text: 'You may return a card from your hand. If you do, draw and meld a card of value two higher than the card you returned, then claim the Wonder achievement if eligible.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、戻したカードより価値が2高いカードを引いてメルドし、条件を満たせば驚異達成カードを獲得する。' }] },
+    { id: 'chemistry', name: '化学', age: 5, color: 'green', icons: [B, F, null, F],
+      dogma: [
+        { demand: false, icon: F,
+          text: 'You may splay your blue cards right.',
+          textJa: '青のカードを右にスプレイしてもよい。' },
+        { demand: false, icon: F,
+          text: 'Draw and score a card of value one higher than the highest top card on your board and then return a card from your score pile.',
+          textJa: '自分のボードの一番上のカードのうち最高値のものより価値が1高いカードを引いて得点し、その後得点パイルからカードを1枚戻す。' }
+      ] },
+
+    { id: 'physics', name: '物理学', age: 5, color: 'green', icons: [B, B, null, F],
+      dogma: [{ demand: false, icon: B,
+        text: 'Draw three 6s and reveal them. If two or more of the drawn cards are the same color, return the drawn cards and all cards in your hand. Otherwise, keep them.',
+        textJa: '6を3枚引いて公開する。2枚以上が同じ色であれば、引いたカードと手札のカードをすべて戻す。そうでなければそのまま持つ。' }] },
+
     { id: 'coal', name: '石炭', age: 5, color: 'red', icons: [F, F, null, F],
-      dogma: [{ demand: true, icon: F, text: 'I DEMAND you transfer the highest value card in your score pile to my score pile! If you do, draw a 5.', textJa: '【強制】対象プレイヤーは、得点パイルの最高値カードをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは5を引く。' }] },
-    { id: 'measurement', name: '測定', age: 5, color: 'green', icons: [L, B, null, B],
-      dogma: [{ demand: false, icon: B, text: 'You may splay any one of your colors left, right, or up. If you do, draw a 1.', textJa: 'あなたは、自分のカードのうち1色を左・右・上のいずれかにスプレイしてもよい。した場合、1を引く。' }] },
-    { id: 'physics', name: '物理学', age: 5, color: 'blue', icons: [B, B, null, F],
-      dogma: [{ demand: false, icon: B, text: 'Draw three 5s. If two or more of those cards share a color, return all but one of that color and draw a card of one higher value for each card returned this way.', textJa: '5を3枚引く。そのうち2枚以上が同じ色であれば、その色のカードを1枚を除いてすべて戻し、戻した枚数分だけ価値が1高いカードを引く。' }] },
-    { id: 'statistics', name: '統計学', age: 5, color: 'yellow', icons: [B, L, null, L],
-      dogma: [{ demand: true, icon: L, text: 'I DEMAND you return a top card from your board! If you do, I return a top card from my board.', textJa: '【強制】対象プレイヤーは、ボードの一番上のカードを1枚戻す。戻した場合、あなたも自分のボードの一番上のカードを1枚戻す。' }] },
+      dogma: [
+        { demand: false, icon: F,
+          text: 'Draw and tuck a 5.',
+          textJa: '5を引いてタックする。' },
+        { demand: false, icon: F,
+          text: 'You may splay your red cards right.',
+          textJa: '赤のカードを右にスプレイしてもよい。' },
+        { demand: false, icon: F,
+          text: 'You may score any one of your top cards. If you do, also score the card beneath it.',
+          textJa: '自分のボードの一番上のカードを1枚得点してもよい。した場合、その下のカードも得点する。' }
+      ] },
+
     { id: 'pirate_code', name: '海賊の掟', age: 5, color: 'red', icons: [F, C, null, C],
-      dogma: [{ demand: true, icon: C, text: 'I DEMAND you transfer all cards in your score pile of value 5 or less to my score pile! Arrrrrr!', textJa: '【強制】対象プレイヤーは、得点パイルにある価値5以下のカードをすべてあなたの得点パイルに渡す！' }] },
+      dogma: [{ demand: true, icon: C,
+        text: 'I DEMAND you transfer two cards of value 4 or less from your score pile to my score pile!',
+        textJa: '【強制】対象プレイヤーは得点パイルから価値4以下のカードを2枚あなたの得点パイルに渡す。' }] },
+
+    { id: 'banking', name: '銀行', age: 5, color: 'blue', icons: [C, null, C, F],
+      dogma: [
+        { demand: true, icon: C,
+          text: 'I DEMAND you transfer a top non-green card with a factory icon from your board to my board! If you do, draw and score a 5!',
+          textJa: '【強制】対象プレイヤーは工場アイコン付きの緑以外の一番上のカードをあなたのボードに渡す。渡した場合、対象プレイヤーは5を引いて得点する。' },
+        { demand: false, icon: C,
+          text: 'You may splay your green cards right.',
+          textJa: '緑のカードを右にスプレイしてもよい。' }
+      ] },
+
+    { id: 'measurement', name: '測定', age: 5, color: 'blue', icons: [L, B, null, B],
+      dogma: [{ demand: false, icon: B,
+        text: 'You may return a card from your hand. If you do, choose a color, splay that color right, and draw a card of value equal to the number of cards you have of that color.',
+        textJa: '手札からカードを1枚戻してもよい。した場合、色を1つ選んでその色を右にスプレイし、その色のカードの枚数と同じ価値のカードを引く。' }] },
+
+    { id: 'statistics', name: '統計学', age: 5, color: 'yellow', icons: [B, L, null, L],
+      dogma: [
+        { demand: true, icon: L,
+          text: 'I DEMAND you transfer all the highest cards from your score pile to my hand!',
+          textJa: '【強制】対象プレイヤーは得点パイルの最高値カードをすべてあなたの手札に渡す。' },
+        { demand: false, icon: L,
+          text: 'You may splay your yellow cards right.',
+          textJa: '黄のカードを右にスプレイしてもよい。' }
+      ] },
+
     { id: 'steam_engine', name: '蒸気機関', age: 5, color: 'yellow', icons: [F, C, F, null],
-      dogma: [{ demand: true, icon: F, text: 'I DEMAND we exchange highest value cards on our boards of the same color, if possible! Repeat for each color we have in common.', textJa: '【強制】あなたと対象プレイヤーは、可能であれば同じ色のボード上の最高値カードを交換する。共有している色ごとにこれを繰り返す。' }] },
-    { id: 'university', name: '大学', age: 5, color: 'green', icons: [null, B, C, C],
-      dogma: [{ demand: false, icon: C, text: 'You may return a card from your hand. If you do, draw and meld a card of value one higher than the card you returned, then draw a 1.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを引いてメルドし、さらに1を引く。' }] },
+      dogma: [{ demand: false, icon: F,
+        text: 'Draw and tuck two 4s, then score your bottom yellow card.',
+        textJa: '4を2枚引いてタックし、その後黄の一番下のカードを得点する。' }] },
+
+    { id: 'astronomy', name: '天文学', age: 5, color: 'purple', icons: [B, B, null, C],
+      dogma: [
+        { demand: false, icon: B,
+          text: 'Draw and reveal a 6. If it is green or blue, meld it and repeat this effect.',
+          textJa: '6を引いて公開する。緑または青であればメルドしてこの効果を繰り返す。' },
+        { demand: false, icon: B,
+          text: 'If all the top cards on your board that are not purple are age 6 or higher, claim the Universe achievement.',
+          textJa: '自分のボードの一番上の紫以外のカードがすべて価値6以上であれば、宇宙達成カードを獲得する。' }
+      ] },
+
+    { id: 'societies', name: '社会', age: 5, color: 'purple', icons: [null, B, C, C],
+      dogma: [{ demand: true, icon: C,
+        text: 'I DEMAND you transfer a top non-purple card with a lightbulb icon from your board to my board! If you do, draw a 5!',
+        textJa: '【強制】対象プレイヤーは電球アイコン付きの紫以外の一番上のカードをあなたのボードに渡す。渡した場合、対象プレイヤーは5を引く。' }] },
 
     // ---------------- AGE 6 (10 cards) ----------------
-    { id: 'atomic_theory', name: '原子論', age: 6, color: 'blue', icons: [B, B, null, B],
+    { id: 'atomic_theory', name: '原子論', age: 6, color: 'green', icons: [B, B, null, B],
       dogma: [
-        { demand: false, icon: B, text: 'You may splay your blue cards right.', textJa: 'あなたは青のカードを右にスプレイしてもよい。' },
-        { demand: false, icon: B, text: 'Draw and meld a 7.', textJa: '7を引いてメルドする。' }
+        { demand: false, icon: B,
+          text: 'You may splay your blue cards right.',
+          textJa: '青のカードを右にスプレイしてもよい。' },
+        { demand: false, icon: B,
+          text: 'Draw and meld a 7.',
+          textJa: '7を引いてメルドする。' }
       ] },
-    { id: 'classification', name: '分類法', age: 6, color: 'green', icons: [B, B, null, B],
-      dogma: [{ demand: false, icon: B, text: 'Reveal the highest valued card in your hand and score pile. Then transfer all cards of that color from your hand to your score pile.', textJa: '手札と得点パイルの中で最高値のカードを公開する。その後、その色のカードをすべて手札から得点パイルに移す。' }] },
+
+    { id: 'encyclopedia', name: '百科事典', age: 6, color: 'green', icons: [C, C, C, null],
+      dogma: [{ demand: false, icon: C,
+        text: 'You may meld all the highest value cards in your score pile. If you meld one, you must meld them all.',
+        textJa: '得点パイルの最高値カードをすべてメルドしてもよい。1枚メルドする場合はすべてメルドしなければならない。' }] },
+
+    { id: 'industrialization', name: '産業化', age: 6, color: 'red', icons: [F, F, null, C],
+      dogma: [
+        { demand: false, icon: F,
+          text: 'Draw and tuck a 6 for every color on your board with one or more factory icons.',
+          textJa: 'ボード上の工場アイコンを1個以上持つ色1つにつき6を引いてタックする。' },
+        { demand: false, icon: F,
+          text: 'You may splay your red or purple cards right.',
+          textJa: '赤または紫のカードを右にスプレイしてもよい。' }
+      ] },
+
+    { id: 'machine_tools', name: '工作機械', age: 6, color: 'red', icons: [F, null, F, F],
+      dogma: [{ demand: false, icon: F,
+        text: 'Draw and score a card of value equal to the highest card in your score pile.',
+        textJa: '得点パイルの最高値カードと同じ価値のカードを引いて得点する。' }] },
+
+    { id: 'classification', name: '分類法', age: 6, color: 'blue', icons: [B, B, null, B],
+      dogma: [{ demand: false, icon: B,
+        text: 'Reveal a card from your hand. Take into your hand the top card of that color from all opponents\' boards.',
+        textJa: '手札からカードを1枚公開する。その色の一番上のカードをすべての対戦相手のボードから手札に取る。' }] },
+
+    { id: 'metric_system', name: 'メートル法', age: 6, color: 'blue', icons: [F, C, C, null],
+      dogma: [
+        { demand: false, icon: C,
+          text: 'If your green cards are splayed right, you may splay any one color of your cards right.',
+          textJa: '緑のカードが右にスプレイされていれば、自分のカードのうち1色を右にスプレイしてもよい。' },
+        { demand: false, icon: C,
+          text: 'You may splay your green cards right.',
+          textJa: '緑のカードを右にスプレイしてもよい。' }
+      ] },
+
+    { id: 'canning', name: '缶詰', age: 6, color: 'yellow', icons: [F, L, F, null],
+      dogma: [
+        { demand: false, icon: F,
+          text: 'You may draw and tuck a 6. If you do, score all your top cards without a factory icon.',
+          textJa: '6を引いてタックしてもよい。した場合、工場アイコンのない一番上のカードをすべて得点する。' },
+        { demand: false, icon: F,
+          text: 'You may splay your yellow cards right.',
+          textJa: '黄のカードを右にスプレイしてもよい。' }
+      ] },
+
+    { id: 'vaccination', name: 'ワクチン', age: 6, color: 'yellow', icons: [F, L, null, L],
+      dogma: [
+        { demand: true, icon: L,
+          text: 'I DEMAND you return all the lowest cards in your score pile! If you returned any, draw and meld a 6!',
+          textJa: '【強制】対象プレイヤーは得点パイルの最低値カードをすべて戻す。戻した場合、対象プレイヤーは6を引いてメルドする。' },
+        { demand: false, icon: L,
+          text: 'If any card was returned as a result of the demand, draw and meld a 7.',
+          textJa: 'この要求でカードが戻されていた場合、7を引いてメルドする。' }
+      ] },
+
     { id: 'democracy', name: '民主主義', age: 6, color: 'purple', icons: [B, B, null, C],
-      dogma: [{ demand: false, icon: B, text: 'You may return any number of cards from your hand. If you do, draw and meld a card of value equal to the number of cards you returned, then draw an 8.', textJa: 'あなたは手札から好きな数のカードを戻してもよい。した場合、戻した枚数と同じ価値のカードを引いてメルドし、さらに8を引く。' }] },
-    { id: 'encyclopedia', name: '百科事典', age: 6, color: 'blue', icons: [C, C, C, null],
-      dogma: [{ demand: false, icon: C, text: 'Meld the highest and the lowest cards in your hand.', textJa: '手札の最高値カードと最低値カードをメルドする。' }] },
-    { id: 'explosives', name: '爆薬', age: 6, color: 'red', icons: [F, F, F, null],
-      dogma: [{ demand: true, icon: F, text: 'I DEMAND you transfer the top card of your lowest value color to my score pile! If you do, draw a 6.', textJa: '【強制】対象プレイヤーは、最も価値が低い色の一番上のカードをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは6を引く。' }] },
-    { id: 'lensmaking', name: 'レンズ製作', age: 6, color: 'blue', icons: [F, null, F, F],
-      dogma: [{ demand: false, icon: F, text: 'You may splay any one of your colors left. If you do, draw and score a 6.', textJa: 'あなたは、自分のカードのうち1色を左にスプレイしてもよい。した場合、6を引いて得点する。' }] },
-    { id: 'metric_system', name: 'メートル法', age: 6, color: 'yellow', icons: [F, C, C, null],
-      dogma: [{ demand: false, icon: C, text: 'You may splay any one of your colors right. If you do, draw a card of value equal to the number of differently colored cards you have splayed right, then meld it.', textJa: 'あなたは、自分のカードのうち1色を右にスプレイしてもよい。した場合、右にスプレイしている色の数と同じ価値のカードを引き、メルドする。' }] },
+      dogma: [{ demand: false, icon: B,
+        text: 'You may return any number of cards from your hand. If you have returned more cards than any other player due to Democracy so far during this dogma action, draw and score an 8.',
+        textJa: '手札から好きな数のカードを戻してもよい。このドグマ行動中に民主主義によって戻したカードの合計が他のどのプレイヤーより多ければ、8を引いて得点する。' }] },
+
     { id: 'emancipation', name: '解放', age: 6, color: 'purple', icons: [B, F, null, F],
       dogma: [
-        { demand: true, icon: C, text: 'I DEMAND you transfer a card from your hand to my score pile! If you do, draw a 1!', textJa: '【強制】対象プレイヤーは、手札からカードを1枚あなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引く。' },
-        { demand: false, icon: C, text: 'You may splay your red or purple cards to the right.', textJa: 'あなたは赤または紫のカードを右にスプレイしてもよい。' }
+        { demand: true, icon: F,
+          text: 'I DEMAND you transfer a card from your hand to my score pile! If you do, draw a 6!',
+          textJa: '【強制】対象プレイヤーは手札からカードを1枚あなたの得点パイルに渡す。渡した場合、対象プレイヤーは6を引く。' },
+        { demand: false, icon: F,
+          text: 'You may splay your red or purple cards right.',
+          textJa: '赤または紫のカードを右にスプレイしてもよい。' }
       ] },
-    { id: 'fertilizer', name: '肥料', age: 6, color: 'green', icons: [F, F, null, C],
-      dogma: [{ demand: false, icon: F, text: 'You may return up to two cards from your hand. If you returned any, score a card from your hand for every two cards you returned, then draw a 1.', textJa: 'あなたは手札から最大2枚のカードを戻してもよい。1枚以上戻した場合、戻した枚数2枚につき手札からカードを1枚得点し、さらに1を引く。' }] },
-    { id: 'canning', name: '缶詰', age: 6, color: 'yellow', icons: [F, L, F, null],
-      dogma: [{ demand: true, icon: F, text: 'I DEMAND you transfer a card from your score pile to my score pile! If you do, draw a 6.', textJa: '【強制】対象プレイヤーは、得点パイルからカードを1枚あなたの得点パイルに渡す。渡した場合、対象プレイヤーは6を引く。' }] },
 
     // ---------------- AGE 7 (10 cards) ----------------
-    { id: 'bicycle', name: '自転車', age: 7, color: 'yellow', icons: [C, K, null, C],
-      dogma: [{ demand: false, icon: C, text: 'Draw and meld a 7 for each two clock icons you have, up to a maximum of three times.', textJa: 'あなたが持つ時計アイコン2個につき7を引いてメルドする（最大3回まで）。' }] },
-    { id: 'combustion', name: '燃焼', age: 7, color: 'red', icons: [C, F, null, C],
-      dogma: [{ demand: true, icon: C, text: 'I DEMAND you transfer the top non-military card with the highest value to my score pile! If you do, draw a 7.', textJa: '【強制】対象プレイヤーは、軍事アイコンを持たない一番上のカードのうち最高値のものをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは7を引く。' }] },
-    { id: 'electricity', name: '電気', age: 7, color: 'blue', icons: [F, null, F, B],
-      dogma: [{ demand: true, icon: F, text: 'I DEMAND you return all cards in your score pile of value 1 or 2! If you do, draw a 1 for each card returned.', textJa: '【強制】対象プレイヤーは、得点パイルにある価値1または2のカードをすべて戻す。戻した場合、戻した枚数分だけ1を引く。' }] },
     { id: 'evolution', name: '進化論', age: 7, color: 'green', icons: [B, B, null, B],
-      dogma: [{ demand: false, icon: B, text: 'You may return a card from your hand. If you do, draw a card of value two higher than the card you returned and meld it; otherwise draw and score a 1.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、戻したカードより価値が2高いカードを引いてメルドする。しなかった場合は1を引いて得点する。' }] },
-    { id: 'lighting', name: '照明', age: 7, color: 'purple', icons: [L, K, L, null],
-      dogma: [{ demand: false, icon: L, text: 'You may splay any one of your colors up. If you do, draw and score a 7.', textJa: 'あなたは、自分のカードのうち1色を上にスプレイしてもよい。した場合、7を引いて得点する。' }] },
-    { id: 'publication', name: '出版', age: 7, color: 'blue', icons: [B, K, B, null],
+      dogma: [{ demand: false, icon: B,
+        text: 'You may choose to either draw and score an 8 and then return a card from your score pile, or draw a card of value one higher than the highest card in your score pile.',
+        textJa: '8を引いて得点し得点パイルからカードを1枚戻すか、得点パイルの最高値カードより価値が1高いカードを引くかを選んでもよい。' }] },
+
+    { id: 'publication', name: '出版', age: 7, color: 'green', icons: [B, K, B, null],
       dogma: [
-        { demand: false, icon: B, text: 'If you have the highest score, claim the Wonder special achievement if eligible.', textJa: 'あなたの得点が最も高ければ、条件を満たせば驚異特別達成カードを獲得する。' },
-        { demand: false, icon: B, text: 'You may return a card from your hand to draw and score a card one value higher.', textJa: '手札からカードを1枚戻して、価値が1高いカードを引いて得点してもよい。' }
+        { demand: false, icon: B,
+          text: 'You may rearrange the order of one color of cards on your board.',
+          textJa: '自分のボードの1色のカードの順序を並べ替えてもよい。' },
+        { demand: false, icon: B,
+          text: 'You may splay your yellow or blue cards up.',
+          textJa: '黄または青のカードを上にスプレイしてもよい。' }
       ] },
-    { id: 'railroad', name: '鉄道', age: 7, color: 'red', icons: [F, K, null, K],
-      dogma: [{ demand: false, icon: K, text: 'Meld any number of cards from your hand of the same color. If you melded two or more, draw and score a card of value equal to the number of cards melded.', textJa: '手札から同じ色のカードを好きな数メルドする。2枚以上メルドした場合、メルドした枚数と同じ価値のカードを引いて得点する。' }] },
+
+    { id: 'combustion', name: '燃焼', age: 7, color: 'red', icons: [C, F, null, C],
+      dogma: [
+        { demand: true, icon: C,
+          text: 'I DEMAND you transfer one card from your score pile to my score pile for every four crown icons on my board!',
+          textJa: '【強制】あなたのボード上の王冠アイコン4個につき、対象プレイヤーは得点パイルからカードを1枚あなたの得点パイルに渡す。' },
+        { demand: false, icon: C,
+          text: 'Return your bottom red card.',
+          textJa: '自分の赤の一番下のカードを戻す。' }
+      ] },
+
+    { id: 'explosives', name: '爆薬', age: 7, color: 'red', icons: [F, F, F, null],
+      dogma: [{ demand: true, icon: F,
+        text: 'I DEMAND you transfer the three highest cards from your hand to my hand! If you transferred any, and then have no card in hand, draw a 7!',
+        textJa: '【強制】対象プレイヤーは手札の最高値カードを3枚あなたの手札に渡す。渡した後、手札がなくなった場合、対象プレイヤーは7を引く。' }] },
+
+    { id: 'bicycle', name: '自転車', age: 7, color: 'blue', icons: [C, K, null, C],
+      dogma: [{ demand: false, icon: C,
+        text: 'You may exchange all the cards in your hand with all the cards in your score pile. If you exchange one, you must exchange them all.',
+        textJa: '手札のカードすべてを得点パイルのカードすべてと交換してもよい。1枚交換する場合はすべて交換しなければならない。' }] },
+
+    { id: 'electricity', name: '電気', age: 7, color: 'blue', icons: [B, null, F, F],
+      dogma: [{ demand: false, icon: F,
+        text: 'Return all your top cards without a factory icon, then draw an 8 for each card you returned.',
+        textJa: '工場アイコンのない一番上のカードをすべて戻し、戻した枚数分だけ8を引く。' }] },
+
     { id: 'refrigeration', name: '冷蔵', age: 7, color: 'yellow', icons: [L, L, C, null],
-      dogma: [{ demand: false, icon: L, text: 'You may return a card from your hand. If you do, draw and meld a card of value one higher, then draw a 1.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、価値が1高いカードを引いてメルドし、さらに1を引く。' }] },
-    { id: 'sanitation', name: '公衆衛生', age: 7, color: 'green', icons: [L, null, L, L],
-      dogma: [{ demand: false, icon: L, text: 'You may meld a card from your hand. If you do, score the lowest card on your board with a clock icon.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、ボード上で時計アイコンを持つ最低値のカードを得点する。' }] },
-    { id: 'telegraph', name: '電信', age: 7, color: 'blue', icons: [B, K, null, K],
-      dogma: [{ demand: true, icon: K, text: 'I DEMAND we exchange the highest value top card on our boards of the same color, if possible!', textJa: '【強制】あなたと対象プレイヤーは、可能であれば同じ色のボード上の最高値の一番上のカードを交換する。' }] },
+      dogma: [
+        { demand: true, icon: L,
+          text: 'I DEMAND you return half (rounded down) of the cards in your hand!',
+          textJa: '【強制】対象プレイヤーは手札の半分（切り捨て）のカードを戻す。' },
+        { demand: false, icon: L,
+          text: 'You may score a card from your hand.',
+          textJa: '手札からカードを1枚得点してもよい。' }
+      ] },
+
+    { id: 'sanitation', name: '公衆衛生', age: 7, color: 'yellow', icons: [L, null, L, L],
+      dogma: [{ demand: true, icon: L,
+        text: 'I DEMAND you exchange the two highest cards in your hand with the lowest card in my hand!',
+        textJa: '【強制】対象プレイヤーは手札の最高値カード2枚を、あなたの手札の最低値カードと交換する。' }] },
+
+    { id: 'lighting', name: '照明', age: 7, color: 'purple', icons: [L, K, L, null],
+      dogma: [{ demand: false, icon: L,
+        text: 'You may tuck up to three cards from your hand. If you do, draw and score a 7 for every different value of card you tucked.',
+        textJa: '手札から最大3枚のカードをタックしてもよい。した場合、タックしたカードの異なる価値1種につき7を引いて得点する。' }] },
+
+    { id: 'railroad', name: '鉄道', age: 7, color: 'purple', icons: [F, K, null, K],
+      dogma: [
+        { demand: false, icon: K,
+          text: 'Return all cards from your hand, then draw three 6s.',
+          textJa: '手札のカードをすべて戻し、その後6を3枚引く。' },
+        { demand: false, icon: K,
+          text: 'You may splay up any one color of your cards currently splayed right.',
+          textJa: '右にスプレイしている色のうち1つを上にスプレイしてもよい。' }
+      ] },
 
     // ---------------- AGE 8 (10 cards) ----------------
+    { id: 'quantum_theory', name: '量子論', age: 8, color: 'green', icons: [K, K, null, K],
+      dogma: [{ demand: false, icon: K,
+        text: 'You may return up to two cards from your hand. If you return two, draw a 10 and then draw and score a 10.',
+        textJa: '手札から最大2枚のカードを戻してもよい。2枚戻した場合、10を引き、さらに10を引いて得点する。' }] },
+
+    { id: 'rocketry', name: 'ロケット工学', age: 8, color: 'green', icons: [K, K, null, K],
+      dogma: [{ demand: false, icon: K,
+        text: 'Return a card in any opponent\'s score pile for every two clock icons on your board.',
+        textJa: 'ボード上の時計アイコン2個につき、任意の対戦相手の得点パイルからカードを1枚戻す。' }] },
+
+    { id: 'flight', name: '飛行', age: 8, color: 'red', icons: [null, K, C, C],
+      dogma: [
+        { demand: false, icon: C,
+          text: 'If your red cards are splayed up, you may splay any one color of your cards up.',
+          textJa: '赤のカードが上にスプレイされていれば、自分のカードのうち1色を上にスプレイしてもよい。' },
+        { demand: false, icon: C,
+          text: 'You may splay your red cards up.',
+          textJa: '赤のカードを上にスプレイしてもよい。' }
+      ] },
+
+    { id: 'mobility', name: '移動性', age: 8, color: 'red', icons: [F, K, F, null],
+      dogma: [{ demand: true, icon: F,
+        text: 'I DEMAND you transfer the two highest non-red top cards without a factory icon from your board to my score pile! If you transferred any cards, draw an 8!',
+        textJa: '【強制】対象プレイヤーはボードの一番上の赤以外のカードのうち、工場アイコンのない最高値の2枚をあなたの得点パイルに渡す。渡した場合、対象プレイヤーは8を引く。' }] },
+
+    { id: 'corporations', name: '大企業', age: 8, color: 'blue', icons: [F, F, C, null],
+      dogma: [
+        { demand: true, icon: F,
+          text: 'I DEMAND you transfer a top non-green card with a factory icon from your board to my score pile! If you do, draw and meld an 8!',
+          textJa: '【強制】対象プレイヤーは工場アイコン付きの緑以外の一番上のカードをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは8を引いてメルドする。' },
+        { demand: false, icon: F,
+          text: 'Draw and meld an 8.',
+          textJa: '8を引いてメルドする。' }
+      ] },
+
+    { id: 'mass_media', name: 'マスメディア', age: 8, color: 'blue', icons: [null, K, B, B],
+      dogma: [
+        { demand: false, icon: B,
+          text: 'You may return a card from your hand. If you do, choose a value, and return all cards of that value from all score piles.',
+          textJa: '手札からカードを1枚戻してもよい。した場合、価値を1つ選び、すべての得点パイルからその価値のカードをすべて戻す。' },
+        { demand: false, icon: B,
+          text: 'You may splay your purple cards up.',
+          textJa: '紫のカードを上にスプレイしてもよい。' }
+      ] },
+
     { id: 'antibiotics', name: '抗生物質', age: 8, color: 'yellow', icons: [L, L, null, L],
-      dogma: [{ demand: true, icon: L, text: 'I DEMAND you transfer the top card on your board of your least represented color to my score pile! If you do, draw an 8.', textJa: '【強制】対象プレイヤーは、自分のボードで最も枚数の少ない色の一番上のカードをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは8を引く。' }] },
-    { id: 'corporations', name: '大企業', age: 8, color: 'green', icons: [F, F, C, null],
-      dogma: [{ demand: false, icon: F, text: 'You may return up to three cards from your hand. If you returned any, draw and meld a card of value equal to the number of cards returned.', textJa: 'あなたは手札から最大3枚のカードを戻してもよい。1枚以上戻した場合、戻した枚数と同じ価値のカードを引いてメルドする。' }] },
+      dogma: [{ demand: false, icon: L,
+        text: 'You may return up to three cards from your hand. For every different value of card that you returned, draw two 8s.',
+        textJa: '手札から最大3枚のカードを戻してもよい。戻したカードの異なる価値1種につき8を2枚引く。' }] },
+
+    { id: 'skyscrapers', name: '高層建築', age: 8, color: 'yellow', icons: [F, C, C, null],
+      dogma: [{ demand: true, icon: C,
+        text: 'I DEMAND you transfer a top non-yellow card with a clock icon from your board to my board! If you do, score the card beneath it, and return all other cards from that pile!',
+        textJa: '【強制】対象プレイヤーは時計アイコン付きの黄以外の一番上のカードをあなたのボードに渡す。渡した場合、その下のカードを得点し、そのパイルの残りのカードをすべて戻す。' }] },
+
     { id: 'empiricism', name: '経験主義', age: 8, color: 'purple', icons: [B, B, null, B],
-      dogma: [{ demand: false, icon: B, text: 'Reveal cards from the deck until you reveal one that shares a color with a top card on your board. Meld it, return the rest to the bottom of their piles.', textJa: '山札からカードを公開し続け、自分のボードの一番上のカードと同じ色のカードが出るまで続ける。そのカードをメルドし、残りは各補充パイルの底に戻す。' }] },
-    { id: 'refining', name: '精製', age: 8, color: 'green', icons: [F, K, F, null],
-      dogma: [{ demand: false, icon: F, text: 'Reveal the top card of your highest value color. Score a card from your hand of that color for each top card you have of that color.', textJa: '自分の最高値の色の一番上のカードを公開する。その色の一番上のカードの枚数につき、手札からその色のカードを1枚得点する。' }] },
-    { id: 'flight', name: '飛行', age: 8, color: 'blue', icons: [null, K, C, C],
-      dogma: [{ demand: false, icon: C, text: 'Draw and meld a 9.', textJa: '9を引いてメルドする。' }] },
-    { id: 'mass_media', name: 'マスメディア', age: 8, color: 'yellow', icons: [null, K, B, B],
-      dogma: [{ demand: false, icon: B, text: 'You may return the two lowest cards in your hand. If you do, draw and score an 8.', textJa: 'あなたは手札の最低値カード2枚を戻してもよい。した場合、8を引いて得点する。' }] },
-    { id: 'skyscrapers', name: '高層建築', age: 8, color: 'red', icons: [F, C, C, null],
-      dogma: [{ demand: false, icon: C, text: 'You may meld a card from your hand with a castle or factory icon. If you do, draw and score an 8.', textJa: 'あなたは、城または工場アイコン付きのカードを手札から1枚メルドしてもよい。した場合、8を引いて得点する。' }] },
-    { id: 'quantum_theory', name: '量子論', age: 8, color: 'blue', icons: [K, K, null, K],
-      dogma: [{ demand: false, icon: K, text: 'Return the two lowest cards in your hand. Draw and meld a card of value equal to the higher value you returned, plus one.', textJa: '手札の最低値カード2枚を戻す。戻したカードのうち高い方の価値より1高いカードを引いてメルドする。' }] },
+      dogma: [
+        { demand: false, icon: B,
+          text: 'Choose two colors, then draw and reveal a 9. If it is either of the colors you chose, meld it and you may splay your cards of that color up.',
+          textJa: '2色を選び、9を引いて公開する。選んだ色のいずれかであればメルドし、その色を上にスプレイしてもよい。' },
+        { demand: false, icon: B,
+          text: 'If you have twenty or more lightbulb icons on your board, you win.',
+          textJa: 'ボード上に電球アイコンが20個以上あれば、あなたの勝利です。' }
+      ] },
+
     { id: 'socialism', name: '社会主義', age: 8, color: 'purple', icons: [null, L, L, L],
-      dogma: [{ demand: false, icon: L, text: 'You may exchange your hand with any other player\'s hand who has fewer cards in hand than you.', textJa: 'あなたは、自分より手札が少ない他のプレイヤーを選び、その手札と自分の手札を交換してもよい。' }] },
-    { id: 'rocketry', name: 'ロケット工学', age: 8, color: 'red', icons: [K, K, null, K],
-      dogma: [{ demand: true, icon: K, text: 'I DEMAND you transfer your highest value card in hand to my hand! If you do, draw an 8.', textJa: '【強制】対象プレイヤーは、手札の最高値カードをあなたの手札に渡す。渡した場合、対象プレイヤーは8を引く。' }] },
+      dogma: [{ demand: false, icon: L,
+        text: 'You may tuck all cards from your hand. If you tuck one, you must tuck them all. If you tucked at least one purple card, take all the lowest cards in each other player\'s hand into your hand.',
+        textJa: '手札のカードをすべてタックしてもよい。1枚タックする場合はすべてタックしなければならない。紫のカードを1枚以上タックした場合、他のすべてのプレイヤーの手札の最低値カードをすべて自分の手札に取る。' }] },
 
     // ---------------- AGE 9 (10 cards) ----------------
-    { id: 'collaboration', name: '協調', age: 9, color: 'green', icons: [C, K, C, null],
+    { id: 'computers', name: 'コンピュータ', age: 9, color: 'green', icons: [null, K, F, K],
       dogma: [
-        { demand: false, icon: C, text: 'Draw a 9.', textJa: '9を引く。' },
-        { demand: false, icon: C, text: 'If all other players have fewer achievements than you, you win!', textJa: '他のすべてのプレイヤーより達成カードが多ければ、あなたの勝利です！' }
+        { demand: false, icon: K,
+          text: 'You may splay your red or green cards up.',
+          textJa: '赤または緑のカードを上にスプレイしてもよい。' },
+        { demand: false, icon: K,
+          text: 'Draw and meld a 10, then execute each of its non-demand dogma effects. Do not share them.',
+          textJa: '10を引いてメルドし、そのカードの非強制ドグマ効果をすべて実行する。これらは共有しない。' }
       ] },
-    { id: 'composites', name: '複合材料', age: 9, color: 'green', icons: [F, null, F, F],
-      dogma: [{ demand: false, icon: F, text: 'You may return the highest card in your hand to draw and score a 9, repeat for the next highest, up to a maximum of three cards.', textJa: 'あなたは手札の最高値カードを戻して9を引いて得点してもよい。これを次に高いカードについて繰り返す（最大3枚まで）。' }] },
-    { id: 'computers', name: 'コンピュータ', age: 9, color: 'blue', icons: [null, K, F, K],
-      dogma: [
-        { demand: false, icon: K, text: 'Splay your blue and green cards right.', textJa: '青と緑のカードを右にスプレイする。' },
-        { demand: false, icon: K, text: 'You may meld a card from your hand. If you do, draw and meld a 10.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、10を引いてメルドする。' }
-      ] },
-    { id: 'ecology', name: '生態学', age: 9, color: 'yellow', icons: [B, B, null, L],
-      dogma: [{ demand: true, icon: B, text: 'I DEMAND you return all top cards on your board with value 8 or less that share a color with one of my top cards! If you do, draw a 9 for each card returned.', textJa: '【強制】対象プレイヤーは、あなたの一番上のカードのいずれかと同じ色で、価値8以下のボード上の一番上のカードをすべて戻す。戻した場合、対象プレイヤーは戻した枚数分、9を引く。' }] },
+
+    { id: 'genetics', name: '遺伝学', age: 9, color: 'green', icons: [B, B, null, B],
+      dogma: [{ demand: false, icon: B,
+        text: 'Draw and meld a 10. Score all cards beneath it.',
+        textJa: '10を引いてメルドする。その下のカードをすべて得点する。' }] },
+
+    { id: 'composites', name: '複合材料', age: 9, color: 'red', icons: [F, null, F, F],
+      dogma: [{ demand: true, icon: F,
+        text: 'I DEMAND you transfer all but one card from your hand to my hand! Also transfer the highest card from your score pile to my score pile!',
+        textJa: '【強制】対象プレイヤーは手札から1枚を残して残りをすべてあなたの手札に渡す。さらに得点パイルの最高値カードをあなたの得点パイルに渡す。' }] },
+
     { id: 'fission', name: '核分裂', age: 9, color: 'red', icons: [K, K, K, null],
-      dogma: [{ demand: true, icon: K, text: 'I DEMAND that, if you have two top cards with a castle icon, every player including me remove all cards from their hand, score pile, and board, and we each draw and meld a 10. Otherwise, I draw and meld a 10.', textJa: '【強制】対象プレイヤーが城アイコンを持つ一番上のカードを2枚持っている場合、あなたを含むすべてのプレイヤーは手札・得点パイル・ボードのカードをすべてゲームから除外し、各プレイヤーが10を引いてメルドする。そうでない場合、あなたが10を引いてメルドする。' }] },
+      dogma: [
+        { demand: true, icon: K,
+          text: 'I DEMAND you draw a 10! If it is red, remove all hands, boards, and score piles from the game! If this occurs, the dogma action is complete.',
+          textJa: '【強制】対象プレイヤーは10を引く。それが赤であれば、すべてのプレイヤーの手札・ボード・得点パイルをゲームから除外する。この場合、ドグマ行動は終了する。' },
+        { demand: false, icon: K,
+          text: 'Return a top card other than Fission from any player\'s board. Draw a 10.',
+          textJa: '任意のプレイヤーのボードの一番上のカード（核分裂以外）を1枚戻す。10を引く。' }
+      ] },
+
+    { id: 'collaboration', name: '協調', age: 9, color: 'blue', icons: [C, K, C, null],
+      dogma: [
+        { demand: true, icon: C,
+          text: 'I DEMAND you draw two 9s and reveal them! I transfer the card of my choice to my board, and you meld the other!',
+          textJa: '【強制】対象プレイヤーは9を2枚引いて公開する。あなたはそのうち1枚を選んで自分のボードに移す。対象プレイヤーはもう1枚をメルドする。' },
+        { demand: false, icon: C,
+          text: 'If you have ten or more green cards on your board, you win.',
+          textJa: 'ボード上に緑のカードが10枚以上あれば、あなたの勝利です。' }
+      ] },
+
     { id: 'satellites', name: '人工衛星', age: 9, color: 'blue', icons: [K, K, K, null],
-      dogma: [{ demand: false, icon: K, text: 'Return all cards in your hand and score pile, then draw 3 cards of value 9.', textJa: '手札と得点パイルのカードをすべて戻し、その後9を3枚引く。' }] },
-    { id: 'specialization', name: '専門化', age: 9, color: 'purple', icons: [F, L, F, null],
-      dogma: [{ demand: false, icon: F, text: 'Reveal the top card of each of your colors. Score a card from your hand for each revealed card that shares a color with your most numerous board color.', textJa: '自分の各色の一番上のカードを公開する。自分のボードで最も枚数が多い色と同じ色だった公開カード1枚につき、手札からカードを1枚得点する。' }] },
-    { id: 'radio', name: '無線', age: 9, color: 'blue', icons: [B, B, null, B],
-      dogma: [{ demand: false, icon: B, text: 'Reveal cards from the deck until revealing a 10. Score it, return the rest to the bottom of their piles.', textJa: '山札からカードを公開し続け、10が出るまで続ける。それを得点し、残りは各補充パイルの底に戻す。' }] },
-    { id: 'telephone', name: '電話', age: 9, color: 'red', icons: [F, null, F, F],
-      dogma: [{ demand: false, icon: F, text: 'You may return a card from your hand. If you do, draw and score two cards of value one higher than the card you returned.', textJa: 'あなたは手札からカードを1枚戻してもよい。した場合、戻したカードより価値が1高いカードを2枚引いて得点する。' }] },
+      dogma: [
+        { demand: false, icon: K,
+          text: 'Return all cards from your hand, and draw three 8s.',
+          textJa: '手札のカードをすべて戻し、8を3枚引く。' },
+        { demand: false, icon: K,
+          text: 'You may splay your purple cards up.',
+          textJa: '紫のカードを上にスプレイしてもよい。' },
+        { demand: false, icon: K,
+          text: 'Meld a card from your hand and then execute each of its non-demand dogma effects. Do not share them.',
+          textJa: '手札からカードを1枚メルドし、そのカードの非強制ドグマ効果をすべて実行する。これらは共有しない。' }
+      ] },
+
+    { id: 'ecology', name: '生態学', age: 9, color: 'yellow', icons: [B, B, null, L],
+      dogma: [{ demand: false, icon: B,
+        text: 'You may return a card from your hand. If you do, score a card from your hand and draw two 10s.',
+        textJa: '手札からカードを1枚戻してもよい。した場合、手札からカードを1枚得点し、10を2枚引く。' }] },
+
     { id: 'suburbia', name: '郊外', age: 9, color: 'yellow', icons: [C, L, L, null],
-      dogma: [{ demand: false, icon: L, text: 'You may meld a card from your hand. If you do, score a card from your hand for each color you have at least 3 cards of on your board.', textJa: 'あなたは手札からカードを1枚メルドしてもよい。した場合、ボード上に3枚以上あるカードを持つ色1つにつき、手札からカードを1枚得点する。' }] },
+      dogma: [{ demand: false, icon: L,
+        text: 'You may tuck any number of cards from your hand. Draw and score a 1 for each card you tuck.',
+        textJa: '手札から好きな数のカードをタックしてもよい。タックした枚数分だけ1を引いて得点する。' }] },
+
+    { id: 'services', name: 'サービス', age: 9, color: 'purple', icons: [F, L, F, null],
+      dogma: [{ demand: true, icon: F,
+        text: 'I DEMAND you transfer all the highest cards from your score pile to my hand! If you transferred any cards, then transfer a top card from my board without a leaf icon to your hand!',
+        textJa: '【強制】対象プレイヤーは得点パイルの最高値カードをすべてあなたの手札に渡す。渡した場合、あなたのボードの一番上の葉アイコンのないカードを対象プレイヤーの手札に渡す。' }] },
+
+    { id: 'specialization', name: '専門化', age: 9, color: 'purple', icons: [F, L, F, null],
+      dogma: [
+        { demand: false, icon: F,
+          text: 'Reveal a card from your hand. Take into your hand the top card of that color from all opponents\' boards.',
+          textJa: '手札からカードを1枚公開する。その色の一番上のカードをすべての対戦相手のボードから手札に取る。' },
+        { demand: false, icon: F,
+          text: 'You may splay your yellow or blue cards up.',
+          textJa: '黄または青のカードを上にスプレイしてもよい。' }
+      ] },
 
     // ---------------- AGE 10 (10 cards) ----------------
-    { id: 'artificial_intelligence', name: 'A.I.', age: 10, color: 'purple', icons: [B, K, null, B],
+    { id: 'bioengineering', name: '生体工学', age: 10, color: 'green', icons: [K, K, null, B],
       dogma: [
-        { demand: false, icon: B, text: 'Draw and meld a 10.', textJa: '10を引いてメルドする。' },
-        { demand: false, icon: B, text: 'If you have more score than every other player, you win!', textJa: '他のすべてのプレイヤーより得点が高ければ、あなたの勝利です！' }
+        { demand: false, icon: K,
+          text: 'Transfer a top card with a leaf icon from any opponent\'s board to your score pile.',
+          textJa: '任意の対戦相手のボードの一番上の葉アイコン付きカードを自分の得点パイルに移す。' },
+        { demand: false, icon: K,
+          text: 'If any player has fewer than three leaf icons on their board, the single player with the most leaf icons on their board wins.',
+          textJa: 'いずれかのプレイヤーのボードの葉アイコンが3個未満であれば、ボード上の葉アイコンが最も多い1人のプレイヤーが勝利する。' }
       ] },
-    { id: 'bioengineering', name: '生体工学', age: 10, color: 'blue', icons: [K, K, null, B],
+
+    { id: 'software', name: 'ソフトウェア', age: 10, color: 'green', icons: [null, K, null, K],
       dogma: [
-        { demand: false, icon: K, text: 'Draw a 10.', textJa: '10を引く。' },
-        { demand: false, icon: K, text: 'If all other players have fewer achievements than you, you win!', textJa: '他のすべてのプレイヤーより達成カードが多ければ、あなたの勝利です！' }
+        { demand: false, icon: K,
+          text: 'Draw and score a 10.',
+          textJa: '10を引いて得点する。' },
+        { demand: false, icon: K,
+          text: 'Draw and meld two 10s, then execute each of the second card\'s non-demand dogma effects. Do not share them.',
+          textJa: '10を2枚引いてメルドし、2枚目のカードの非強制ドグマ効果をすべて実行する。これらは共有しない。' }
       ] },
+
+    { id: 'miniaturization', name: '小型化', age: 10, color: 'red', icons: [B, K, B, null],
+      dogma: [{ demand: false, icon: B,
+        text: 'You may return a card from your hand. If you returned a 10, draw a 10 for every different value of card in your score pile.',
+        textJa: '手札からカードを1枚戻してもよい。戻したカードが10であれば、得点パイルにある異なる価値1種につき10を引く。' }] },
+
+    { id: 'robotics', name: 'ロボット工学', age: 10, color: 'red', icons: [F, null, F, null],
+      dogma: [{ demand: false, icon: F,
+        text: 'Score your top green card. Draw and meld a 10, then execute each of its non-demand dogma effects. Do not share them.',
+        textJa: '自分のボードの一番上の緑カードを得点する。10を引いてメルドし、そのカードの非強制ドグマ効果をすべて実行する。これらは共有しない。' }] },
+
+    { id: 'databases', name: 'データベース', age: 10, color: 'blue', icons: [K, K, K, null],
+      dogma: [{ demand: true, icon: K,
+        text: 'I DEMAND you return half (rounded up) of the cards in your score pile!',
+        textJa: '【強制】対象プレイヤーは得点パイルの半分（切り上げ）のカードを戻す。' }] },
+
+    { id: 'self_service', name: 'セルフサービス', age: 10, color: 'blue', icons: [C, null, C, null],
+      dogma: [
+        { demand: false, icon: C,
+          text: 'Execute each of the non-demand dogma effects of any other top card on your board. Do not share them.',
+          textJa: '自分のボードの他の一番上のカードのどれか1枚の非強制ドグマ効果をすべて実行する。これらは共有しない。' },
+        { demand: false, icon: C,
+          text: 'If you have more achievements than each other player, you win.',
+          textJa: '他のすべてのプレイヤーより達成カードが多ければ、あなたの勝利です。' }
+      ] },
+
     { id: 'globalization', name: 'グローバル化', age: 10, color: 'yellow', icons: [F, F, F, null],
       dogma: [
-        { demand: false, icon: F, text: 'Return all cards from your hand of value 5 or less. Draw a 10 for each card you returned this way.', textJa: '手札から価値5以下のカードをすべて戻す。戻した枚数分だけ10を引く。' },
-        { demand: false, icon: F, text: 'If no other player has a factory icon on their board, you win!', textJa: '他のプレイヤー誰もボード上に工場アイコンを持っていなければ、あなたの勝利です！' }
+        { demand: true, icon: F,
+          text: 'I DEMAND you return a top card with a leaf icon from your board!',
+          textJa: '【強制】対象プレイヤーはボードの一番上の葉アイコン付きカードを戻す。' },
+        { demand: false, icon: F,
+          text: 'Draw and score a 6. If no player has more leaf icons than factory icons on their board, the single player with the most points wins.',
+          textJa: '6を引いて得点する。どのプレイヤーもボード上の葉アイコンが工場アイコンより多くなければ、得点が最も多い1人のプレイヤーが勝利する。' }
       ] },
-    { id: 'miniaturization', name: '小型化', age: 10, color: 'red', icons: [B, K, B, null],
+
+    { id: 'stem_cells', name: '幹細胞', age: 10, color: 'yellow', icons: [L, L, L, null],
+      dogma: [{ demand: false, icon: L,
+        text: 'You may score all cards from your hand. If you score one, you must score them all.',
+        textJa: '手札のカードをすべて得点してもよい。1枚得点する場合はすべて得点しなければならない。' }] },
+
+    { id: 'ai', name: 'A.I.', age: 10, color: 'purple', icons: [B, K, null, B],
       dogma: [
-        { demand: true, icon: B, text: 'I DEMAND you transfer the top card with the lowest value from your board to my score pile! If you do, draw a 1.', textJa: '【強制】対象プレイヤーは、ボード上の一番上のカードのうち最低値のものをあなたの得点パイルに渡す。渡した場合、対象プレイヤーは1を引く。' },
-        { demand: false, icon: B, text: 'Score a card from your hand. If you have more score than every other player, you win!', textJa: '手札からカードを1枚得点する。他のすべてのプレイヤーより得点が高ければ、あなたの勝利です！' }
+        { demand: false, icon: B,
+          text: 'Draw and score a 10.',
+          textJa: '10を引いて得点する。' },
+        { demand: false, icon: B,
+          text: 'If Robotics and Software are top cards on any board, the single player with the lowest score wins.',
+          textJa: 'ロボット工学とソフトウェアがどかのプレイヤーのボードの一番上にある場合、得点が最も低い1人のプレイヤーが勝利する。' }
       ] },
-    { id: 'robotics', name: 'ロボット工学', age: 10, color: 'red', icons: [F, null, F, null],
-      dogma: [{ demand: false, icon: F, text: 'You do not execute the non-demand effects of other players\' Robotics or Software dogma actions. Draw and meld a 10.', textJa: '他のプレイヤーが発動した「ロボット工学」または「ソフトウェア」のドグマの非強制効果は実行しない。10を引いてメルドする。' }] },
-    { id: 'self_service', name: 'セルフサービス', age: 10, color: 'green', icons: [C, null, C, null],
-      dogma: [{ demand: false, icon: C, text: 'You do not execute the non-demand effects of other players\' dogma actions on cards melded since this card. Draw a 1.', textJa: 'このカードがメルドされた後にメルドされたカードによる、他のプレイヤーのドグマの非強制効果は実行しない。1を引く。' }] },
-    { id: 'software10', name: 'ソフトウェア', age: 10, color: 'blue', icons: [null, K, null, K],
-      dogma: [{ demand: false, icon: K, text: 'You do not execute the non-demand effects of other players\' second dogma action this turn. Draw and meld a 10.', textJa: 'このターン中、他のプレイヤーの2番目のドグマ行動による非強制効果は実行しない。10を引いてメルドする。' }] },
-    { id: 'stem_cells10', name: '幹細胞', age: 10, color: 'yellow', icons: [L, L, L, null],
-      dogma: [{ demand: true, icon: L, text: 'I DEMAND you transfer the highest card in your hand to my hand! If you do, draw a 10.', textJa: '【強制】対象プレイヤーは、手札の最高値カードをあなたの手札に渡す。渡した場合、対象プレイヤーは10を引く。' }] },
+
     { id: 'the_internet', name: 'インターネット', age: 10, color: 'purple', icons: [K, null, null, null],
-      dogma: [{ demand: false, icon: K, text: 'You may exchange your highest top card with any other player\'s lowest top card of the same color, if any.', textJa: 'あなたは、自分の一番上の最高値カードを、同じ色を持つ他のプレイヤーの一番上の最低値カードと交換してもよい（あれば）。' }] },
-    { id: 'nanotechnology', name: 'ナノテクノロジー', age: 10, color: 'purple', icons: [K, K, K, null],
-      dogma: [{ demand: false, icon: K, text: 'Draw and score a 10 for every two factory icons you have, up to a maximum of three times.', textJa: 'あなたが持つ工場アイコン2個につき10を引いて得点する（最大3回まで）。' }] }
+      dogma: [
+        { demand: false, icon: K,
+          text: 'You may splay your green cards up.',
+          textJa: '緑のカードを上にスプレイしてもよい。' },
+        { demand: false, icon: K,
+          text: 'Draw and score a 10.',
+          textJa: '10を引いて得点する。' },
+        { demand: false, icon: K,
+          text: 'Draw and meld a 10 for every two clock icons on your board.',
+          textJa: 'ボード上の時計アイコン2個につき10を引いてメルドする。' }
+      ] }
   ];
 
   return CARDS;

@@ -610,7 +610,7 @@
         text: 'You may return up to three cards from your hand. For every different value of card that you returned, draw two 8s.',
         textJa: '手札から最大3枚のカードを戻してもよい。戻したカードの異なる価値1種につき8を2枚引く。' }] },
 
-    { id: 'skyscrapers', name: '高層建築', age: 8, color: 'yellow', icons: [F, C, C, null],
+    { id: 'skyscrapers', name: '摩天楼', age: 8, color: 'yellow', icons: [F, C, C, null],
       dogma: [{ demand: true, icon: C,
         text: 'I DEMAND you transfer a top non-yellow card with a clock icon from your board to my board! If you do, score the card beneath it, and return all other cards from that pile!',
         textJa: '【強制】対象プレイヤーは時計アイコン付きの黄以外の一番上のカードをあなたのボードに渡す。渡した場合、その下のカードを得点し、そのパイルの残りのカードをすべて戻す。' }] },

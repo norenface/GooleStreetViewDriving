@@ -1236,7 +1236,21 @@
           var g = ctx.game, p = ctx.actor;
           var colors = COLORS.filter(function (c) { return p.board[c].cards.length >= 2; });
           var color = await pickColor(p, colors, '並べ替える色を選んでください。', true);
-          if (color && engine.rearrangeColor) await engine.rearrangeColor(g, p, color);
+          if (!color) return;
+          // Let the player pick the new order from top to bottom
+          var remaining = p.board[color].cards.slice();
+          var total = remaining.length;
+          var newOrder = [];
+          for (var i = 0; i < total; i++) {
+            var pos = i === 0 ? '一番上' : i === total - 1 ? '一番下' : (i + 1) + '番目';
+            var picked = await pickOne(p, remaining,
+              COLOR_JA[color] + ' のカード (' + pos + ') を選んでください。');
+            if (!picked) picked = remaining[0]; // fallback
+            newOrder.push(picked);
+            remaining = remaining.filter(function (id) { return id !== picked; });
+          }
+          // newOrder[0]=top → board.cards stores bottom at [0], top at [last]
+          p.board[color].cards = newOrder.slice().reverse();
         }
       },
       {

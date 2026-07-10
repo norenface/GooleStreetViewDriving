@@ -38,8 +38,20 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 
 #game-info-bar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 8px;
+}
+
+.btn-back-top {
+  background: #444c5c;
+  color: #cdd6e0;
+  border: 1px solid #5a6478;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+.btn-back-top:hover {
+  background: #5a6478;
 }
 
 #game-over-banner {

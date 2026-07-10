@@ -231,6 +231,16 @@
     document.getElementById('card-list-overlay').classList.add('hidden');
   });
 
+  document.getElementById('back-to-top-btn').addEventListener('click', function () {
+    if (!confirm('トップ画面に戻りますか？\n現在のゲームの進行状況は失われます。')) return;
+    gameScreen.classList.add('hidden');
+    document.getElementById('game-over-banner').classList.add('hidden');
+    document.getElementById('players-area').innerHTML = '';
+    document.getElementById('action-bar').innerHTML = '';
+    document.getElementById('log-panel').innerHTML = '';
+    setupScreen.classList.remove('hidden');
+  });
+
   // ----------------------------------------------------------------------------
 
   function startSoloGame() {

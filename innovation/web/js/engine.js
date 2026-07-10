@@ -113,15 +113,10 @@
   // Draw a card of given age (or next available higher). Returns card id or null.
   function drawCard(game, player, age) {
     var res = pileTake(game, age);
-    if (!res) { maybeEndByExhaustion(game, age); return null; }
+    if (!res) { endGameByTimePassing(game); return null; }
     player.hand.push(res.id);
     log(game, player.name + ' は ' + card(game, res.id).name + ' を引いた');
-    if (res.age >= 11) endGameByTimePassing(game);
     return res.id;
-  }
-
-  function maybeEndByExhaustion(game, age) {
-    if (age > 10) endGameByTimePassing(game);
   }
 
   function endGameByTimePassing(game) {

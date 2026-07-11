@@ -983,7 +983,7 @@
         await drawAndTuck(g, p, 4);
         await drawAndTuck(g, p, 4);
         var yellowCards = p.board.yellow.cards;
-        if (yellowCards.length) engine.scoreCard(g, p, yellowCards[yellowCards.length - 1]);
+        if (yellowCards.length) engine.scoreCard(g, p, yellowCards[0]); // bottom card = index 0
       }
     }];
 

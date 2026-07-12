@@ -42,6 +42,16 @@
     <!-- host panel -->
     <div id="host-panel" class="online-panel hidden">
       <label>あなたの名前<input id="host-name-input" class="online-input" type="text" placeholder="プレイヤー1" maxlength="20"></label>
+
+      <!-- CPU player rows (host can add up to 2 CPUs → 4 players total) -->
+      <div id="online-cpu-section">
+        <div class="online-cpu-header">
+          <span class="online-hint" style="margin:0;">CPUプレイヤーを追加（任意・最大2人）</span>
+          <button id="add-cpu-btn" class="btn btn-sm">＋ CPU追加</button>
+        </div>
+        <div id="online-cpu-rows"></div>
+      </div>
+
       <div id="room-code-wrap" class="hidden">
         <p class="online-hint">このコードを対戦相手に伝えてください：</p>
         <div class="room-code-row">

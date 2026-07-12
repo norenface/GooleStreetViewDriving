@@ -275,7 +275,56 @@
     return clone;
   }
 
-  // ---------- Host ----------
+  // ---------- Host: CPU row management ----------
+
+  var onlineCpuRows = []; // [{ kind: 'ai'|'random' }, ...]
+
+  function renderOnlineCpuRows() {
+    var container = document.getElementById('online-cpu-rows');
+    container.innerHTML = '';
+    onlineCpuRows.forEach(function (row, idx) {
+      var div = document.createElement('div');
+      div.className = 'online-cpu-row';
+
+      var label = document.createElement('span');
+      label.className = 'online-hint';
+      label.style.margin = '0';
+      label.textContent = 'CPU' + (idx + 1);
+
+      var sel = document.createElement('select');
+      ['ai', 'random'].forEach(function (k) {
+        var opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = k === 'ai' ? 'CPU（賢い）' : 'CPU（ランダム）';
+        if (row.kind === k) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function () { onlineCpuRows[idx].kind = sel.value; });
+
+      var removeBtn = document.createElement('button');
+      removeBtn.className = 'btn btn-remove';
+      removeBtn.textContent = '削除';
+      removeBtn.addEventListener('click', function () {
+        onlineCpuRows.splice(idx, 1);
+        renderOnlineCpuRows();
+        document.getElementById('add-cpu-btn').disabled = onlineCpuRows.length >= 2;
+      });
+
+      div.appendChild(label);
+      div.appendChild(sel);
+      div.appendChild(removeBtn);
+      container.appendChild(div);
+    });
+  }
+
+  document.getElementById('add-cpu-btn').addEventListener('click', function () {
+    if (onlineCpuRows.length >= 2) return;
+    onlineCpuRows.push({ kind: 'ai' });
+    renderOnlineCpuRows();
+    this.disabled = onlineCpuRows.length >= 2;
+  });
+
+  // ---------- Host: room creation ----------
 
   document.getElementById('create-room-btn').addEventListener('click', function () {
     document.getElementById('host-panel').classList.remove('hidden');
@@ -305,19 +354,13 @@
         );
         activeNetCtrl = netCtrl;
 
-        // Receive guest responses
-        activeNetHandle._onDataFromGuest = function (msg) {
-          if (msg.type === 'hello') {
-            document.getElementById('host-status').textContent =
-              msg.name + ' さんが接続しました！ゲームを開始してください。';
-          }
-          if (netCtrl) netCtrl.handleResponse(msg);
-        };
-
         document.getElementById('start-online-btn').addEventListener('click', function () {
           var guestName = activeNetHandle._guestName || 'ゲスト';
+          var cpuSpecs = onlineCpuRows.map(function (r, i) {
+            return { name: 'CPU' + (i + 1), kind: r.kind };
+          });
           sendFn({ type: 'init', guestIndex: 1, hostName: hostName, guestName: guestName });
-          startOnlineGameAsHost(hostName, guestName, sendFn, netCtrl);
+          startOnlineGameAsHost(hostName, guestName, cpuSpecs, sendFn, netCtrl);
         }, { once: true });
       },
       onData: function (msg) {
@@ -349,13 +392,23 @@
     });
   });
 
-  function startOnlineGameAsHost(hostName, guestName, sendFn, netCtrl) {
+  // cpuSpecs: [{ name, kind }] for CPU players beyond host+guest
+  function startOnlineGameAsHost(hostName, guestName, cpuSpecs, sendFn, netCtrl) {
     var specs = [{ name: hostName, kind: 'human' }, { name: guestName, kind: 'human' }];
+    cpuSpecs.forEach(function (c) { specs.push({ name: c.name, kind: c.kind }); });
+
     var game = engine.createGame(cardsDb, specs);
     liveGame = game;
     ui.setHumanPlayer(0);
     game.players[0].controller = window.InnovationHumanController.makeHumanController(ui);
     game.players[1].controller = netCtrl;
+    // CPU players from index 2 onward
+    cpuSpecs.forEach(function (c, i) {
+      var idx = 2 + i;
+      game.players[idx].controller = c.kind === 'ai'
+        ? window.InnovationAIController.makeAIController(engine, cardsDb, effects)
+        : window.InnovationRandomController.makeRandomController();
+    });
 
     setupScreen.classList.add('hidden');
     gameScreen.classList.remove('hidden');

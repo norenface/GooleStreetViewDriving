@@ -115,7 +115,7 @@
     var res = pileTake(game, age);
     if (!res) { endGameByTimePassing(game); return null; }
     player.hand.push(res.id);
-    log(game, player.name + ' は ' + card(game, res.id).name + ' を引いた');
+    log(game, player.name + ' はカードを引いた（時代' + res.age + '）');
     return res.id;
   }
 

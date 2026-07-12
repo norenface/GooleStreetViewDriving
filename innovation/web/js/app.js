@@ -257,6 +257,24 @@
     }));
   }
 
+  // Sanitized version for sending to guest:
+  //   - Non-guest players' hands are replaced with null-filled arrays (count kept, IDs hidden)
+  //   - Draw pile card IDs are replaced with nulls (counts kept)
+  function serializeGameForGuest(game, guestIndex) {
+    var clone = serializeGame(game);
+    clone.players.forEach(function (p, idx) {
+      if (idx !== guestIndex) {
+        clone.players[idx].hand = Array(p.hand.length).fill(null);
+      }
+    });
+    for (var age = 1; age <= 10; age++) {
+      if (clone.piles && clone.piles[age]) {
+        clone.piles[age] = Array(clone.piles[age].length).fill(null);
+      }
+    }
+    return clone;
+  }
+
   // ---------- Host ----------
 
   document.getElementById('create-room-btn').addEventListener('click', function () {
@@ -280,7 +298,11 @@
         document.getElementById('host-status').textContent = 'ゲストが接続しました！ゲームを開始してください。';
         document.getElementById('start-online-btn').classList.remove('hidden');
 
-        netCtrl = netCtrlFactory.makeNetworkController(sendFn, function () { return liveGame; });
+        netCtrl = netCtrlFactory.makeNetworkController(
+          sendFn,
+          function () { return liveGame; },
+          function (g) { return serializeGameForGuest(g, 1); }
+        );
         activeNetCtrl = netCtrl;
 
         // Receive guest responses
@@ -342,12 +364,12 @@
       maxTurns: 2000,
       onAction: function (g) {
         ui.render(g);
-        sendFn({ type: 'state', game: serializeGame(g) });
+        sendFn({ type: 'state', game: serializeGameForGuest(g, 1) });
       }
     }).then(function (finishedGame) {
       ui.render(finishedGame);
       ui.showGameOver(finishedGame);
-      sendFn({ type: 'state', game: serializeGame(finishedGame) });
+      sendFn({ type: 'state', game: serializeGameForGuest(finishedGame, 1) });
       sendFn({ type: 'gameover' });
     }).catch(function (err) {
       console.error(err);

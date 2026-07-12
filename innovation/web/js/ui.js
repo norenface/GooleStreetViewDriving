@@ -363,6 +363,7 @@
           var handCards = document.createElement('div');
           handCards.className = 'zone-cards';
           p.hand.forEach(function (id) {
+            if (!id || !byId[id]) return; // hidden card (null) – skip
             var handOpts = {};
             if (interactiveOpts) {
               var meldAction = null;

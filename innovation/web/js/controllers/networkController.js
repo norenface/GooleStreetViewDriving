@@ -6,23 +6,27 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  function serializeGame(game) {
-    return JSON.parse(JSON.stringify(game, function (key, val) {
-      return key === 'controller' ? undefined : val;
-    }));
-  }
+  // sendFn(msg)    – sends a message to the guest
+  // getGame()      – returns the current live game object
+  // serializeFn(g) – optional; defaults to stripping controllers only.
+  //                  Pass a sanitizing function to hide opponent hands / pile contents.
+  function makeNetworkController(sendFn, getGame, serializeFn) {
+    if (!serializeFn) {
+      serializeFn = function (game) {
+        return JSON.parse(JSON.stringify(game, function (key, val) {
+          return key === 'controller' ? undefined : val;
+        }));
+      };
+    }
 
-  // sendFn(msg)  – sends a message to the guest
-  // getGame()    – returns the current live game object (for pre-prompt state sync)
-  function makeNetworkController(sendFn, getGame) {
     var pending = {};
     var nextId  = 0;
 
     function sendPrompt(method, payload) {
       var id = nextId++;
-      // Send latest game state so the guest can render before answering
+      // Send latest (sanitized) game state so the guest can render before answering
       var g = getGame && getGame();
-      if (g) sendFn({ type: 'state', game: serializeGame(g) });
+      if (g) sendFn({ type: 'state', game: serializeFn(g) });
       sendFn({ type: 'prompt', id: id, method: method, payload: payload });
       return new Promise(function (resolve) { pending[id] = resolve; });
     }

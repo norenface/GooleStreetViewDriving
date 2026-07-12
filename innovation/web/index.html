@@ -9,20 +9,62 @@
 <body>
 
 <div id="setup-screen">
-  <h1>Innovation — ソロプレイ / PC対戦</h1>
-  <label for="player-count">プレイヤー人数</label>
-  <select id="player-count">
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="solo">ソロプレイ（支配政党と対戦）</option>
-  </select>
-  <div id="opponent-rows"></div>
-  <p id="solo-info" class="hidden">ソロプレイ・バリアント：ドロー/メルド/ドグマ発動/達成を行いながら、カードを引いてメルドするだけの自動プレイヤー
-    「支配政党（Ruling Party）」と対戦します。支配政党は毎ターン共有の文化トラックを進めてきます。ゲーム終了時に支配政党の得点目標を
-    上回れば勝利です。（BGGユーザーGameRulesforOneによるファン考案バリアント。基本セットのカードのみ使用）</p>
-  <button id="start-game-btn" class="btn btn-primary" style="margin-top:16px;">ゲーム開始</button>
-  <button id="card-list-btn" class="btn" style="margin-top:8px;width:100%;">📋 カード一覧</button>
+  <h1>Innovation — ソロプレイ / PC対戦 / オンライン対戦</h1>
+
+  <!-- ===== CPU / Solo section ===== -->
+  <div id="local-section">
+    <label for="player-count">プレイヤー人数</label>
+    <select id="player-count">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="solo">ソロプレイ（支配政党と対戦）</option>
+    </select>
+    <div id="opponent-rows"></div>
+    <p id="solo-info" class="hidden">ソロプレイ・バリアント：ドロー/メルド/ドグマ発動/達成を行いながら、カードを引いてメルドするだけの自動プレイヤー
+      「支配政党（Ruling Party）」と対戦します。支配政党は毎ターン共有の文化トラックを進めてきます。ゲーム終了時に支配政党の得点目標を
+      上回れば勝利です。（BGGユーザーGameRulesforOneによるファン考案バリアント。基本セットのカードのみ使用）</p>
+    <button id="start-game-btn" class="btn btn-primary" style="margin-top:16px;">ゲーム開始</button>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- ===== Online friend play section ===== -->
+  <div id="online-section">
+    <h2 class="online-title">🌐 フレンドとオンライン対戦（P2P・無料）</h2>
+
+    <!-- mode picker -->
+    <div id="online-mode-btns">
+      <button id="create-room-btn" class="btn btn-primary">部屋を作る（ホスト）</button>
+      <button id="join-room-btn"   class="btn">部屋に入る（ゲスト）</button>
+    </div>
+
+    <!-- host panel -->
+    <div id="host-panel" class="online-panel hidden">
+      <label>あなたの名前<input id="host-name-input" class="online-input" type="text" placeholder="プレイヤー1" maxlength="20"></label>
+      <div id="room-code-wrap" class="hidden">
+        <p class="online-hint">このコードを対戦相手に伝えてください：</p>
+        <div class="room-code-row">
+          <span id="room-code-display" class="room-code">------</span>
+          <button id="copy-code-btn" class="btn">コピー</button>
+        </div>
+        <p id="host-status" class="online-status">ゲストの接続を待っています…</p>
+        <button id="start-online-btn" class="btn btn-primary hidden">ゲーム開始！</button>
+      </div>
+      <button id="do-create-room-btn" class="btn btn-primary" style="margin-top:10px;">部屋を作る</button>
+    </div>
+
+    <!-- guest panel -->
+    <div id="guest-panel" class="online-panel hidden">
+      <label>あなたの名前<input id="guest-name-input" class="online-input" type="text" placeholder="プレイヤー2" maxlength="20"></label>
+      <label>ルームコード<input id="room-code-input" class="online-input room-code-input" type="text" placeholder="ABCDEF" maxlength="6"></label>
+      <button id="do-join-btn" class="btn btn-primary" style="margin-top:10px;">接続する</button>
+      <p id="guest-status" class="online-status hidden"></p>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+  <button id="card-list-btn" class="btn" style="margin-top:4px;width:100%;">📋 カード一覧</button>
 </div>
 
 <div id="card-list-overlay" class="hidden">
@@ -64,6 +106,7 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/effects.js"></script>
@@ -74,6 +117,8 @@
 <script src="js/controllers/randomController.js"></script>
 <script src="js/controllers/aiController.js"></script>
 <script src="js/controllers/soloBotController.js"></script>
+<script src="js/controllers/networkController.js"></script>
+<script src="js/network/peerNetwork.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

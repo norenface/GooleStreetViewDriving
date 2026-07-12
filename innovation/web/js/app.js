@@ -241,6 +241,207 @@
     setupScreen.classList.remove('hidden');
   });
 
+  // ---- Online (PeerJS) friend play ------------------------------------------
+
+  var peerNet = window.InnovationPeerNetwork;
+  var netCtrlFactory = window.InnovationNetworkController;
+
+  var activeNetHandle = null; // { destroy() } – current peer handle
+  var activeNetCtrl   = null; // networkController instance (host side)
+  var liveGame        = null; // reference to live game (for pre-prompt state sync)
+  var guestSendFn     = null; // send function for guest → host responses
+
+  function serializeGame(game) {
+    return JSON.parse(JSON.stringify(game, function (k, v) {
+      return k === 'controller' ? undefined : v;
+    }));
+  }
+
+  // ---------- Host ----------
+
+  document.getElementById('create-room-btn').addEventListener('click', function () {
+    document.getElementById('host-panel').classList.remove('hidden');
+    document.getElementById('guest-panel').classList.add('hidden');
+  });
+
+  document.getElementById('do-create-room-btn').addEventListener('click', function () {
+    var hostName = document.getElementById('host-name-input').value.trim() || 'ホスト';
+    document.getElementById('do-create-room-btn').disabled = true;
+    document.getElementById('room-code-wrap').classList.remove('hidden');
+
+    if (activeNetHandle) activeNetHandle.destroy();
+
+    var netCtrl = null;
+    activeNetHandle = peerNet.createHost({
+      onCode: function (code) {
+        document.getElementById('room-code-display').textContent = code;
+      },
+      onConnected: function (sendFn) {
+        document.getElementById('host-status').textContent = 'ゲストが接続しました！ゲームを開始してください。';
+        document.getElementById('start-online-btn').classList.remove('hidden');
+
+        netCtrl = netCtrlFactory.makeNetworkController(sendFn, function () { return liveGame; });
+        activeNetCtrl = netCtrl;
+
+        // Receive guest responses
+        activeNetHandle._onDataFromGuest = function (msg) {
+          if (msg.type === 'hello') {
+            document.getElementById('host-status').textContent =
+              msg.name + ' さんが接続しました！ゲームを開始してください。';
+          }
+          if (netCtrl) netCtrl.handleResponse(msg);
+        };
+
+        document.getElementById('start-online-btn').addEventListener('click', function () {
+          var guestName = activeNetHandle._guestName || 'ゲスト';
+          sendFn({ type: 'init', guestIndex: 1, hostName: hostName, guestName: guestName });
+          startOnlineGameAsHost(hostName, guestName, sendFn, netCtrl);
+        }, { once: true });
+      },
+      onData: function (msg) {
+        if (msg.type === 'hello') {
+          activeNetHandle._guestName = msg.name;
+          document.getElementById('host-status').textContent =
+            msg.name + ' さんが接続しました！ゲームを開始してください。';
+          document.getElementById('start-online-btn').classList.remove('hidden');
+        }
+        if (activeNetCtrl) activeNetCtrl.handleResponse(msg);
+      },
+      onDisconnected: function () {
+        document.getElementById('host-status').textContent = '⚠ 接続が切断されました。';
+      },
+      onError: function (err) {
+        document.getElementById('host-status').textContent = 'エラー: ' + err.message;
+        document.getElementById('do-create-room-btn').disabled = false;
+      }
+    });
+  });
+
+  document.getElementById('copy-code-btn').addEventListener('click', function () {
+    var code = document.getElementById('room-code-display').textContent;
+    navigator.clipboard && navigator.clipboard.writeText(code).then(function () {
+      document.getElementById('copy-code-btn').textContent = 'コピー済！';
+      setTimeout(function () {
+        document.getElementById('copy-code-btn').textContent = 'コピー';
+      }, 2000);
+    });
+  });
+
+  function startOnlineGameAsHost(hostName, guestName, sendFn, netCtrl) {
+    var specs = [{ name: hostName, kind: 'human' }, { name: guestName, kind: 'human' }];
+    var game = engine.createGame(cardsDb, specs);
+    liveGame = game;
+    ui.setHumanPlayer(0);
+    game.players[0].controller = window.InnovationHumanController.makeHumanController(ui);
+    game.players[1].controller = netCtrl;
+
+    setupScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+
+    flow.playFullGame(game, {
+      maxTurns: 2000,
+      onAction: function (g) {
+        ui.render(g);
+        sendFn({ type: 'state', game: serializeGame(g) });
+      }
+    }).then(function (finishedGame) {
+      ui.render(finishedGame);
+      ui.showGameOver(finishedGame);
+      sendFn({ type: 'state', game: serializeGame(finishedGame) });
+      sendFn({ type: 'gameover' });
+    }).catch(function (err) {
+      console.error(err);
+      var banner = document.getElementById('game-over-banner');
+      banner.textContent = 'エラー: ' + err.message;
+      banner.classList.remove('hidden');
+    });
+  }
+
+  // ---------- Guest ----------
+
+  document.getElementById('join-room-btn').addEventListener('click', function () {
+    document.getElementById('guest-panel').classList.remove('hidden');
+    document.getElementById('host-panel').classList.add('hidden');
+  });
+
+  document.getElementById('do-join-btn').addEventListener('click', function () {
+    var guestName = document.getElementById('guest-name-input').value.trim() || 'ゲスト';
+    var code = document.getElementById('room-code-input').value.trim();
+    if (!code || code.length !== 6) {
+      document.getElementById('guest-status').textContent = '⚠ 6文字のルームコードを入力してください。';
+      document.getElementById('guest-status').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('do-join-btn').disabled = true;
+    document.getElementById('guest-status').textContent = '接続中…';
+    document.getElementById('guest-status').classList.remove('hidden');
+
+    if (activeNetHandle) activeNetHandle.destroy();
+
+    activeNetHandle = peerNet.joinAsGuest(code, {
+      onConnected: function (sendFn) {
+        guestSendFn = sendFn;
+        document.getElementById('guest-status').textContent = '接続できました！ホストのゲーム開始を待っています…';
+        sendFn({ type: 'hello', name: guestName });
+      },
+      onData: function (msg) {
+        handleGuestMessage(msg);
+      },
+      onDisconnected: function () {
+        document.getElementById('guest-status').textContent = '⚠ 接続が切断されました。';
+        document.getElementById('guest-status').classList.remove('hidden');
+      },
+      onError: function (err) {
+        document.getElementById('guest-status').textContent = '⚠ 接続失敗: ' + (err.message || err.type || err);
+        document.getElementById('guest-status').classList.remove('hidden');
+        document.getElementById('do-join-btn').disabled = false;
+      }
+    });
+  });
+
+  var guestPendingPrompt = null; // { resolve } waiting for guest UI input
+
+  function handleGuestMessage(msg) {
+    if (msg.type === 'state') {
+      ui.render(msg.game);
+    } else if (msg.type === 'init') {
+      ui.setHumanPlayer(msg.guestIndex);
+      setupScreen.classList.add('hidden');
+      gameScreen.classList.remove('hidden');
+    } else if (msg.type === 'prompt') {
+      handleGuestPrompt(msg);
+    } else if (msg.type === 'gameover') {
+      ui.showGameOver && ui.showGameOver(null);
+    }
+  }
+
+  async function handleGuestPrompt(msg) {
+    var p   = msg.payload;
+    var dummy = {};
+    var result;
+
+    try {
+      if (msg.method === 'chooseAction') {
+        result = await ui.askAction(dummy, { legal: p.legal });
+      } else if (msg.method === 'chooseCard') {
+        result = await ui.askCard(dummy, p);
+      } else if (msg.method === 'chooseColor') {
+        result = await ui.askColor(dummy, p);
+      } else if (msg.method === 'chooseSplay') {
+        result = await ui.askSplay(dummy, p);
+      } else if (msg.method === 'choosePlayer') {
+        result = await ui.askPlayer(dummy, p);
+      } else if (msg.method === 'confirm') {
+        result = await ui.askConfirm(dummy, p.prompt);
+      }
+    } catch (e) {
+      console.error('handleGuestPrompt error', e);
+      result = null;
+    }
+
+    if (guestSendFn) guestSendFn({ type: 'response', id: msg.id, value: result });
+  }
+
   // ----------------------------------------------------------------------------
 
   function startSoloGame() {

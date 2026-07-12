@@ -15,19 +15,61 @@
     return s;
   }
 
+  var PEER_CONFIG = {
+    host: '0.peerjs.com',
+    port: 443,
+    path: '/',
+    secure: true,
+    debug: 0,
+    config: {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    }
+  };
+
+  var CONNECT_TIMEOUT_MS = 15000;
+
+  function makePeer(peerId) {
+    if (typeof Peer === 'undefined') {
+      throw new Error('PeerJSライブラリが読み込まれていません。ページを再読み込みしてください。');
+    }
+    return peerId ? new Peer(peerId, PEER_CONFIG) : new Peer(PEER_CONFIG);
+  }
+
   // --- Host side ---
   // callbacks: { onCode(code), onConnected(send), onData(msg), onDisconnected(), onError(err) }
   function createHost(callbacks) {
     var conn = null;
     var peer = null;
+    var openTimer = null;
 
     function sendFn(data) { if (conn && conn.open) conn.send(data); }
 
     function tryCreate(code) {
       if (peer) peer.destroy();
-      peer = new Peer(PREFIX + code);
+      if (openTimer) clearTimeout(openTimer);
+
+      try {
+        peer = makePeer(PREFIX + code);
+      } catch (e) {
+        callbacks.onError && callbacks.onError({ type: 'load-error', message: e.message });
+        return;
+      }
+
+      // タイムアウト：サーバーに繋がらない場合
+      openTimer = setTimeout(function () {
+        if (peer && !peer.open) {
+          callbacks.onError && callbacks.onError({
+            type: 'timeout',
+            message: 'PeerJSサーバーへの接続がタイムアウトしました。\nネットワーク接続とHTTPS環境を確認してください。'
+          });
+        }
+      }, CONNECT_TIMEOUT_MS);
 
       peer.on('open', function () {
+        clearTimeout(openTimer);
         callbacks.onCode && callbacks.onCode(code);
       });
 
@@ -48,30 +90,60 @@
       });
 
       peer.on('error', function (err) {
+        clearTimeout(openTimer);
         if (err.type === 'unavailable-id') {
-          // ID collision – retry silently with a new code
           setTimeout(function () { tryCreate(randomCode()); }, 300);
           return;
         }
-        callbacks.onError && callbacks.onError(err);
+        var msg = err.message || err.type || '不明なエラー';
+        if (err.type === 'network' || err.type === 'server-error') {
+          msg = 'PeerJSサーバーに接続できませんでした。\nネットワーク接続とHTTPS環境を確認してください。';
+        }
+        callbacks.onError && callbacks.onError({ type: err.type, message: msg });
       });
     }
 
     tryCreate(randomCode());
-    return { destroy: function () { if (peer) peer.destroy(); } };
+    return { destroy: function () { clearTimeout(openTimer); if (peer) peer.destroy(); } };
   }
 
   // --- Guest side ---
   // callbacks: { onConnected(send), onData(msg), onDisconnected(), onError(err) }
   function joinAsGuest(code, callbacks) {
     var conn = null;
-    var peer = new Peer();
+    var peer = null;
+    var openTimer = null;
+
+    try {
+      peer = makePeer(null);
+    } catch (e) {
+      setTimeout(function () {
+        callbacks.onError && callbacks.onError({ type: 'load-error', message: e.message });
+      }, 0);
+      return { destroy: function () {} };
+    }
+
+    openTimer = setTimeout(function () {
+      callbacks.onError && callbacks.onError({
+        type: 'timeout',
+        message: 'PeerJSサーバーへの接続がタイムアウトしました。\nネットワーク接続とHTTPS環境を確認してください。'
+      });
+    }, CONNECT_TIMEOUT_MS);
 
     peer.on('open', function () {
+      clearTimeout(openTimer);
       var peerId = PREFIX + code.trim().toUpperCase();
-      conn = peer.connect(peerId, { reliable: true, serialization: 'json' });
+      conn = peer.connect(peerId, { reliable: true });
+
+      var connTimer = setTimeout(function () {
+        callbacks.onError && callbacks.onError({
+          type: 'timeout',
+          message: 'ホストへの接続がタイムアウトしました。ルームコードを確認してください。'
+        });
+      }, CONNECT_TIMEOUT_MS);
 
       conn.on('open', function () {
+        clearTimeout(connTimer);
         callbacks.onConnected && callbacks.onConnected(function (data) { conn.send(data); });
       });
       conn.on('data', function (data) {
@@ -81,15 +153,27 @@
         callbacks.onDisconnected && callbacks.onDisconnected();
       });
       conn.on('error', function (err) {
-        callbacks.onError && callbacks.onError(err);
+        clearTimeout(connTimer);
+        var msg = err.message || err.type || '接続エラー';
+        if (err.type === 'peer-unavailable') {
+          msg = '指定されたルームコードのホストが見つかりませんでした。コードを確認してください。';
+        }
+        callbacks.onError && callbacks.onError({ type: err.type, message: msg });
       });
     });
 
     peer.on('error', function (err) {
-      callbacks.onError && callbacks.onError(err);
+      clearTimeout(openTimer);
+      var msg = err.message || err.type || '不明なエラー';
+      if (err.type === 'network' || err.type === 'server-error') {
+        msg = 'PeerJSサーバーに接続できませんでした。\nネットワーク接続とHTTPS環境を確認してください。';
+      } else if (err.type === 'peer-unavailable') {
+        msg = '指定されたルームコードのホストが見つかりませんでした。コードを確認してください。';
+      }
+      callbacks.onError && callbacks.onError({ type: err.type, message: msg });
     });
 
-    return { destroy: function () { if (peer) peer.destroy(); } };
+    return { destroy: function () { clearTimeout(openTimer); if (peer) peer.destroy(); } };
   }
 
   return { createHost: createHost, joinAsGuest: joinAsGuest };

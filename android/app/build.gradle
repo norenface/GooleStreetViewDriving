@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    // WebView は Android SDK 標準ライブラリのため追加依存なし
-    // ローカル HTTP サーバー (WebRTC は file:// では動作しないため http://localhost で提供)
-    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+    // WebViewAssetLoader: file:// の代わりに https://appassets.androidplatform.net で
+    // アセットを配信し、WebRTC (PeerJS) が動作するセキュアコンテキストを提供する
+    implementation 'androidx.webkit:webkit:1.8.0'
 }

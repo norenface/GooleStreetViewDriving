@@ -2,7 +2,6 @@ package com.streetviewhyperlapse;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,22 +13,29 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import androidx.webkit.WebViewAssetLoader;
+
 public class MainActivity extends Activity {
 
+    // WebViewAssetLoader が使う仮想 HTTPS オリジン
+    // → ブラウザがセキュアコンテキストと判定するため WebRTC (PeerJS) が動作する
+    private static final String BASE_URL =
+        "https://" + WebViewAssetLoader.DEFAULT_DOMAIN + "/assets/";
+
     private WebView webView;
-    private LocalWebServer localServer;
+    private WebViewAssetLoader assetLoader;
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // フルスクリーン・没入モード設定
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -37,7 +43,12 @@ public class MainActivity extends Activity {
         );
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // WebView をメインビューとして設定
+        // アセットを https://appassets.androidplatform.net/assets/ で配信
+        assetLoader = new WebViewAssetLoader.Builder()
+            .setDomain(WebViewAssetLoader.DEFAULT_DOMAIN)
+            .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+            .build();
+
         webView = new WebView(this);
         webView.setBackgroundColor(Color.parseColor("#0f1117"));
         setContentView(webView);
@@ -45,51 +56,36 @@ public class MainActivity extends Activity {
         configureWebView();
         setupImmersiveMode();
 
-        // ローカル HTTP サーバーを起動 (WebRTC は file:// では動作しないため)
-        try {
-            localServer = new LocalWebServer(getAssets());
-        } catch (Exception e) {
-            android.util.Log.e("MainActivity", "LocalWebServer start failed", e);
-        }
-
-        // http://localhost で提供することで WebRTC が動作する
-        webView.loadUrl("http://localhost:" + LocalWebServer.PORT + "/index.html");
+        // index.html を HTTPS 仮想オリジン経由で読み込む
+        webView.loadUrl(BASE_URL + "index.html");
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private void configureWebView() {
         WebSettings settings = webView.getSettings();
 
-        // JavaScript と DOM Storage を有効化
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
 
-        // ハードウェアアクセラレーション (WebGL 用)
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
-        // キャッシュとリソース読み込み設定
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setAllowFileAccessFromFileURLs(true);
-        settings.setAllowUniversalAccessFromFileURLs(true);
-        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        settings.setAllowFileAccessFromFileURLs(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
 
-        // レイアウト
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
 
-        // メディア
         settings.setMediaPlaybackRequiresUserGesture(false);
-
-        // Geolocation
         settings.setGeolocationEnabled(true);
 
         webView.setWebViewClient(new HyperlapseWebViewClient());
         webView.setWebChromeClient(new HyperlapseChromeClient());
 
-        // JavaScript ブリッジ (Android ↔ WebView 通信)
         webView.addJavascriptInterface(new AndroidBridge(this), "AndroidBridge");
     }
 
@@ -110,7 +106,6 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        // WebView 内の戻るナビゲーションを JavaScript に委譲
         webView.evaluateJavascript("typeof backToSetup === 'function' && backToSetup()", null);
     }
 
@@ -130,26 +125,29 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         webView.destroy();
-        if (localServer != null) localServer.stop();
         super.onDestroy();
     }
 
     // ===== WebViewClient =====
-    private static class HyperlapseWebViewClient extends WebViewClient {
+    private class HyperlapseWebViewClient extends WebViewClient {
+
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            // WebViewAssetLoader が /assets/ へのリクエストをローカルアセットに解決する
+            WebResourceResponse response = assetLoader.shouldInterceptRequest(request.getUrl());
+            if (response != null) return response;
+            return super.shouldInterceptRequest(view, request);
+        }
+
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-            // file:// と https:// のみ許可
             String url = request.getUrl().toString();
-            if (url.startsWith("file://") || url.startsWith("https://")) {
-                return false;
-            }
-            return true;
+            return !url.startsWith(BASE_URL) && !url.startsWith("https://");
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            // Android 向け追加スタイルを注入
             view.evaluateJavascript(
                 "(function(){"
                 + "  var s = document.createElement('style');"
@@ -160,7 +158,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    // ===== ChromeClient (Geolocation + Console) =====
+    // ===== ChromeClient =====
     private class HyperlapseChromeClient extends WebChromeClient {
         @Override
         public void onGeolocationPermissionsShowPrompt(
@@ -169,18 +167,18 @@ public class MainActivity extends Activity {
         }
 
         @Override
+        public void onPermissionRequest(PermissionRequest request) {
+            // WebRTC に必要な権限を自動許可
+            request.grant(request.getResources());
+        }
+
+        @Override
         public boolean onConsoleMessage(ConsoleMessage msg) {
-            android.util.Log.d("HyperlapseJS",
+            android.util.Log.d("InnovationJS",
                 "[" + msg.messageLevel() + "] " + msg.message()
                 + " (" + msg.sourceId() + ":" + msg.lineNumber() + ")"
             );
             return true;
-        }
-
-        @Override
-        public void onPermissionRequest(PermissionRequest request) {
-            // WebRTC (カメラ/マイク/PeerJS) に必要な権限を自動許可
-            request.grant(request.getResources());
         }
     }
 
@@ -203,9 +201,7 @@ public class MainActivity extends Activity {
         }
 
         @android.webkit.JavascriptInterface
-        public boolean isAndroid() {
-            return true;
-        }
+        public boolean isAndroid() { return true; }
 
         @android.webkit.JavascriptInterface
         public int getScreenWidth() {

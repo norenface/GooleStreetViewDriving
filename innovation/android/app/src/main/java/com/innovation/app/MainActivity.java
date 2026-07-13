@@ -7,22 +7,38 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.webkit.ConsoleMessage;
+import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.webkit.WebViewAssetLoader;
+
 public class MainActivity extends Activity {
 
-    private WebView webView;
+    // WebViewAssetLoader が使う仮想 HTTPS オリジン
+    // → ブラウザがセキュアコンテキストと判定するため WebRTC (PeerJS) が動作する
+    private static final String BASE_URL =
+        "https://" + WebViewAssetLoader.DEFAULT_DOMAIN + "/assets/";
 
-    @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
+    private WebView webView;
+    private WebViewAssetLoader assetLoader;
+
+    @SuppressLint({"SetJavaScriptEnabled"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        // アセットを https://appassets.androidplatform.net/assets/ で配信
+        assetLoader = new WebViewAssetLoader.Builder()
+            .setDomain(WebViewAssetLoader.DEFAULT_DOMAIN)
+            .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+            .build();
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.parseColor("#1b1f24"));
@@ -30,9 +46,8 @@ public class MainActivity extends Activity {
 
         configureWebView();
 
-        // assets/index.html をロード (Innovation web アプリはオフライン動作、
-        // ネットワーク/位置情報は一切使用しない)
-        webView.loadUrl("file:///android_asset/index.html");
+        // file:// ではなく https:// で読み込む → WebRTC (PeerJS) が動作する
+        webView.loadUrl(BASE_URL + "index.html");
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -43,8 +58,9 @@ public class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
 
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setAllowFileAccessFromFileURLs(true);
-        settings.setAllowUniversalAccessFromFileURLs(true);
+        // file:// アクセスは不要（WebViewAssetLoader 経由で配信するため）
+        settings.setAllowFileAccessFromFileURLs(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
 
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
@@ -53,13 +69,6 @@ public class MainActivity extends Activity {
 
         webView.setWebViewClient(new InnovationWebViewClient());
         webView.setWebChromeClient(new InnovationChromeClient());
-    }
-
-    @Override
-    public void onBackPressed() {
-        // ゲーム中の「戻る」操作はモーダル/アクションバーの取り消しに使わず、
-        // ブラウザバック的な挙動も無いので素直に閉じる
-        super.onBackPressed();
     }
 
     @Override
@@ -80,15 +89,29 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    private static class InnovationWebViewClient extends WebViewClient {
+    private class InnovationWebViewClient extends WebViewClient {
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+            // WebViewAssetLoader が /assets/ へのリクエストをローカルアセットに解決する
+            WebResourceResponse response = assetLoader.shouldInterceptRequest(request.getUrl());
+            if (response != null) return response;
+            return super.shouldInterceptRequest(view, request);
+        }
+
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-            // 同梱アセットの file:// 以外への遷移は許可しない (完全オフラインアプリ)
-            return !request.getUrl().toString().startsWith("file://");
+            // アプリ内アセット以外への画面遷移はブロック
+            return !request.getUrl().toString().startsWith(BASE_URL);
         }
     }
 
     private static class InnovationChromeClient extends WebChromeClient {
+        @Override
+        public void onPermissionRequest(PermissionRequest request) {
+            // WebRTC に必要な権限を自動許可
+            request.grant(request.getResources());
+        }
+
         @Override
         public boolean onConsoleMessage(ConsoleMessage msg) {
             android.util.Log.d("InnovationJS",

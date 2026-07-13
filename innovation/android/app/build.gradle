@@ -40,5 +40,7 @@ android {
 }
 
 dependencies {
-    // WebView は Android SDK 標準ライブラリのため追加依存なし
+    // WebViewAssetLoader: file:// の代わりに https://appassets.androidplatform.net で
+    // アセットを配信し、WebRTC (PeerJS) が動作するセキュアコンテキストを提供する
+    implementation 'androidx.webkit:webkit:1.8.0'
 }

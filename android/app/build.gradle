@@ -33,7 +33,7 @@ android {
     sourceSets {
         main {
             assets {
-                srcDirs = ['src/main/assets']
+                srcDirs = ['../../innovation/web']
             }
         }
     }
@@ -41,4 +41,6 @@ android {
 
 dependencies {
     // WebView は Android SDK 標準ライブラリのため追加依存なし
+    // ローカル HTTP サーバー (WebRTC は file:// では動作しないため http://localhost で提供)
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
 }

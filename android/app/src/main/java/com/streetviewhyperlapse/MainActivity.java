@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
+import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
     private WebView webView;
+    private LocalWebServer localServer;
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
@@ -43,8 +45,15 @@ public class MainActivity extends Activity {
         configureWebView();
         setupImmersiveMode();
 
-        // assets/index.html をロード
-        webView.loadUrl("file:///android_asset/index.html");
+        // ローカル HTTP サーバーを起動 (WebRTC は file:// では動作しないため)
+        try {
+            localServer = new LocalWebServer(getAssets());
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "LocalWebServer start failed", e);
+        }
+
+        // http://localhost で提供することで WebRTC が動作する
+        webView.loadUrl("http://localhost:" + LocalWebServer.PORT + "/index.html");
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -121,6 +130,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         webView.destroy();
+        if (localServer != null) localServer.stop();
         super.onDestroy();
     }
 
@@ -165,6 +175,12 @@ public class MainActivity extends Activity {
                 + " (" + msg.sourceId() + ":" + msg.lineNumber() + ")"
             );
             return true;
+        }
+
+        @Override
+        public void onPermissionRequest(PermissionRequest request) {
+            // WebRTC (カメラ/マイク/PeerJS) に必要な権限を自動許可
+            request.grant(request.getResources());
         }
     }
 

@@ -1610,7 +1610,14 @@
         run: async function (ctx) {
           var g = ctx.game, p = ctx.actor;
           var id = await drawAndMeld(g, p, 10);
-          if (id && engine.executeEffects) await engine.executeEffects(g, p, id, false);
+          if (!id) return;
+          // メルドしたカードの非強制ドグマ効果をすべて実行（共有なし）
+          var effs = effectDefs[id] || [];
+          for (var i = 0; i < effs.length; i++) {
+            if (!effs[i].demand) {
+              await effs[i].run({ game: g, actor: p, target: p, helpers: ctx.helpers || {} });
+            }
+          }
         }
       }
     ];

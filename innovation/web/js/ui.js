@@ -83,6 +83,15 @@
       return s;
     }
 
+    // When ic[1] (bottom-center) is filled but a corner is empty,
+    // shift it to the empty corner so icons sit at corners not center.
+    function bottomDisplayIcons(icons) {
+      var i0 = icons[0], i1 = icons[1], i2 = icons[2];
+      if (!i0 && i1) return [i1, null, i2];
+      if (!i2 && i1) return [i0, null, i1];
+      return [i0, i1, i2];
+    }
+
     // Long-press detection: fires callback after 600ms hold.
     // Suppresses the subsequent mobile click event via capture-phase guard.
     // Also handles desktop right-click (contextmenu).
@@ -133,9 +142,10 @@
       // Bottom icon row: ic[0]=left corner, ic[1]=center, ic[2]=right corner
       var bottom = document.createElement('div');
       bottom.className = 'icon-row';
-      bottom.appendChild(iconSlot(c.icons[0]));
-      bottom.appendChild(iconSlot(c.icons[1]));
-      bottom.appendChild(iconSlot(c.icons[2]));
+      var bdi = bottomDisplayIcons(c.icons);
+      bottom.appendChild(iconSlot(bdi[0]));
+      bottom.appendChild(iconSlot(bdi[1]));
+      bottom.appendChild(iconSlot(bdi[2]));
       div.appendChild(bottom);
 
       div.addEventListener('click', opts.onClick || function (e) {
@@ -538,9 +548,10 @@
 
       var botRow = document.createElement('div');
       botRow.className = 'detail-icon-bottom';
-      botRow.appendChild(iconSlotLg(c.icons[0]));
-      botRow.appendChild(iconSlotLg(c.icons[1]));
-      botRow.appendChild(iconSlotLg(c.icons[2]));
+      var bdilg = bottomDisplayIcons(c.icons);
+      botRow.appendChild(iconSlotLg(bdilg[0]));
+      botRow.appendChild(iconSlotLg(bdilg[1]));
+      botRow.appendChild(iconSlotLg(bdilg[2]));
       iconGrid.appendChild(botRow);
 
       el.cardDetailBody.appendChild(iconGrid);

@@ -74,7 +74,10 @@
   </div>
 
   <hr class="section-divider">
-  <button id="card-list-btn" class="btn" style="margin-top:4px;width:100%;">📋 カード一覧</button>
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button id="card-list-btn" class="btn" style="flex:1;">📋 カード一覧</button>
+    <button id="rules-btn-setup" class="btn" style="flex:1;">📖 ルール説明</button>
+  </div>
 </div>
 
 <div id="card-list-overlay" class="hidden">
@@ -91,8 +94,12 @@
   <div id="game-over-banner" class="hidden"></div>
   <div id="game-info-bar">
     <button id="back-to-top-btn" class="btn btn-back-top">&#8592; トップに戻る</button>
-    <button id="special-ach-btn" class="btn">🏆 特別達成条件</button>
+    <div style="display:flex;gap:6px;">
+      <button id="rules-btn-game" class="btn">📖 ルール</button>
+      <button id="special-ach-btn" class="btn">🏆 特別達成条件</button>
+    </div>
   </div>
+  <div id="pile-status"></div>
   <div id="log-panel"></div>
   <div id="players-area"></div>
   <div id="action-bar"></div>
@@ -103,6 +110,79 @@
     <div id="modal-title"></div>
     <div id="modal-body"></div>
     <div id="modal-footer"></div>
+  </div>
+</div>
+
+<div id="rules-overlay" class="hidden">
+  <div id="rules-box">
+    <div id="rules-header">
+      <span id="rules-title">📖 Innovationルール説明</span>
+      <button id="rules-close" class="btn">閉じる</button>
+    </div>
+    <div id="rules-body">
+      <div class="rules-section">
+        <div class="rules-section-title">🎯 ゲームの目的</div>
+        <p>達成カードを規定枚数（2人:6枚 / 3人:5枚 / 4人:4枚）集めるか、特別達成条件を満たした最初のプレイヤーが勝利。</p>
+      </div>
+      <div class="rules-section">
+        <div class="rules-section-title">🔄 手番の流れ</div>
+        <p>各手番に<strong>2つのアクション</strong>を選択して実行する。同じアクションを2回選んでもよい。</p>
+        <ul class="rules-list">
+          <li><strong>ドロー（引く）</strong>：自分の最高時代の山札からカードを1枚引く。その時代が空なら次の時代から引く。</li>
+          <li><strong>メルド（出す）</strong>：手札から1枚を自分の盤面に置く。同色のカードの上に重ねる。</li>
+          <li><strong>ドグマ（発動）</strong>：盤面の最上位カードの効果を発動する（詳細は下記）。</li>
+          <li><strong>達成（アチーブ）</strong>：得点パイルの最高時代がN以上で、かつ得点合計が5×N以上なら時代Nを達成できる。</li>
+        </ul>
+      </div>
+      <div class="rules-section">
+        <div class="rules-section-title">⚡ ドグマの仕組み</div>
+        <p>発動するカードのメインアイコンを確認する。そのアイコンを<strong>自分より多く持つ相手</strong>がいれば、相手も先にその効果を受ける（シェア）。シェアが発生した場合、自分は無料でボーナスアクション1回を得る。</p>
+        <p class="rules-hint">【強制】と書かれた効果は、アイコン数に関わらず相手も実行しなければならない。</p>
+      </div>
+      <div class="rules-section">
+        <div class="rules-section-title">🃏 盤面とスプレイ</div>
+        <p>各色のスタックは「スプレイ」方向によって見えるアイコンが変わる：</p>
+        <ul class="rules-list">
+          <li><strong>スプレイなし</strong>：最上位カードのアイコンのみ</li>
+          <li><strong>左スプレイ</strong>：各カードの右端アイコン（ic[2]）が見える</li>
+          <li><strong>右スプレイ</strong>：各カードの左端アイコン（ic[0]・ic[3]）が見える</li>
+          <li><strong>上スプレイ</strong>：各カードの下部アイコン（ic[0]・ic[1]・ic[2]）が見える</li>
+        </ul>
+      </div>
+      <div class="rules-section">
+        <div class="rules-section-title">🎴 アイコンの種類</div>
+        <div class="rules-icons">
+          <span>🌿 葉（自然）</span>
+          <span>👑 王冠（支配）</span>
+          <span>💡 電球（革新）</span>
+          <span>🏭 工場（産業）</span>
+          <span>🏰 城（防衛）</span>
+          <span>🕰️ 時計（時間）</span>
+        </div>
+      </div>
+      <div class="rules-section">
+        <div class="rules-section-title">🏆 特別達成条件（ドミネーション）</div>
+        <ul class="rules-list">
+          <li><strong>モニュメント</strong>：毎ターン達成アクションか特殊達成を6回行う</li>
+          <li><strong>帝国</strong>：得点パイルに全10時代のカードがある</li>
+          <li><strong>ワンダー</strong>：同時に5色の盤面を展開している</li>
+          <li><strong>ワールド</strong>：盤面に12種類以上のアイコンがある</li>
+          <li><strong>ユニバース</strong>：盤面に時代10のカードが5枚以上ある</li>
+        </ul>
+      </div>
+      <div class="rules-section">
+        <div class="rules-section-title">🌐 ソロプレイ（支配政党）</div>
+        <p>「支配政党」は毎ターン文化トラックを自動で進める。ゲーム終了時（山札枯渇・達成条件消費など）に自分の得点が支配政党の目標値を<strong>上回れば勝利</strong>。</p>
+      </div>
+      <div class="rules-section">
+        <div class="rules-section-title">⏰ ゲーム終了条件</div>
+        <ul class="rules-list">
+          <li>誰かが規定数の達成カードを獲得</li>
+          <li>誰かが特別達成条件を満たす</li>
+          <li>時代10の山札が尽きてさらにドローが必要になった時点でゲーム終了（最も達成カードが多いプレイヤーの勝利）</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 

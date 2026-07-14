@@ -2,11 +2,14 @@ package com.innovation.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
+import android.webkit.JsResult;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -19,8 +22,6 @@ import androidx.webkit.WebViewAssetLoader;
 
 public class MainActivity extends Activity {
 
-    // WebViewAssetLoader が使う仮想 HTTPS オリジン
-    // → ブラウザがセキュアコンテキストと判定するため WebRTC (PeerJS) が動作する
     private static final String BASE_URL =
         "https://" + WebViewAssetLoader.DEFAULT_DOMAIN + "/assets/";
 
@@ -33,8 +34,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        );
+        // 画面を常時点灯（ゲーム中に画面が暗くなるのを防ぐ）
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // アセットを https://appassets.androidplatform.net/assets/ で配信
         assetLoader = new WebViewAssetLoader.Builder()
             .setDomain(WebViewAssetLoader.DEFAULT_DOMAIN)
             .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
@@ -46,7 +52,6 @@ public class MainActivity extends Activity {
 
         configureWebView();
 
-        // file:// ではなく https:// で読み込む → WebRTC (PeerJS) が動作する
         webView.loadUrl(BASE_URL + "index.html");
     }
 
@@ -58,7 +63,6 @@ public class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
 
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        // file:// アクセスは不要（WebViewAssetLoader 経由で配信するため）
         settings.setAllowFileAccessFromFileURLs(false);
         settings.setAllowUniversalAccessFromFileURLs(false);
 
@@ -66,6 +70,8 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
+
+        settings.setMediaPlaybackRequiresUserGesture(false);
 
         webView.setWebViewClient(new InnovationWebViewClient());
         webView.setWebChromeClient(new InnovationChromeClient());
@@ -80,7 +86,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        webView.onPause();
+        // webView.onPause() を呼ばない：
+        // バックグラウンド中も WebRTC (PeerJS) の通信を維持するため
     }
 
     @Override
@@ -89,10 +96,10 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
+    // ===== WebViewClient =====
     private class InnovationWebViewClient extends WebViewClient {
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            // WebViewAssetLoader が /assets/ へのリクエストをローカルアセットに解決する
             WebResourceResponse response = assetLoader.shouldInterceptRequest(request.getUrl());
             if (response != null) return response;
             return super.shouldInterceptRequest(view, request);
@@ -100,16 +107,39 @@ public class MainActivity extends Activity {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-            // アプリ内アセット以外への画面遷移はブロック
             return !request.getUrl().toString().startsWith(BASE_URL);
         }
     }
 
-    private static class InnovationChromeClient extends WebChromeClient {
+    // ===== ChromeClient =====
+    private class InnovationChromeClient extends WebChromeClient {
+
         @Override
         public void onPermissionRequest(PermissionRequest request) {
-            // WebRTC に必要な権限を自動許可
             request.grant(request.getResources());
+        }
+
+        // URL を表示しない confirm ダイアログ
+        @Override
+        public boolean onJsConfirm(WebView view, String url, String message, JsResult result) {
+            new AlertDialog.Builder(MainActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", (d, w) -> result.confirm())
+                .setNegativeButton("キャンセル", (d, w) -> result.cancel())
+                .setOnCancelListener(d -> result.cancel())
+                .show();
+            return true;
+        }
+
+        // URL を表示しない alert ダイアログ
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+            new AlertDialog.Builder(MainActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", (d, w) -> result.confirm())
+                .setOnCancelListener(d -> result.confirm())
+                .show();
+            return true;
         }
 
         @Override

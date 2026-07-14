@@ -215,8 +215,33 @@
 
     function render(g) {
       game = g;
+      renderPileStatus();
       renderLog();
       renderPlayers();
+    }
+
+    function renderPileStatus() {
+      var container = document.getElementById('pile-status');
+      if (!container) return;
+      container.innerHTML = '';
+      var label = document.createElement('span');
+      label.className = 'pile-label';
+      label.textContent = '山札：';
+      container.appendChild(label);
+      for (var age = 1; age <= 10; age++) {
+        var pile = game.piles ? game.piles[age] : null;
+        var count = pile ? pile.length : 0;
+        var badge = document.createElement('span');
+        badge.className = 'pile-badge' + (count === 0 ? ' empty' : '');
+        var ageSpan = document.createElement('span');
+        ageSpan.className = 'pile-badge-age';
+        ageSpan.textContent = age;
+        var countSpan = document.createElement('span');
+        countSpan.textContent = '/' + count;
+        badge.appendChild(ageSpan);
+        badge.appendChild(countSpan);
+        container.appendChild(badge);
+      }
     }
 
     function renderLog() {

@@ -231,6 +231,19 @@
     document.getElementById('card-list-overlay').classList.add('hidden');
   });
 
+  // ---- rules overlay ----
+  function openRules() {
+    document.getElementById('rules-overlay').classList.remove('hidden');
+  }
+  document.getElementById('rules-btn-setup').addEventListener('click', openRules);
+  document.getElementById('rules-btn-game').addEventListener('click', openRules);
+  document.getElementById('rules-close').addEventListener('click', function () {
+    document.getElementById('rules-overlay').classList.add('hidden');
+  });
+  document.getElementById('rules-overlay').addEventListener('click', function (e) {
+    if (e.target === this) this.classList.add('hidden');
+  });
+
   document.getElementById('back-to-top-btn').addEventListener('click', function () {
     if (!confirm('トップ画面に戻りますか？\n現在のゲームの進行状況は失われます。')) return;
     gameScreen.classList.add('hidden');

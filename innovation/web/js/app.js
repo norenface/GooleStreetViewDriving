@@ -190,26 +190,32 @@
       cards.forEach(function (c) {
         var chip = document.createElement('div');
         chip.className = 'card-chip color-' + c.color;
+        var illust = (window.CARD_ILLUST && window.CARD_ILLUST[c.id]) || '';
+        function slotCL(icon) {
+          var s = document.createElement('span');
+          if (icon) { s.className = 'icon-slot'; s.textContent = ICON_GLYPH_CL[icon] || ''; }
+          else if (illust) { s.className = 'icon-slot illust'; s.textContent = illust; }
+          else { s.className = 'icon-slot empty'; s.textContent = '·'; }
+          return s;
+        }
 
         var header = document.createElement('div');
         header.className = 'chip-header';
         var name = document.createElement('span');
         name.className = 'card-name';
         name.textContent = c.name;
-        var ic3 = document.createElement('span');
-        ic3.className = 'icon-slot' + (c.icons[3] ? '' : ' empty');
-        ic3.textContent = c.icons[3] ? (ICON_GLYPH_CL[c.icons[3]] || '') : '·';
-        header.appendChild(ic3);
+        var ageBadge = document.createElement('span');
+        ageBadge.className = 'age-badge';
+        ageBadge.textContent = c.age;
+        header.appendChild(slotCL(c.icons[3]));
         header.appendChild(name);
+        header.appendChild(ageBadge);
         chip.appendChild(header);
 
         var iconRow = document.createElement('div');
         iconRow.className = 'icon-row';
         [c.icons[0], c.icons[1], c.icons[2]].forEach(function (ic) {
-          var slot = document.createElement('span');
-          slot.className = 'icon-slot' + (ic ? '' : ' empty');
-          slot.textContent = ic ? (ICON_GLYPH_CL[ic] || '') : '·';
-          iconRow.appendChild(slot);
+          iconRow.appendChild(slotCL(ic));
         });
         chip.appendChild(iconRow);
 

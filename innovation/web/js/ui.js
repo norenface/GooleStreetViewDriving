@@ -114,28 +114,40 @@
     function cardChip(cardId, opts) {
       opts = opts || {};
       var c = byId[cardId];
+      var illust = (window.CARD_ILLUST && window.CARD_ILLUST[c.id]) || '';
+      function slotWithIllust(icon) {
+        if (icon) return iconSlot(icon);
+        var s = document.createElement('span');
+        if (illust) { s.className = 'icon-slot illust'; s.textContent = illust; }
+        else { s.className = 'icon-slot empty'; s.textContent = ''; }
+        return s;
+      }
       var div = document.createElement('div');
       div.className = 'card-chip color-' + c.color +
         (opts.dim ? ' dim' : '') +
         (opts.selected ? ' selected' : '') +
         ' clickable';
 
-      // Header row: top-left icon ic[3] (left) + card name (right)
+      // Header: ic[3] (left) + card name (flex) + age badge (right)
       var header = document.createElement('div');
       header.className = 'chip-header';
       var name = document.createElement('span');
       name.className = 'card-name';
-      name.textContent = c.name + ' (' + c.age + ')';
-      header.appendChild(iconSlot(c.icons[3]));
+      name.textContent = c.name;
+      var ageBadge = document.createElement('span');
+      ageBadge.className = 'age-badge';
+      ageBadge.textContent = c.age;
+      header.appendChild(slotWithIllust(c.icons[3]));
       header.appendChild(name);
+      header.appendChild(ageBadge);
       div.appendChild(header);
 
       // Bottom icon row: ic[0]=left corner, ic[1]=center, ic[2]=right corner
       var bottom = document.createElement('div');
       bottom.className = 'icon-row';
-      bottom.appendChild(iconSlot(c.icons[0]));
-      bottom.appendChild(iconSlot(c.icons[1]));
-      bottom.appendChild(iconSlot(c.icons[2]));
+      bottom.appendChild(slotWithIllust(c.icons[0]));
+      bottom.appendChild(slotWithIllust(c.icons[1]));
+      bottom.appendChild(slotWithIllust(c.icons[2]));
       div.appendChild(bottom);
 
       div.addEventListener('click', opts.onClick || function (e) {
@@ -525,6 +537,15 @@
       el.cardDetailTitle.textContent = c.name + '（時代' + c.age + '・' + (COLOR_JA[c.color] || c.color) + '）';
       el.cardDetailBody.innerHTML = '';
 
+      var illust = (window.CARD_ILLUST && window.CARD_ILLUST[c.id]) || '';
+      function slotLgWithIllust(icon) {
+        if (icon) return iconSlotLg(icon);
+        var s = document.createElement('span');
+        if (illust) { s.className = 'icon-slot-lg illust'; s.textContent = illust; }
+        else { s.className = 'icon-slot-lg empty'; s.textContent = ''; }
+        return s;
+      }
+
       // Icon layout diagram:
       //              [ic[3]=右上]
       // [ic[0]=左下] [ic[1]=中下] [ic[2]=右下]
@@ -533,14 +554,14 @@
 
       var topRow = document.createElement('div');
       topRow.className = 'detail-icon-top';
-      topRow.appendChild(iconSlotLg(c.icons[3]));
+      topRow.appendChild(slotLgWithIllust(c.icons[3]));
       iconGrid.appendChild(topRow);
 
       var botRow = document.createElement('div');
       botRow.className = 'detail-icon-bottom';
-      botRow.appendChild(iconSlotLg(c.icons[0]));
-      botRow.appendChild(iconSlotLg(c.icons[1]));
-      botRow.appendChild(iconSlotLg(c.icons[2]));
+      botRow.appendChild(slotLgWithIllust(c.icons[0]));
+      botRow.appendChild(slotLgWithIllust(c.icons[1]));
+      botRow.appendChild(slotLgWithIllust(c.icons[2]));
       iconGrid.appendChild(botRow);
 
       el.cardDetailBody.appendChild(iconGrid);

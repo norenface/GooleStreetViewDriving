@@ -205,10 +205,7 @@
 
         var iconRow = document.createElement('div');
         iconRow.className = 'icon-row';
-        var bdi = [c.icons[0], c.icons[1], c.icons[2]];
-        if (!bdi[0] && bdi[1]) bdi = [bdi[1], null, bdi[2]];
-        else if (!bdi[2] && bdi[1]) bdi = [bdi[0], null, bdi[1]];
-        bdi.forEach(function (ic) {
+        [c.icons[0], c.icons[1], c.icons[2]].forEach(function (ic) {
           var slot = document.createElement('span');
           slot.className = 'icon-slot' + (ic ? '' : ' empty');
           slot.textContent = ic ? (ICON_GLYPH_CL[ic] || '') : '·';

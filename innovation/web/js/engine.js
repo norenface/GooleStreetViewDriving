@@ -249,8 +249,8 @@
 
   // Generic transfer of a single card between zones of (possibly different) players.
   // from/to: { player, zone: 'hand'|'score'|'board', color? }. For board destinations the
-  // card is tucked (placed at the bottom of that color's stack), matching the common case
-  // of cards joining a board via a dogma transfer rather than a meld action.
+  // card is placed on top of that color's stack (same as meld); Innovation rules treat
+  // "transfer to board" as meld — only explicit "tuck" effects use tuckCard().
   function transferCard(game, cardId, from, to) {
     var fromArr = from.zone === 'board' ? from.player.board[from.color].cards : from.player[from.zone];
     var idx = fromArr.indexOf(cardId);
@@ -258,7 +258,7 @@
     fromArr.splice(idx, 1);
     if (to.zone === 'board') {
       var c = card(game, cardId);
-      to.player.board[c.color].cards.unshift(cardId);
+      to.player.board[c.color].cards.push(cardId);
     } else {
       to.player[to.zone].push(cardId);
     }

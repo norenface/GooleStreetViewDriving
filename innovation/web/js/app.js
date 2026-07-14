@@ -199,8 +199,8 @@
         var ic3 = document.createElement('span');
         ic3.className = 'icon-slot' + (c.icons[3] ? '' : ' empty');
         ic3.textContent = c.icons[3] ? (ICON_GLYPH_CL[c.icons[3]] || '') : '·';
-        header.appendChild(name);
         header.appendChild(ic3);
+        header.appendChild(name);
         chip.appendChild(header);
 
         var iconRow = document.createElement('div');

@@ -349,7 +349,7 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
  * [ic3=左上]
  * [ic0=左下][ic1=中下][ic2=右下] */
 .detail-icon-grid { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 6px 8px; margin-bottom: 12px; }
-.detail-icon-top { display: flex; justify-content: flex-end; margin-bottom: 2px; }
+.detail-icon-top { display: flex; justify-content: flex-start; margin-bottom: 2px; }
 .detail-icon-bottom { display: flex; justify-content: space-between; gap: 4px; }
 .icon-slot-lg {
   width: 30px; height: 30px;

@@ -524,7 +524,7 @@
         text: 'You may exchange all the cards in your hand with all the cards in your score pile. If you exchange one, you must exchange them all.',
         textJa: '手札のカードすべてを得点パイルのカードすべてと交換してもよい。1枚交換する場合はすべて交換しなければならない。' }] },
 
-    { id: 'electricity', name: '電気', age: 7, color: 'blue', icons: [B, null, F, F],
+    { id: 'electricity', name: '電気', age: 7, color: 'blue', icons: [F, null, F, B],
       dogma: [{ demand: false, icon: F,
         text: 'Return all your top cards without a factory icon, then draw an 8 for each card you returned.',
         textJa: '工場アイコンのない一番上のカードをすべて戻し、戻した枚数分だけ8を引く。' }] },
@@ -694,8 +694,8 @@
         text: 'You may tuck any number of cards from your hand. Draw and score a 1 for each card you tuck.',
         textJa: '手札から好きな数のカードをタックしてもよい。タックした枚数分だけ1を引いて得点する。' }] },
 
-    { id: 'services', name: 'サービス', age: 9, color: 'purple', icons: [F, L, F, null],
-      dogma: [{ demand: true, icon: F,
+    { id: 'services', name: 'サービス', age: 9, color: 'purple', icons: [L, L, L, null],
+      dogma: [{ demand: true, icon: L,
         text: 'I DEMAND you transfer all the highest cards from your score pile to my hand! If you transferred any cards, then transfer a top card from my board without a leaf icon to your hand!',
         textJa: '【強制】対象プレイヤーは得点パイルの最高値カードをすべてあなたの手札に渡す。渡した場合、あなたのボードの一番上の葉アイコンのないカードを対象プレイヤーの手札に渡す。' }] },
 
@@ -720,7 +720,7 @@
           textJa: 'いずれかのプレイヤーのボードの葉アイコンが3個未満であれば、ボード上の葉アイコンが最も多い1人のプレイヤーが勝利する。' }
       ] },
 
-    { id: 'software', name: 'ソフトウェア', age: 10, color: 'green', icons: [null, K, null, K],
+    { id: 'software', name: 'ソフトウェア', age: 10, color: 'green', icons: [K, K, null, K],
       dogma: [
         { demand: false, icon: K,
           text: 'Draw and score a 10.',
@@ -735,7 +735,7 @@
         text: 'You may return a card from your hand. If you returned a 10, draw a 10 for every different value of card in your score pile.',
         textJa: '手札からカードを1枚戻してもよい。戻したカードが10であれば、得点パイルにある異なる価値1種につき10を引く。' }] },
 
-    { id: 'robotics', name: 'ロボット工学', age: 10, color: 'red', icons: [F, null, F, null],
+    { id: 'robotics', name: 'ロボット工学', age: 10, color: 'red', icons: [F, K, F, null],
       dogma: [{ demand: false, icon: F,
         text: 'Score your top green card. Draw and meld a 10, then execute each of its non-demand dogma effects. Do not share them.',
         textJa: '自分のボードの一番上の緑カードを得点する。10を引いてメルドし、そのカードの非強制ドグマ効果をすべて実行する。これらは共有しない。' }] },
@@ -745,7 +745,7 @@
         text: 'I DEMAND you return half (rounded up) of the cards in your score pile!',
         textJa: '【強制】対象プレイヤーは得点パイルの半分（切り上げ）のカードを戻す。' }] },
 
-    { id: 'self_service', name: 'セルフサービス', age: 10, color: 'blue', icons: [C, null, C, null],
+    { id: 'self_service', name: 'セルフサービス', age: 10, color: 'blue', icons: [C, C, C, null],
       dogma: [
         { demand: false, icon: C,
           text: 'Execute each of the non-demand dogma effects of any other top card on your board. Do not share them.',
@@ -780,7 +780,7 @@
           textJa: 'ロボット工学とソフトウェアがどかのプレイヤーのボードの一番上にある場合、得点が最も低い1人のプレイヤーが勝利する。' }
       ] },
 
-    { id: 'the_internet', name: 'インターネット', age: 10, color: 'purple', icons: [K, null, null, null],
+    { id: 'the_internet', name: 'インターネット', age: 10, color: 'purple', icons: [K, K, B, null],
       dogma: [
         { demand: false, icon: K,
           text: 'You may splay your green cards up.',

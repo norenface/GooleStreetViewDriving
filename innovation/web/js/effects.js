@@ -616,9 +616,8 @@
         var hiIds = extremeByAge(g, p.score, 'max');
         var id = await pickOne(p, hiIds, '得点パイルの最高値カードを戻しますか？', true);
         if (id) {
-          var returnedAge = ageOf(g, id);
           engine.returnCardFromPlayer(g, p, id);
-          var newHi = p.score.length ? ageOf(g, extremeByAge(g, p.score, 'max')[0]) : returnedAge;
+          var newHi = p.score.length ? ageOf(g, extremeByAge(g, p.score, 'max')[0]) : 0;
           engine.drawCard(g, p, newHi + 2);
         }
       }

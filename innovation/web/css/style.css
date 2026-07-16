@@ -367,6 +367,19 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   border: 1px solid rgba(0,0,0,0.08);
 }
 
+/* Enlarged chip in card detail modal */
+.card-detail-chip {
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.card-detail-chip .chip-header { margin-bottom: 10px; gap: 8px; }
+.card-detail-chip .card-name { font-size: 1.1rem; }
+.card-detail-chip .age-badge { font-size: 0.82rem; padding: 1px 6px; }
+.card-detail-chip .icon-slot { width: 28px; font-size: 1.4rem; }
+.card-detail-chip .icon-slot.empty { font-size: 0.55rem; }
+.card-detail-chip .icon-slot.illust { font-size: 1.15rem; }
+
 /* ---- card list overlay ---- */
 
 #card-list-overlay {

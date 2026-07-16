@@ -542,35 +542,41 @@
 
       var illust = (window.CARD_ILLUST && window.CARD_ILLUST[c.id]) || '';
       var illustUsed = false;
-      function slotLgWithIllust(icon) {
-        if (icon) return iconSlotLg(icon);
+      function detailSlot(icon) {
         var s = document.createElement('span');
-        if (illust && !illustUsed) {
+        if (icon) { s.className = 'icon-slot'; s.textContent = ICON_GLYPH[icon]; }
+        else if (illust && !illustUsed) {
           illustUsed = true;
-          s.className = 'icon-slot-lg illust'; s.textContent = illust;
-        } else { s.className = 'icon-slot-lg empty'; s.textContent = ''; }
+          s.className = 'icon-slot illust'; s.textContent = illust;
+        } else { s.className = 'icon-slot empty'; s.textContent = ''; }
         return s;
       }
 
-      // Icon layout diagram:
-      //              [ic[3]=右上]
-      // [ic[0]=左下] [ic[1]=中下] [ic[2]=右下]
-      var iconGrid = document.createElement('div');
-      iconGrid.className = 'detail-icon-grid';
+      // Enlarged chip — same structure as cardChip()
+      var chipDiv = document.createElement('div');
+      chipDiv.className = 'card-detail-chip color-' + c.color;
 
-      var topRow = document.createElement('div');
-      topRow.className = 'detail-icon-top';
-      topRow.appendChild(slotLgWithIllust(c.icons[3]));
-      iconGrid.appendChild(topRow);
+      var hdr = document.createElement('div');
+      hdr.className = 'chip-header';
+      var nm = document.createElement('span');
+      nm.className = 'card-name';
+      nm.textContent = c.name;
+      var ab = document.createElement('span');
+      ab.className = 'age-badge';
+      ab.textContent = c.age;
+      hdr.appendChild(detailSlot(c.icons[3]));
+      hdr.appendChild(nm);
+      hdr.appendChild(ab);
+      chipDiv.appendChild(hdr);
 
-      var botRow = document.createElement('div');
-      botRow.className = 'detail-icon-bottom';
-      botRow.appendChild(slotLgWithIllust(c.icons[0]));
-      botRow.appendChild(slotLgWithIllust(c.icons[1]));
-      botRow.appendChild(slotLgWithIllust(c.icons[2]));
-      iconGrid.appendChild(botRow);
+      var row = document.createElement('div');
+      row.className = 'icon-row';
+      row.appendChild(detailSlot(c.icons[0]));
+      row.appendChild(detailSlot(c.icons[1]));
+      row.appendChild(detailSlot(c.icons[2]));
+      chipDiv.appendChild(row);
 
-      el.cardDetailBody.appendChild(iconGrid);
+      el.cardDetailBody.appendChild(chipDiv);
 
       c.dogma.forEach(function (d) {
         var block = document.createElement('div');

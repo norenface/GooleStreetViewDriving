@@ -433,6 +433,7 @@
   // ctx = { game, actor, target, effects (shared effects helpers) }
 
   async function executeDogma(game, actor, cardId, effectDefs, helpers) {
+    game.currentDogmaCardId = cardId;
     var sharedHappened = false;
     var n = game.players.length;
     var effects = effectDefs[cardId] || [];
@@ -471,6 +472,7 @@
       drawCard(game, actor, highestTopValue(game, actor) || 1);
     }
     checkAllSpecialAchievements(game);
+    game.currentDogmaCardId = null;
   }
 
   async function dogmaAction(game, player, colorOrCardId, effectDefs, helpers) {

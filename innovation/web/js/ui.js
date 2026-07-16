@@ -38,6 +38,7 @@
       players: document.getElementById('players-area'),
       actionBar: document.getElementById('action-bar'),
       modalOverlay: document.getElementById('modal-overlay'),
+      modalDogmaSource: document.getElementById('modal-dogma-source'),
       modalTitle: document.getElementById('modal-title'),
       modalBody: document.getElementById('modal-body'),
       modalFooter: document.getElementById('modal-footer'),
@@ -508,6 +509,22 @@
     // ---- modal plumbing -----------------------------------------------------
 
     function openModal(title) {
+      if (el.modalDogmaSource) {
+        var srcCardId = game && game.currentDogmaCardId;
+        var src = srcCardId && byId[srcCardId];
+        if (src) {
+          el.modalDogmaSource.innerHTML = '';
+          var dsLabel = document.createElement('span');
+          dsLabel.className = 'modal-dogma-label';
+          dsLabel.textContent = '発動カード：';
+          el.modalDogmaSource.appendChild(dsLabel);
+          var dsChip = cardChip(srcCardId, {});
+          el.modalDogmaSource.appendChild(dsChip);
+          el.modalDogmaSource.classList.remove('hidden');
+        } else {
+          el.modalDogmaSource.classList.add('hidden');
+        }
+      }
       el.modalTitle.textContent = title;
       el.modalBody.innerHTML = '';
       el.modalFooter.innerHTML = '';

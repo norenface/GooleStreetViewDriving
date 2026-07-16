@@ -191,11 +191,14 @@
         var chip = document.createElement('div');
         chip.className = 'card-chip color-' + c.color;
         var illust = (window.CARD_ILLUST && window.CARD_ILLUST[c.id]) || '';
+        var illustUsed = false;
         function slotCL(icon) {
           var s = document.createElement('span');
           if (icon) { s.className = 'icon-slot'; s.textContent = ICON_GLYPH_CL[icon] || ''; }
-          else if (illust) { s.className = 'icon-slot illust'; s.textContent = illust; }
-          else { s.className = 'icon-slot empty'; s.textContent = '·'; }
+          else if (illust && !illustUsed) {
+            illustUsed = true;
+            s.className = 'icon-slot illust'; s.textContent = illust;
+          } else { s.className = 'icon-slot empty'; s.textContent = '·'; }
           return s;
         }
 

@@ -115,11 +115,14 @@
       opts = opts || {};
       var c = byId[cardId];
       var illust = (window.CARD_ILLUST && window.CARD_ILLUST[c.id]) || '';
+      var illustUsed = false;
       function slotWithIllust(icon) {
         if (icon) return iconSlot(icon);
         var s = document.createElement('span');
-        if (illust) { s.className = 'icon-slot illust'; s.textContent = illust; }
-        else { s.className = 'icon-slot empty'; s.textContent = ''; }
+        if (illust && !illustUsed) {
+          illustUsed = true;
+          s.className = 'icon-slot illust'; s.textContent = illust;
+        } else { s.className = 'icon-slot empty'; s.textContent = ''; }
         return s;
       }
       var div = document.createElement('div');
@@ -538,11 +541,14 @@
       el.cardDetailBody.innerHTML = '';
 
       var illust = (window.CARD_ILLUST && window.CARD_ILLUST[c.id]) || '';
+      var illustUsed = false;
       function slotLgWithIllust(icon) {
         if (icon) return iconSlotLg(icon);
         var s = document.createElement('span');
-        if (illust) { s.className = 'icon-slot-lg illust'; s.textContent = illust; }
-        else { s.className = 'icon-slot-lg empty'; s.textContent = ''; }
+        if (illust && !illustUsed) {
+          illustUsed = true;
+          s.className = 'icon-slot-lg illust'; s.textContent = illust;
+        } else { s.className = 'icon-slot-lg empty'; s.textContent = ''; }
         return s;
       }
 

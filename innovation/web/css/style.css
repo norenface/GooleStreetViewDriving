@@ -255,7 +255,7 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .icon-row { display: flex; justify-content: space-between; }
 .icon-slot { width: 14px; text-align: center; font-size: 0.85rem; line-height: 1; }
 .icon-slot.empty { opacity: 0.18; font-size: 0.4rem; }
-.icon-slot.illust { opacity: 0.55; font-size: 0.75rem; }
+.icon-slot.illust { font-size: 0.72rem; background: rgba(255,255,255,0.92); border-radius: 2px; }
 .age-badge { font-size: 0.62rem; font-weight: bold; color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.28); border-radius: 3px; padding: 0 3px; flex-shrink: 0; align-self: center; margin-left: 2px; }
 
 .color-yellow { background: #e6cf4c; }
@@ -362,8 +362,9 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   font-size: 0.5rem; color: rgba(255,255,255,0.2);
 }
 .icon-slot-lg.illust {
-  opacity: 0.55; font-size: 1.1rem;
-  border: 1px dashed rgba(255,255,255,0.2);
+  font-size: 1.1rem;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(0,0,0,0.08);
 }
 
 /* ---- card list overlay ---- */

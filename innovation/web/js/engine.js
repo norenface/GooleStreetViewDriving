@@ -423,7 +423,7 @@
     if (teamTotal >= achievementsNeededToWin(game)) {
       game.winner = player.id;
       game.endReason = 'achievements';
-      log(game, player.name + ' は達成カード' + teamTotal + '個でゲームに勝利した！');
+      log(game, player.name + ' は達成カードを合計' + teamTotal + '個獲得してゲームに勝利した！');
     }
   }
 

@@ -138,7 +138,7 @@
       best = finalists;
     }
     game.winner = best.length === 1 ? best[0].id : 'draw';
-    log(game, '時代10を超えて時間が経過した。ゲーム終了。' +
+    log(game, '時代10を超えた時代にアクセスしようとした。ゲーム終了。' +
       (game.winner === 'draw' ? '引き分けです。' : game.players[game.winner].name + ' が得点で勝利！'));
   }
 

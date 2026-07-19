@@ -514,6 +514,7 @@
           dsLabel.textContent = '発動カード：';
           el.modalDogmaSource.appendChild(dsLabel);
           var dsChip = cardChip(srcCardId, {});
+          addLongPress(dsChip, function () { showCardDetail(srcCardId); });
           el.modalDogmaSource.appendChild(dsChip);
           el.modalDogmaSource.classList.remove('hidden');
         } else {

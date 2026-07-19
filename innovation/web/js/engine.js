@@ -469,6 +469,7 @@
     }
 
     if (sharedHappened) {
+      log(game, actor.name + ' は共有が発生したためボーナスドローを得る');
       drawCard(game, actor, highestTopValue(game, actor) || 1);
     }
     checkAllSpecialAchievements(game);

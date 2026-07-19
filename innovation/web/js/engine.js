@@ -111,11 +111,12 @@
   }
 
   // Draw a card of given age (or next available higher). Returns card id or null.
-  function drawCard(game, player, age) {
+  function drawCard(game, player, age, label) {
     var res = pileTake(game, age);
     if (!res) { endGameByTimePassing(game); return null; }
     player.hand.push(res.id);
-    log(game, player.name + ' はカードを引いた（時代' + res.age + '）');
+    var prefix = label ? ' は' + label + 'でカードを引いた' : ' はカードを引いた';
+    log(game, player.name + prefix + '（時代' + res.age + '）');
     return res.id;
   }
 
@@ -469,8 +470,7 @@
     }
 
     if (sharedHappened) {
-      log(game, actor.name + ' は共有が発生したためボーナスドローを得る');
-      drawCard(game, actor, highestTopValue(game, actor) || 1);
+      drawCard(game, actor, highestTopValue(game, actor) || 1, '共有ボーナス');
     }
     checkAllSpecialAchievements(game);
     game.currentDogmaCardId = null;

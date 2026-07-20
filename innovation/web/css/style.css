@@ -89,7 +89,7 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   margin-bottom: 8px;
 }
 
-#long-press-hint {
+.long-press-hint {
   font-size: 0.7rem;
   color: #ffffff;
   text-align: center;

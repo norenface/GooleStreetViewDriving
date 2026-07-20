@@ -321,7 +321,11 @@
             var topCardId = ordered[0];
 
             // Build opts for the top card chip
-            var topCardOpts = {};
+            var topCardOpts = {
+              onLongPress: (function (tcId) {
+                return function () { showCardDetail(tcId); };
+              })(topCardId)
+            };
             if (interactiveOpts && isHumanPlayer) {
               var dogmaAction = null;
               for (var di = 0; di < interactiveOpts.dogmaActions.length; di++) {
@@ -340,9 +344,6 @@
                     ]);
                   };
                 })(dogmaAction, topCardId);
-                topCardOpts.onLongPress = (function (tcId) {
-                  return function () { showCardDetail(tcId); };
-                })(topCardId);
               }
             }
 
@@ -400,7 +401,11 @@
           handCards.className = 'zone-cards';
           p.hand.forEach(function (id) {
             if (!id || !byId[id]) return; // hidden card (null) – skip
-            var handOpts = {};
+            var handOpts = {
+              onLongPress: (function (cid) {
+                return function () { showCardDetail(cid); };
+              })(id)
+            };
             if (interactiveOpts) {
               var meldAction = null;
               for (var mi = 0; mi < interactiveOpts.meldActions.length; mi++) {
@@ -419,9 +424,6 @@
                     ]);
                   };
                 })(meldAction, id);
-                handOpts.onLongPress = (function (cardId) {
-                  return function () { showCardDetail(cardId); };
-                })(id);
               }
             }
             handCards.appendChild(cardChip(id, handOpts));

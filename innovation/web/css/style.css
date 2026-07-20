@@ -89,6 +89,14 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   margin-bottom: 8px;
 }
 
+#long-press-hint {
+  font-size: 0.7rem;
+  color: #5a6272;
+  text-align: center;
+  padding: 2px 0 6px;
+  letter-spacing: 0.01em;
+}
+
 .btn-back-top {
   background: #444c5c;
   color: #cdd6e0;

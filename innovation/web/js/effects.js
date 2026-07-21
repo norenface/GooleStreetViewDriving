@@ -1525,6 +1525,10 @@
       run: async function (ctx) {
         var g = ctx.game, actor = ctx.actor, target = ctx.target;
         var ids = topCardsOf(g, target).filter(function (id) { return colorOf(g, id) !== 'yellow' && hasIcon(g, id, 'clock'); });
+        if (!ids.length) {
+          engine.log(g, target.name + ' は時計アイコン付きの黄以外のトップカードがないため渡すカードがない');
+          return;
+        }
         var id = await pickOne(target, ids, actor.name + ' のボードに時計アイコン付き（黄以外）の一番上のカードを渡してください。');
         if (id) {
           var color = colorOf(g, id);

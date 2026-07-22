@@ -26,7 +26,7 @@
   var DIR_JA = { left: '左', right: '右', up: '上' };
   var KIND_JA = { ai: 'CPU', soloBot: '支配政党', human: '人間' };
 
-  function makeUI(engine, cardsDb) {
+  function makeUI(engine, cardsDb, effectDefs) {
     var byId = {};
     cardsDb.forEach(function (c) { byId[c.id] = c; });
 
@@ -335,15 +335,34 @@
                 }
               }
               if (dogmaAction) {
-                topCardOpts.onClick = (function (da, tcId) {
+                topCardOpts.onClick = (function (da, tcId, actor) {
                   return function () {
                     var cardName = (byId[tcId] || {}).name || tcId;
                     showActionPopup(cardName + ' のドグマ', [
-                      { label: '発動', primary: true, onSelect: function () { interactiveOpts.onAction(da); } },
+                      { label: '発動', primary: true, onSelect: function () {
+                        var effs = (effectDefs || {})[tcId] || [];
+                        var allDemand = effs.length > 0 && effs.every(function (e) { return e.demand; });
+                        if (allDemand) {
+                          var noEligible = effs.every(function (eff) {
+                            var actorCount = engine.iconCount(game, actor, eff.icon);
+                            return !game.players.some(function (op) {
+                              return op.id !== actor.id && engine.iconCount(game, op, eff.icon) < actorCount;
+                            });
+                          });
+                          if (noEligible) {
+                            var iconGlyph = ICON_GLYPH[effs[0].icon] || effs[0].icon;
+                            askConfirm(actor, '自身より ' + iconGlyph + ' のアイコンが少ない人がいませんがよろしいでしょうか？').then(function (yes) {
+                              if (yes) interactiveOpts.onAction(da);
+                            });
+                            return;
+                          }
+                        }
+                        interactiveOpts.onAction(da);
+                      }},
                       { label: '戻る', onSelect: function () {} }
                     ]);
                   };
-                })(dogmaAction, topCardId);
+                })(dogmaAction, topCardId, p);
               }
             }
 

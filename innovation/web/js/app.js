@@ -12,7 +12,7 @@
   var effects = window.InnovationEffects(engine);
   var flow = window.InnovationFlow(engine, effects);
   var soloplay = window.InnovationSoloPlay(engine, effects);
-  var ui = window.InnovationUI.makeUI(engine, cardsDb);
+  var ui = window.InnovationUI.makeUI(engine, cardsDb, effects);
 
   var HUMAN_SEAT = 0;
 

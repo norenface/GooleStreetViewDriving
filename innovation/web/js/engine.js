@@ -375,7 +375,7 @@
   // Thresholds per the official rulebook ("Special Achievements" page):
   //   Monument: tuck or score six cards during a single turn (transferred-in cards from
   //             other players, and hand<->score exchanges, do not count).
-  //   Empire:   three or more icons of all six icon types.
+  //   Empire:   score pile contains at least one card of each age 1–10.
   //   World:    twelve or more clock icons on your board.
   //   Wonder:   five colors on your board, each splayed either up or right.
   //   Universe: five top cards, each of value 8 or higher.
@@ -383,8 +383,12 @@
     switch (name) {
       case 'wonder':
         return COLORS.every(function (c) { return player.board[c].splay === 'up' || player.board[c].splay === 'right'; });
-      case 'empire':
-        return ICONS.every(function (i) { return iconCount(game, player, i) >= 3; });
+      case 'empire': {
+        var empireAges = {};
+        player.score.forEach(function (id) { empireAges[card(game, id).age] = true; });
+        for (var a = 1; a <= 10; a++) { if (!empireAges[a]) return false; }
+        return true;
+      }
       case 'monument':
         return (player.tuckOrScoreCountThisTurn || 0) >= 6;
       case 'world':

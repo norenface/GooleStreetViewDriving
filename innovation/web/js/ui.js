@@ -854,10 +854,15 @@
       var wrap = document.createElement('div');
       wrap.className = 'action-msg-dogma-header';
 
+      var txt = document.createElement('div');
+      txt.className = 'action-msg-header';
+      txt.textContent = logEntry;
+      wrap.appendChild(txt);
+
       if (cardObj) {
         var illust = (window.CARD_ILLUST && window.CARD_ILLUST[cardObj.id]) || '';
         var illustUsed = false;
-        function miniSlot(icon) {
+        function detailSlot(icon) {
           var s = document.createElement('span');
           if (icon) { s.className = 'icon-slot'; s.textContent = ICON_GLYPH[icon] || ''; }
           else if (illust && !illustUsed) {
@@ -865,8 +870,9 @@
           } else { s.className = 'icon-slot empty'; s.textContent = ''; }
           return s;
         }
-        var chip = document.createElement('div');
-        chip.className = 'card-chip color-' + cardObj.color + ' action-msg-chip';
+
+        var chipDiv = document.createElement('div');
+        chipDiv.className = 'card-detail-chip color-' + cardObj.color;
         var chipHdr = document.createElement('div');
         chipHdr.className = 'chip-header';
         var nm = document.createElement('span');
@@ -875,41 +881,33 @@
         var ab = document.createElement('span');
         ab.className = 'age-badge';
         ab.textContent = cardObj.age;
-        chipHdr.appendChild(miniSlot(cardObj.icons[3]));
+        chipHdr.appendChild(detailSlot(cardObj.icons[3]));
         chipHdr.appendChild(nm);
         chipHdr.appendChild(ab);
-        chip.appendChild(chipHdr);
+        chipDiv.appendChild(chipHdr);
         var iconRow = document.createElement('div');
         iconRow.className = 'icon-row';
-        iconRow.appendChild(miniSlot(cardObj.icons[0]));
-        iconRow.appendChild(miniSlot(cardObj.icons[1]));
-        iconRow.appendChild(miniSlot(cardObj.icons[2]));
-        chip.appendChild(iconRow);
-        wrap.appendChild(chip);
-      }
+        iconRow.appendChild(detailSlot(cardObj.icons[0]));
+        iconRow.appendChild(detailSlot(cardObj.icons[1]));
+        iconRow.appendChild(detailSlot(cardObj.icons[2]));
+        chipDiv.appendChild(iconRow);
+        wrap.appendChild(chipDiv);
 
-      var txt = document.createElement('div');
-      txt.className = 'action-msg-header';
-      txt.textContent = logEntry;
-      wrap.appendChild(txt);
-
-      if (cardObj && cardObj.dogma && cardObj.dogma.length) {
-        var effWrap = document.createElement('div');
-        effWrap.className = 'action-msg-effects';
-        cardObj.dogma.forEach(function (d) {
-          var row = document.createElement('div');
-          row.className = 'action-msg-effect-row';
-          var label = document.createElement('span');
-          label.className = 'action-msg-effect-label';
-          label.textContent = (ICON_GLYPH[d.icon] || '') + (d.demand ? '【強制】' : '');
-          var body = document.createElement('span');
-          body.className = 'action-msg-effect-body';
-          body.textContent = d.textJa || d.text || '';
-          row.appendChild(label);
-          row.appendChild(body);
-          effWrap.appendChild(row);
-        });
-        wrap.appendChild(effWrap);
+        if (cardObj.dogma && cardObj.dogma.length) {
+          cardObj.dogma.forEach(function (d) {
+            var block = document.createElement('div');
+            block.className = 'card-detail-dogma';
+            var label = document.createElement('div');
+            label.className = 'card-detail-dogma-label';
+            label.textContent = (ICON_GLYPH[d.icon] || '') + ' ' + (d.demand ? '【強制】ドグマ' : 'ドグマ');
+            block.appendChild(label);
+            var body = document.createElement('div');
+            body.className = 'card-detail-dogma-text';
+            body.textContent = d.textJa || d.text || '';
+            block.appendChild(body);
+            wrap.appendChild(block);
+          });
+        }
       }
 
       return wrap;

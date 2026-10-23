@@ -621,11 +621,6 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   align-items: center;
   gap: 8px;
 }
-.action-msg-chip {
-  width: 120px;
-  font-size: 0.78rem;
-  pointer-events: none;
-}
 .action-msg-sep {
   border: none;
   border-top: 1px solid rgba(100,150,220,0.35);
@@ -642,35 +637,21 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   content: '▸ ';
   color: #6aacff;
 }
+/* card-detail-chip / card-detail-dogma inside slow mode overlay */
+#action-message-overlay .card-detail-chip {
+  width: min(72vw, 280px);
+  pointer-events: none;
+}
+#action-message-overlay .card-detail-dogma {
+  width: min(72vw, 280px);
+  text-align: left;
+}
 #action-message-overlay::after {
   content: 'タップして次へ';
   display: block;
   font-size: 0.75rem;
   color: #5a7ea0;
   margin-top: 10px;
-}
-.action-msg-effects {
-  margin-top: 8px;
-  text-align: left;
-  border-top: 1px solid rgba(100,150,220,0.25);
-  padding-top: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.action-msg-effect-row {
-  font-size: 0.82rem;
-  color: #a8c8e8;
-  line-height: 1.45;
-}
-.action-msg-effect-label {
-  font-weight: bold;
-  margin-right: 4px;
-  color: #c8e0ff;
-  white-space: nowrap;
-}
-.action-msg-effect-body {
-  color: #9abcd4;
 }
 #slow-mode-btn.slow-mode-on {
   background: #2a6040;

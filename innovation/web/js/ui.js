@@ -800,17 +800,101 @@
       });
     }
 
-    function showActionMessage(text) {
+    function cardByName(name) {
+      var ids = Object.keys(byId);
+      for (var i = 0; i < ids.length; i++) {
+        if (byId[ids[i]].name === name) return byId[ids[i]];
+      }
+      return null;
+    }
+
+    // Show one overlay. header = plain text or DOM node, details = string[].
+    // Returns a Promise that resolves after 2.5 s or on click.
+    function showActionOverlay(header, details) {
       return new Promise(function (resolve) {
         var existing = document.getElementById('action-message-overlay');
         if (existing) existing.remove();
         var overlay = document.createElement('div');
         overlay.id = 'action-message-overlay';
-        overlay.textContent = text;
+
+        if (typeof header === 'string') {
+          var hdr = document.createElement('div');
+          hdr.className = 'action-msg-header';
+          hdr.textContent = header;
+          overlay.appendChild(hdr);
+        } else {
+          overlay.appendChild(header);
+        }
+
+        if (details && details.length) {
+          var sep = document.createElement('hr');
+          sep.className = 'action-msg-sep';
+          overlay.appendChild(sep);
+          details.forEach(function (d) {
+            var row = document.createElement('div');
+            row.className = 'action-msg-detail';
+            row.textContent = d;
+            overlay.appendChild(row);
+          });
+        }
+
         document.body.appendChild(overlay);
-        var timer = setTimeout(function () { overlay.remove(); resolve(); }, 2000);
+        var ms = 2000 + details.length * 600;
+        var timer = setTimeout(function () { overlay.remove(); resolve(); }, ms);
         overlay.addEventListener('click', function () { clearTimeout(timer); overlay.remove(); resolve(); });
       });
+    }
+
+    // Build a rich header DOM node for a dogma-trigger log entry.
+    // Log format: "{name} は {cardName} のドグマを発動した"
+    function dogmaHeader(logEntry) {
+      var m = logEntry.match(/は (.+) のドグマを発動した/);
+      if (!m) return logEntry;
+      var cardName = m[1];
+      var cardObj = cardByName(cardName);
+
+      var wrap = document.createElement('div');
+      wrap.className = 'action-msg-dogma-header';
+
+      if (cardObj) {
+        var illust = (window.CARD_ILLUST && window.CARD_ILLUST[cardObj.id]) || '';
+        var illustUsed = false;
+        function miniSlot(icon) {
+          var s = document.createElement('span');
+          if (icon) { s.className = 'icon-slot'; s.textContent = ICON_GLYPH[icon] || ''; }
+          else if (illust && !illustUsed) {
+            illustUsed = true; s.className = 'icon-slot illust'; s.textContent = illust;
+          } else { s.className = 'icon-slot empty'; s.textContent = ''; }
+          return s;
+        }
+        var chip = document.createElement('div');
+        chip.className = 'card-chip color-' + cardObj.color + ' action-msg-chip';
+        var chipHdr = document.createElement('div');
+        chipHdr.className = 'chip-header';
+        var nm = document.createElement('span');
+        nm.className = 'card-name';
+        nm.textContent = cardObj.name;
+        var ab = document.createElement('span');
+        ab.className = 'age-badge';
+        ab.textContent = cardObj.age;
+        chipHdr.appendChild(miniSlot(cardObj.icons[3]));
+        chipHdr.appendChild(nm);
+        chipHdr.appendChild(ab);
+        chip.appendChild(chipHdr);
+        var iconRow = document.createElement('div');
+        iconRow.className = 'icon-row';
+        iconRow.appendChild(miniSlot(cardObj.icons[0]));
+        iconRow.appendChild(miniSlot(cardObj.icons[1]));
+        iconRow.appendChild(miniSlot(cardObj.icons[2]));
+        chip.appendChild(iconRow);
+        wrap.appendChild(chip);
+      }
+
+      var txt = document.createElement('div');
+      txt.className = 'action-msg-header';
+      txt.textContent = logEntry;
+      wrap.appendChild(txt);
+      return wrap;
     }
 
     // Show any log entries not yet displayed via slow mode, then advance the
@@ -821,8 +905,31 @@
       var entries = (slowMode && game.currentPlayer !== humanPlayerId)
         ? game.log.slice(slowShownLen) : [];
       slowShownLen = game.log.length;
-      for (var i = 0; i < entries.length; i++) {
-        await showActionMessage(entries[i]);
+      if (!entries.length) return;
+
+      // Group: find each "発動した" entry and collect its effect entries.
+      var groups = [];
+      var i = 0;
+      while (i < entries.length) {
+        if (/のドグマを発動した/.test(entries[i])) {
+          var details = [];
+          var j = i + 1;
+          while (j < entries.length && !/のドグマを発動した/.test(entries[j])) {
+            details.push(entries[j]);
+            j++;
+          }
+          groups.push({ isDogma: true, trigger: entries[i], details: details });
+          i = j;
+        } else {
+          groups.push({ isDogma: false, trigger: entries[i], details: [] });
+          i++;
+        }
+      }
+
+      for (var g = 0; g < groups.length; g++) {
+        var grp = groups[g];
+        var header = grp.isDogma ? dogmaHeader(grp.trigger) : grp.trigger;
+        await showActionOverlay(header, grp.details);
       }
     }
 

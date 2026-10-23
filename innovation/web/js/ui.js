@@ -34,6 +34,7 @@
     var humanPlayerId = 0;
     var slowMode = false;
     var lastLogLen = 0;
+    var slowShownLen = 0;
 
     var el = {
       log: document.getElementById('log-panel'),
@@ -688,11 +689,12 @@
       });
     }
 
-    function askCard(player, opts) {
+    async function askCard(player, opts) {
       var ids = opts.ids || [];
       var min = opts.min || 0;
       var max = opts.max == null ? ids.length : opts.max;
-      if (!ids.length) return Promise.resolve([]);
+      if (!ids.length) return [];
+      await flushSlowMode();
       return new Promise(function (resolve) {
         openModal(opts.prompt || 'カードを選択');
         var selected = [];
@@ -735,9 +737,10 @@
       });
     }
 
-    function askColor(player, opts) {
+    async function askColor(player, opts) {
       var colors = opts.colors || [];
-      if (!colors.length) return Promise.resolve(null);
+      if (!colors.length) return null;
+      await flushSlowMode();
       return new Promise(function (resolve) {
         openModal(opts.prompt || '色を選択');
         colors.forEach(function (c) {
@@ -753,9 +756,10 @@
       });
     }
 
-    function askSplay(player, opts) {
+    async function askSplay(player, opts) {
       var options = opts.options || [];
-      if (!options.length) return Promise.resolve(null);
+      if (!options.length) return null;
+      await flushSlowMode();
       return new Promise(function (resolve) {
         openModal(opts.prompt || 'スプレイを選択');
         options.forEach(function (o) {
@@ -771,9 +775,10 @@
       });
     }
 
-    function askPlayer(player, opts) {
+    async function askPlayer(player, opts) {
       var ids = opts.ids || [];
-      if (!ids.length) return Promise.resolve(null);
+      if (!ids.length) return null;
+      await flushSlowMode();
       return new Promise(function (resolve) {
         openModal(opts.prompt || 'プレイヤーを選択');
         ids.forEach(function (id) {
@@ -786,7 +791,8 @@
       });
     }
 
-    function askConfirm(player, prompt) {
+    async function askConfirm(player, prompt) {
+      await flushSlowMode();
       return new Promise(function (resolve) {
         openModal(prompt || '確認しますか？');
         footerButton('はい', function () { closeModal(); resolve(true); }, { primary: true });
@@ -807,16 +813,24 @@
       });
     }
 
+    // Show any log entries not yet displayed via slow mode, then advance the
+    // pointer regardless so human-turn entries are silently skipped.
+    async function flushSlowMode() {
+      if (!game) return;
+      if (game.log.length < slowShownLen) slowShownLen = 0;
+      var entries = (slowMode && game.currentPlayer !== humanPlayerId)
+        ? game.log.slice(slowShownLen) : [];
+      slowShownLen = game.log.length;
+      for (var i = 0; i < entries.length; i++) {
+        await showActionMessage(entries[i]);
+      }
+    }
+
     async function onAction(g) {
       if (g.log.length < lastLogLen) lastLogLen = 0;
-      var newEntries = g.log.slice(lastLogLen);
       lastLogLen = g.log.length;
       render(g);
-      if (slowMode && g.currentPlayer !== humanPlayerId && newEntries.length) {
-        for (var i = 0; i < newEntries.length; i++) {
-          await showActionMessage(newEntries[i]);
-        }
-      }
+      await flushSlowMode();
     }
 
     var slowModeBtn = document.getElementById('slow-mode-btn');

@@ -32,6 +32,8 @@
 
     var game = null;
     var humanPlayerId = 0;
+    var slowMode = false;
+    var lastLogLen = 0;
 
     var el = {
       log: document.getElementById('log-panel'),
@@ -792,6 +794,40 @@
       });
     }
 
+    function showActionMessage(text) {
+      return new Promise(function (resolve) {
+        var existing = document.getElementById('action-message-overlay');
+        if (existing) existing.remove();
+        var overlay = document.createElement('div');
+        overlay.id = 'action-message-overlay';
+        overlay.textContent = text;
+        document.body.appendChild(overlay);
+        var timer = setTimeout(function () { overlay.remove(); resolve(); }, 2000);
+        overlay.addEventListener('click', function () { clearTimeout(timer); overlay.remove(); resolve(); });
+      });
+    }
+
+    async function onAction(g) {
+      if (g.log.length < lastLogLen) lastLogLen = 0;
+      var newEntries = g.log.slice(lastLogLen);
+      lastLogLen = g.log.length;
+      render(g);
+      if (slowMode && g.currentPlayer !== humanPlayerId && newEntries.length) {
+        for (var i = 0; i < newEntries.length; i++) {
+          await showActionMessage(newEntries[i]);
+        }
+      }
+    }
+
+    var slowModeBtn = document.getElementById('slow-mode-btn');
+    if (slowModeBtn) {
+      slowModeBtn.addEventListener('click', function () {
+        slowMode = !slowMode;
+        slowModeBtn.classList.toggle('slow-mode-on', slowMode);
+        slowModeBtn.textContent = slowMode ? '🐢 スロー ON' : '🐢 スロー';
+      });
+    }
+
     return {
       setHumanPlayer: setHumanPlayer,
       render: render,
@@ -802,7 +838,8 @@
       askColor: askColor,
       askSplay: askSplay,
       askPlayer: askPlayer,
-      askConfirm: askConfirm
+      askConfirm: askConfirm,
+      onAction: onAction
     };
   }
 

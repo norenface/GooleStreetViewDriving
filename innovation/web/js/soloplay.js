@@ -238,7 +238,7 @@
         var ctx = { game: game, player: human, legal: soloLegalActions(game, human) };
         var action = await human.controller.chooseAction(human, ctx);
         await performHumanAction(game, human, action);
-        if (opts && opts.onAction) opts.onAction(game);
+        if (opts && opts.onAction) await opts.onAction(game);
         if (game.winner != null) return;
       }
       engine.nextPlayer(game);
@@ -291,7 +291,7 @@
       var single = !!(game.firstTurnSingleActionFor && game.firstTurnSingleActionFor[rp.id]);
       if (game.firstTurnSingleActionFor) delete game.firstTurnSingleActionFor[rp.id];
       var firstCard = await meldOneRPCard(game, rp);
-      if (opts && opts.onAction) opts.onAction(game);
+      if (opts && opts.onAction) await opts.onAction(game);
       if (game.winner == null && !single && firstCard) {
         var otherIcons = firstCard.icons.filter(Boolean).filter(function (i) { return i !== primaryIcon(game, firstCard.id); });
         if (otherIcons.length) {
@@ -301,7 +301,7 @@
         } else {
           await meldOneRPCard(game, rp);
         }
-        if (opts && opts.onAction) opts.onAction(game);
+        if (opts && opts.onAction) await opts.onAction(game);
       }
       if (game.winner != null) return;
       engine.nextPlayer(game);
@@ -385,7 +385,7 @@
       var maxTurns = opts.maxTurns || 2000;
       var human = game.players[0], rp = game.players[1];
       await setupSoloGame(game);
-      if (opts.onAction) opts.onAction(game);
+      if (opts.onAction) await opts.onAction(game);
       var turns = 0;
       while (game.winner == null && turns < maxTurns) {
         if (game.currentPlayer === human.id) await runHumanTurn(game, human, opts);

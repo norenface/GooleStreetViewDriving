@@ -93,7 +93,7 @@
         var ctx = { game: game, player: player, legal: legalActions(game, player) };
         var action = await player.controller.chooseAction(player, ctx);
         await performAction(game, player, action);
-        if (opts && opts.onAction) opts.onAction(game);
+        if (opts && opts.onAction) await opts.onAction(game);
         if (game.winner != null) return;
       }
       engine.nextPlayer(game);
@@ -106,7 +106,7 @@
       opts = opts || {};
       var maxTurns = opts.maxTurns || 10000;
       await setupGame(game);
-      if (opts.onAction) opts.onAction(game);
+      if (opts.onAction) await opts.onAction(game);
       var turns = 0;
       while (game.winner == null && turns < maxTurns) {
         await runTurn(game, opts);

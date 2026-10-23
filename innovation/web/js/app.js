@@ -87,7 +87,7 @@
 
     flow.playFullGame(game, {
       maxTurns: 1500,
-      onAction: function (g) { ui.render(g); }
+      onAction: function (g) { return ui.onAction(g); }
     }).then(function (finishedGame) {
       ui.render(finishedGame);
       ui.showGameOver(finishedGame);
@@ -461,8 +461,8 @@
     flow.playFullGame(game, {
       maxTurns: 2000,
       onAction: function (g) {
-        ui.render(g);
         sendFn({ type: 'state', game: serializeGameForGuest(g, 1) });
+        return ui.onAction(g);
       }
     }).then(function (finishedGame) {
       ui.render(finishedGame);
@@ -575,7 +575,7 @@
 
     soloplay.playSoloGame(game, {
       maxTurns: 1500,
-      onAction: function (g) { ui.render(g); }
+      onAction: function (g) { return ui.onAction(g); }
     }).then(function (finishedGame) {
       ui.render(finishedGame);
       ui.showSoloGameOver(finishedGame);

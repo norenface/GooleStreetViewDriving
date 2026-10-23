@@ -649,6 +649,29 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   color: #5a7ea0;
   margin-top: 10px;
 }
+.action-msg-effects {
+  margin-top: 8px;
+  text-align: left;
+  border-top: 1px solid rgba(100,150,220,0.25);
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.action-msg-effect-row {
+  font-size: 0.82rem;
+  color: #a8c8e8;
+  line-height: 1.45;
+}
+.action-msg-effect-label {
+  font-weight: bold;
+  margin-right: 4px;
+  color: #c8e0ff;
+  white-space: nowrap;
+}
+.action-msg-effect-body {
+  color: #9abcd4;
+}
 #slow-mode-btn.slow-mode-on {
   background: #2a6040;
   color: #7fffb0;

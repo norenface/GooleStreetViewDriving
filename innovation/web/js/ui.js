@@ -892,6 +892,26 @@
       txt.className = 'action-msg-header';
       txt.textContent = logEntry;
       wrap.appendChild(txt);
+
+      if (cardObj && cardObj.dogma && cardObj.dogma.length) {
+        var effWrap = document.createElement('div');
+        effWrap.className = 'action-msg-effects';
+        cardObj.dogma.forEach(function (d) {
+          var row = document.createElement('div');
+          row.className = 'action-msg-effect-row';
+          var label = document.createElement('span');
+          label.className = 'action-msg-effect-label';
+          label.textContent = (ICON_GLYPH[d.icon] || '') + (d.demand ? '【強制】' : '');
+          var body = document.createElement('span');
+          body.className = 'action-msg-effect-body';
+          body.textContent = d.textJa || d.text || '';
+          row.appendChild(label);
+          row.appendChild(body);
+          effWrap.appendChild(row);
+        });
+        wrap.appendChild(effWrap);
+      }
+
       return wrap;
     }
 

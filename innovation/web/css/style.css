@@ -642,6 +642,13 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
   content: '▸ ';
   color: #6aacff;
 }
+#action-message-overlay::after {
+  content: 'タップして次へ';
+  display: block;
+  font-size: 0.75rem;
+  color: #5a7ea0;
+  margin-top: 10px;
+}
 #slow-mode-btn.slow-mode-on {
   background: #2a6040;
   color: #7fffb0;

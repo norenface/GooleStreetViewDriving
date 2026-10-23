@@ -839,9 +839,7 @@
         }
 
         document.body.appendChild(overlay);
-        var ms = 2000 + details.length * 600;
-        var timer = setTimeout(function () { overlay.remove(); resolve(); }, ms);
-        overlay.addEventListener('click', function () { clearTimeout(timer); overlay.remove(); resolve(); });
+        overlay.addEventListener('click', function () { overlay.remove(); resolve(); }, { once: true });
       });
     }
 
